@@ -12,7 +12,7 @@
 
 **Casa operacional:** SonoraMente
 
-**Estado:** CP0, CP1/SOUL e CP2/USER concluídos em 2026-09-24; CP3/AGENTS liberado para entrevista
+**Estado:** CP0, CP1/SOUL, CP2/USER e CP3/AGENTS concluídos em 2026-09-24; CP3.5 (instalação do Hermes sem canal) liberado
 
 **Fluxo de publicação (decisão do Alf, 2026-09-24):** enquanto só o Alf e o Alfredo mexem neste repo, commit e push vão direto na `main`, sem PR. Continuam obrigatórios: a aprovação do texto inteiro, a varredura de segredos e o readback do hash no remoto. Cada arquivo aprovado também é copiado para o caminho vivo na VPS (`/home/aurora/.hermes/SOUL.md`, `/home/aurora/.hermes/memories/USER.md` e `/home/aurora/AGENTS.md`), e o hash é conferido no repo, no GitHub e na VPS. A comprovação de que o arquivo foi "carregado no prompt" só passa a valer depois da instalação do Hermes.
 
