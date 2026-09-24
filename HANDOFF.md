@@ -8,6 +8,8 @@
 
 Não tem senha, token, service role nem instance token. Pedir credenciais ao Luciano.
 
+Mapa dos quartos e dos utensílios para as tools MCP: [MAPA-QUARTOS.md](MAPA-QUARTOS.md).
+
 ---
 
 ## 1. Como as casas se dividem
