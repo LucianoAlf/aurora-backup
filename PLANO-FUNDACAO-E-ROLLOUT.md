@@ -12,7 +12,7 @@
 
 **Casa operacional:** SonoraMente
 
-**Estado:** CP0 e CP1/SOUL concluídos em 2026-09-24; CP2/USER liberado para entrevista
+**Estado:** CP0, CP1/SOUL e CP2/USER concluídos em 2026-09-24; CP3/AGENTS liberado para entrevista
 
 **Fluxo de publicação (decisão do Alf, 2026-09-24):** enquanto só o Alf e o Alfredo mexem neste repo, commit e push vão direto na `main`, sem PR. Continuam obrigatórios: a aprovação do texto inteiro, a varredura de segredos e o readback do hash no remoto. O rollout só acontece quando houver runtime instalado.
 
