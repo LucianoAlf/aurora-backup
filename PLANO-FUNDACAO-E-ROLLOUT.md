@@ -189,6 +189,17 @@ continuam em gates posteriores e exigem a autorização correspondente.
 
 **Saída:** mapa de decisão operacional sem duplicar permissões.
 
+### CP3.5 — Instalação do Hermes sem canal
+
+Aprovado pelo Alf em 2026-09-24, depois do CP3.
+
+- Instalar o Hermes e o serviço próprio da Aurora seguindo a skill `criar-agente-hermes`.
+- **Sem WhatsApp, Instagram, webhook, banco ou ferramentas.** A Aurora não fala com ninguém de fora.
+- Validar com `prompt-size` que SOUL, USER e AGENTS estão carregados. Daí em diante, todo checkpoint tem readback no prompt real.
+- Backup e rollback prontos antes; nenhum outro agente da VPS é tocado.
+
+**Saída:** runtime da Aurora vivo, isolado e provando o contexto carregado.
+
 ### CP4 — `PERMISSOES.md`
 
 - Separar consultar, preparar, propor, aprovar e executar.
