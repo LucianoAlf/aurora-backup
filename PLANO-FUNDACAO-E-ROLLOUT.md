@@ -12,7 +12,7 @@
 
 **Casa operacional:** SonoraMente
 
-**Estado:** plano aprovado para versionamento; fundação humana em abertura
+**Estado:** CP0 em andamento; CP1/SOUL ainda não aberto
 
 Este documento define como a Aurora será construída. Ele deve ser lido junto com
 [`HANDOFF.md`](HANDOFF.md) e [`MAPA-QUARTOS.md`](MAPA-QUARTOS.md).
@@ -135,6 +135,18 @@ São 17 checkpoints, numerados de CP0 a CP16.
 - Não alterar banco, runtime, webhook, UAZAPI ou produção nesta fase.
 
 **Saída:** baseline reproduzível, drifts declarados e matriz de acessos.
+
+O CP0 só fecha quando, sem alterar produção:
+
+- repos e SHAs canônicos estiverem fixados;
+- escrita no `aurora-backup` estiver comprovada;
+- acesso de escrita ao projeto Supabase correto estiver provisionado e comprovado;
+- SSH no usuário Linux `aurora` estiver provisionado e comprovado por leitura;
+- caminhos de segredo e de deploy estiverem definidos sem expor credenciais;
+- lacunas, drifts e limites de cada acesso estiverem registrados.
+
+Provisionar e provar acesso não autoriza DDL/DML, deploy, troca de webhook,
+configuração de UAZAPI, instalação do Hermes ou qualquer mutação de produção.
 
 ### CP1 — `SOUL.md`
 
@@ -288,14 +300,19 @@ Um corte só fecha com:
 
 - `HANDOFF.md` e `MAPA-QUARTOS.md` são as fontes de entrada já versionadas.
 - O benchmark da Júlia foi validado read-only.
-- A fundação humana precede a entrega de credenciais técnicas.
-- O primeiro arquivo a abrir é `SOUL.md`.
+- O checkpoint atual é CP0 — baseline, fontes e acessos.
+- Baseline read-only e escrita no `aurora-backup` estão comprovados.
+- Escrita no Supabase e SSH no usuário `aurora` ainda precisam ser provisionados e
+  comprovados pelo OpenClaw Desktop/cofre mascarado.
+- `SOUL.md` é o primeiro arquivo da fundação, mas só abre depois do fechamento do
+  CP0.
 - `USER/pessoas` permanece fechado até o `SOUL.md` concluir seu próprio gate.
 - Nenhuma soul, permissão, tool ou capacidade descrita aqui está automaticamente
   aprovada por constar no plano.
 
 ## 9. Próxima decisão
 
-Abrir a entrevista do `SOUL.md` com uma pergunta por rodada. Alfredo deve trazer sua
-prévia concreta em cada pergunta; Alf deve aprovar, refutar ou aprofundar antes da
-síntese canônica.
+Fechar o CP0: provisionar e provar escrita no Supabase correto e SSH no usuário
+`aurora`, sem mutação de produção. Depois, abrir a entrevista do `SOUL.md` com uma
+pergunta por rodada. Alfredo deve trazer sua prévia concreta em cada pergunta; Alf
+deve aprovar, refutar ou aprofundar antes da síntese canônica.
