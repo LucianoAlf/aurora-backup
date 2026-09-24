@@ -10,6 +10,9 @@ Não tem senha, token, service role nem instance token. Pedir credenciais ao Luc
 
 Mapa dos quartos e dos utensílios para as tools MCP: [MAPA-QUARTOS.md](MAPA-QUARTOS.md).
 
+Ordem de construção da fundação, das capacidades e do rollout:
+[PLANO-FUNDACAO-E-ROLLOUT.md](PLANO-FUNDACAO-E-ROLLOUT.md).
+
 ---
 
 ## 1. Como as casas se dividem
