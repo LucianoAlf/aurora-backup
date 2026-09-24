@@ -12,7 +12,9 @@
 
 **Casa operacional:** SonoraMente
 
-**Estado:** CP0 concluído em 2026-09-24; CP1/SOUL liberado para entrevista
+**Estado:** CP0 e CP1/SOUL concluídos em 2026-09-24; CP2/USER liberado para entrevista
+
+**Fluxo de publicação (decisão do Alf, 2026-09-24):** enquanto só o Alf e o Alfredo mexem neste repo, commit e push vão direto na `main`, sem PR. Continuam obrigatórios: a aprovação do texto inteiro, a varredura de segredos e o readback do hash no remoto. O rollout só acontece quando houver runtime instalado.
 
 Este documento define como a Aurora será construída. Ele deve ser lido junto com
 [`HANDOFF.md`](HANDOFF.md) e [`MAPA-QUARTOS.md`](MAPA-QUARTOS.md).
