@@ -1,6 +1,6 @@
 # Plano de fundação e rollout da Aurora
 
-**Versão:** 1.0
+**Versão:** 1.1
 
 **Data:** 2026-09-24
 
@@ -12,7 +12,7 @@
 
 **Casa operacional:** SonoraMente
 
-**Estado:** CP0 em andamento; CP1/SOUL ainda não aberto
+**Estado:** CP0 concluído em 2026-09-24; CP1/SOUL liberado para entrevista
 
 Este documento define como a Aurora será construída. Ele deve ser lido junto com
 [`HANDOFF.md`](HANDOFF.md) e [`MAPA-QUARTOS.md`](MAPA-QUARTOS.md).
@@ -147,6 +147,21 @@ O CP0 só fecha quando, sem alterar produção:
 
 Provisionar e provar acesso não autoriza DDL/DML, deploy, troca de webhook,
 configuração de UAZAPI, instalação do Hermes ou qualquer mutação de produção.
+
+#### Fechamento do CP0 — 2026-09-24
+
+| Recurso | Evidência sanitizada | Estado |
+| --- | --- | --- |
+| Repo da Aurora | `LucianoAlf/aurora-backup`, `main@4bd7850` antes deste fechamento; permissão `admin/push` comprovada | verde |
+| Repo do sistema | `LucianoAlf/Sonoramente`, `main@5caa696`; permissão `admin/push` comprovada | verde |
+| Supabase | projeto `krcuhpwvwilojcpofemw`, nome `Sonoramente ERP`, região `sa-east-1`, status `ACTIVE_HEALTHY`; consulta SQL `SELECT` respondeu pela Management API | verde |
+| SSH | login por chave como `aurora` no host `la-hq`, UID 1009, home gravável | verde |
+| Segredos | token Supabase sob cofre protegido com egress restrito a `api.supabase.com`; nenhuma credencial em chat, Git ou memória | verde |
+| Limites | portas e usuários dos demais agentes, banco, runtime, serviços, webhook e UAZAPI permaneceram intocados | verde |
+
+O `SELECT` confirmou capacidade de gestão sem conceder autorização para mutação.
+DDL/DML, deploy, instalação do runtime, troca de webhook e configuração de produção
+continuam em gates posteriores e exigem a autorização correspondente.
 
 ### CP1 — `SOUL.md`
 
