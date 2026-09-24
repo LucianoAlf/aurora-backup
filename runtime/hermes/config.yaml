@@ -1,0 +1,44 @@
+# Aurora / SonoraMente — CP3.5 (Hermes sem canal). Gerado pelo Alfredo em 2026-09-24.
+model:
+  provider: opencode-go
+  default: deepseek-v4.1-flash
+fallback_providers: []
+platform_toolsets:
+  cli: [skills, todo]
+  telegram: [skills, todo]
+  whatsapp: [skills, todo]
+agent:
+  max_turns: 60
+  gateway_timeout: 1800
+  restart_drain_timeout: 60
+  api_max_retries: 3
+  tool_use_enforcement: auto
+  task_completion_guidance: true
+  parallel_tool_call_guidance: true
+  environment_probe: false
+  coding_context: "off"
+  reasoning_effort: medium
+terminal:
+  backend: local
+  cwd: /home/aurora
+  timeout: 180
+  home_mode: auto
+display:
+  streaming: true
+  final_response_markdown: strip
+  language: pt
+  interim_assistant_messages: false
+  tool_progress_command: false
+  runtime_footer:
+    enabled: false
+skills:
+  external_dirs: []
+  inline_shell: false
+  guard_agent_created: true
+  write_approval: true
+curator:
+  enabled: false
+hooks_auto_accept: false
+sessions:
+  auto_prune: false
+  retention_days: 90
