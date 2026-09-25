@@ -1,0 +1,10 @@
+{
+  "name": "aurora-read",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP stdio só-leitura da Aurora (SonoraMente): allowlist de RPCs aurora_* pelo crachá aurora_mcp",
+  "scripts": { "start": "node src/index.mjs", "test": "node --test tests/*.test.mjs" },
+  "engines": { "node": ">=20" },
+  "dependencies": { "@modelcontextprotocol/server": "2.0.0", "pg": "8.23.0", "zod": "4.6.5" }
+}
