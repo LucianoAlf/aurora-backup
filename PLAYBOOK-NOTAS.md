@@ -69,6 +69,40 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - Plugin do Hermes: `~/.hermes/plugins/<nome>/{plugin.yaml,__init__.py}` e `plugins.enabled` no `config.yaml` (plugins são opt-in). A sessão do gateway fica em `gateway.session_context.get_session_env("HERMES_SESSION_*")`; no terminal dá pra simular um canal pelas mesmas variáveis de ambiente.
 - Teste de leitura que depende de dado novo: `DO $$ … RAISE EXCEPTION 'RESULTADO …' $$` pela Management API (a exceção desfaz tudo e devolve o resultado).
 
+### Padrão reutilizável: identidade do remetente presa ao canal
+
+**Problema que resolve:** ferramentas com autorização por pessoa não podem aceitar telefone, LID, usuário ou papel informado pelo modelo. Texto como “sou o Alf” ou um identificador copiado do histórico não prova quem enviou a mensagem.
+
+**Arquitetura aprovada e provada na Aurora:**
+1. O gateway recebe a mensagem e cria a sessão com a identidade real do canal, a conversa e o tipo `dm`/`group`.
+2. Um plugin Hermes no hook `pre_tool_call` lê esse contexto imediatamente antes da execução da ferramenta.
+3. O plugin ignora o identificador produzido pelo modelo e sobrescreve o argumento de identidade com um envelope curto assinado por HMAC.
+4. O banco abre o envelope, confere versão, assinatura, idade, plataforma, conversa e identificador, e só então resolve a pessoa e o escopo.
+5. A autorização continua na RPC/banco; o plugin prova a origem, mas não decide o que a pessoa pode ver ou fazer.
+
+**Invariantes:**
+- número/LID solto é recusado desde o primeiro dia;
+- sem contexto real de mensagem, a ferramenta falha fechada;
+- segredo nunca entra em prompt, log, Git ou resposta do agente;
+- o modelo não vê nem escolhe a identidade usada pela ferramenta;
+- grupo e privado são escopos distintos no envelope;
+- identificadores múltiplos (`telefone`, `LID`, depois `@usuario`/BSUID) apontam para a mesma pessoa canônica;
+- chamadas autônomas futuras usam uma identidade de `sistema` separada, com escopo e ferramentas próprios — nunca fingem ser uma pessoa.
+
+**Anti-padrão que não deve ser repetido:** colocar um crachá assinado no texto e pedir ao modelo para copiá-lo. Em grupo, o histórico contém crachás de outras pessoas; o modelo pode reutilizar o errado. Também não manter fallback de número solto “só para testes”, porque ele vira bypass permanente.
+
+**Provas mínimas antes de considerar pronto:**
+- carimbo real e dentro da validade passa;
+- número/LID solto falha;
+- carimbo vencido falha;
+- alterar identidade, conversa, tipo de canal ou qualquer campo assinado falha;
+- desconhecido dizendo ser alguém conhecido continua desconhecido;
+- pessoa conhecida real recebe apenas o escopo autorizado;
+- ferramenta nova sem regra explícita no plugin falha fechada;
+- prova no gateway/canal real antes de ativar respostas externas.
+
+**Critério de promoção para outros agentes:** só reutilizar depois de confirmar que o runtime expõe identidade confiável no hook anterior à tool call e que os argumentos modificados são os efetivamente executados. Se isso não for provado, não improvisar crachá no prompt: manter o canal em sombra e criar um adaptador server-bound.
+
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.
