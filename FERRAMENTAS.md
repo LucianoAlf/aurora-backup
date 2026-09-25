@@ -11,9 +11,9 @@
 | Peça | O que é | Onde |
 |---|---|---|
 | Crachá de leitura `aurora_mcp` | Login do Postgres. Transação só-leitura, timeout de 5 s, até 5 conexões. Sem acesso a tabela nenhuma: só executa as RPCs `aurora_*` concedidas. | Migration `20260925120000` |
-| Crachá de escrita `aurora_aviso` | Login separado que só executa `aurora_registrar_aviso_v2`. Não lê nada. | Migrations `20260925220000` e `20260925223000` |
+| Crachá de escrita `aurora_escrita` | Login separado (ex-`aurora_aviso`, renomeado na escrita 2). Um crachá só, com permissão função por função: `aurora_registrar_aviso_v2`, `aurora_lead_registrar`, `aurora_lead_mover_etapa`, `aurora_lead_followup_registrar`. Não lê tabela nenhuma. | Migrations `20260925220000`, `20260925223000` e `20260925230000` |
 | MCP `aurora-read` | Servidor stdio no padrão da Julia. Allowlist fechada, conferência do crachá antes de cada chamada e log sem dado pessoal. | `runtime/mcp/aurora-read` |
-| MCP `aurora-write` | Mesmo padrão, com uma ferramenta só. | `runtime/mcp/aurora-write` |
+| MCP `aurora-write` | Mesmo padrão, 4 ferramentas. Env `AURORA_DB_ESCRITA_URL`. | `runtime/mcp/aurora-write` |
 | TLS | `sslmode=verify-full` com a raiz Supabase fixada em `/home/aurora/.hermes/supabase-root-2021.crt`. | `.env` da Aurora (URLs entre aspas) |
 | Release | Cada versão vai para `/home/aurora/releases/<sha>/runtime/mcp/…`, com `npm ci` e testes na VPS. O Hermes aponta para o sha. | `runtime/RUNTIME.md` |
 
@@ -101,7 +101,7 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 
 ---
 
-## Escrita (MCP `aurora-write` 0.1.0, 1 ferramenta)
+## Escrita (MCP `aurora-write` 0.2.0, 4 ferramentas)
 
 ### E1. `aurora_avisar_atendimento`: avisar falta ou pedido de remarcação
 - **O que é:** o primeiro "braço" da Aurora. Registra na lista de avisos da equipe (`aurora_avisos_atendimento`) que a família avisou falta ou pediu remarcação.
@@ -119,10 +119,38 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 - **Quem vê a lista:** admin e recepção. A equipe só muda o status (pendente → visto → resolvido); o texto fica travado.
 - **Estado:** no ar. Teste real em 2026-09-25 16:43 (SP), com o Alf repassando um aviso: registrado com sessão, febre e pede atestado. A tela da lista na Central é com o Cursor. Avisar o Serjão no grupo liga quando o canal da Aurora subir.
 
+### E2a. `aurora_lead_registrar`: registrar família nova
+- **O que é:** cria o lead de quem chegou pela primeira vez ou completa o que faltava (criança, idade, motivação, origem). Liga o contato do WhatsApp ao lead.
+- **Como funciona:**
+  - acha o lead pelo número (com ou sem 55, nono dígito, LID); se já existe, só completa campos vazios;
+  - origem: indicação, Instagram, Google, LA Music, WhatsApp, site, evento ou outro;
+  - a motivação vai com as palavras da família, **sem diagnóstico nem suspeita**;
+  - criança com **mais de 12 anos** entra direto como perdido (`fora_faixa_etaria`), para a estatística;
+  - número que já é família ou equipe é recusado (`ja_cadastrado`).
+- **Habilidade:** nenhuma família nova se perde; o Serjão recebe o lead já com origem e contexto.
+- **Estado:** no ar.
+
+### E2b. `aurora_lead_mover_etapa`: triagem ou perdido
+- **O que é:** move o lead de novo para triagem (a família respondeu e está conversando) ou para perdido.
+- **Perdido exige motivo:** `sem_resposta` (só depois do D+7), `sem_interesse`, `fora_faixa_etaria`, `procurava_aula_musica` (indicar a LA Music) ou `outro`.
+- **Nunca:** agendado (a Consulta de Acolhimento quem marca é o Serjão) nem ativo (conversão; dispara as boas-vindas). Lead agendado, ativo ou perdido não muda mais pela Aurora.
+- **Estado:** no ar.
+
+### E2c. `aurora_lead_followup_feito`: follow-up feito
+- **O que é:** registra que o follow-up da vez (D+1, D+3, D+7) foi feito, com resultado `enviado`, `respondeu` ou `sem_resposta`.
+- **Como funciona:** um registro por lead e etapa (repetir só atualiza o resultado). A leitura `aurora_leads_followup` deixa de listar o que já foi feito.
+- **Estado:** no ar.
+
+**Testes da escrita 2 (2026-09-25):**
+- 15 casos por papel, pelo crachá, em transação com rollback: registrar, repetir, agendado recusado, perdido sem motivo recusado, triagem, follow-up e repetição, perdido, lead encerrado travado, 14 anos vira perdido, número da equipe recusado, origem inválida, lead inexistente, leitura direta da tabela bloqueada.
+- O follow-up feito some da lista do dia.
+- Ponta a ponta: a Aurora identificou o número, registrou o lead, moveu para triagem, não falou de preço nem de diagnóstico e preparou o resumo para o Serjão. O lead de teste ficou como perdido (`outro`) com a anotação de teste.
+
+⚠️ As ferramentas de lead recebem o número da família. Até a ponte carimbar o remetente, uma pessoa poderia pedir para mexer no lead de outro número; o carimbo fecha isso antes do canal.
+
 ---
 
 ## Próximas (plano em `CHECKPOINT.md`)
-- Registrar e atualizar lead (origem, desfecho, follow-up feito).
 - Carimbo do remetente pela ponte.
 - Caixa novo no modelo da Sol.
 - Canal WhatsApp e Instagram; social media e scraping.

@@ -1,6 +1,6 @@
 # CHECKPOINT: onde a Aurora está e para onde vai
 
-**Atualizado:** 2026-09-25 19:50 UTC · Alf e Alfredo
+**Atualizado:** 2026-09-25 20:20 UTC · Alf e Alfredo
 Os números de CP seguem a seção 6 do `PLANO-FUNDACAO-E-ROLLOUT.md`.
 
 ## ✅ Feito
@@ -13,7 +13,7 @@ Os números de CP seguem a seção 6 do `PLANO-FUNDACAO-E-ROLLOUT.md`.
 | CP6 (parte) | 57 skills padrão do Hermes desligadas; prompt de 47 KB para 42 KB |
 | Memória | Backup do Honcho diário, criptografado, com cópia no Supabase LAHQ Memory e restauração testada a partir da cópia remota |
 | Fase 1 · leitura ✅ | MCP `aurora-read` 0.4.0 com 11 ferramentas: quem é, conferir criança, hoje, sessões da criança, agenda do dia, situação do pacote, pacotes em atenção, simular recesso, financeiro da família, lead, follow-ups de hoje. Testadas por papel |
-| Fase 2 · escrita 1 | MCP `aurora-write` 0.1.0 com `aurora_avisar_atendimento` (crachá `aurora_aviso`, só grava aviso de falta/remarcação na lista da equipe; não mexe em sessão). Lista `aurora_avisos_atendimento` com status pendente/visto/resolvido; a tela é com o Cursor |
+| Fase 2 · escrita 1 e 2 ✅ | MCP `aurora-write` 0.2.0, crachá `aurora_escrita` (ex-`aurora_aviso`, permissão função por função). **Escrita 1:** `aurora_avisar_atendimento` (aviso de falta/remarcação na lista da equipe; não mexe em sessão). **Escrita 2:** `aurora_lead_registrar`, `aurora_lead_mover_etapa` (só triagem ou perdido com motivo; nunca agendado/ativo) e `aurora_lead_followup_feito` (D+1/D+3/D+7 sem repetir). Testadas por papel (15/15) e ponta a ponta |
 | CP7 (parte) · Fase 0 | Edge functions do app versionadas no repo `Sonoramente` e trancadas; cérebro antigo da Aurora (Gemini) aposentado; funções do banco sem trava fechadas; teste real pela Central aprovado |
 
 ## ▶️ Ferramentas (agora)
@@ -28,7 +28,7 @@ Cada ferramenta passa por: desenho → aprovação do Alf → RPC com teste por 
    4. lead (situação, origem, follow-up);
    5. resumo do dia para a equipe.
 3. **Fase 2 · Escrita controlada** (CP10 e CP11):
-   - registrar e atualizar lead, com canal de origem e desfecho;
+   - ~~registrar e atualizar lead, com canal de origem e desfecho~~ ✅ escrita 2 (2026-09-25);
    - pedido de agendamento para o Serjão;
    - marcar, remarcar e cancelar, quando aprovado.
 

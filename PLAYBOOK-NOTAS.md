@@ -62,6 +62,10 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - A escrita **resolve IDs por dentro**, a partir de nomes e do remetente (o agente não tem IDs), e é idempotente.
 - Escrita nunca substitui decisão humana: grava o aviso, não mexe na sessão.
 - O agente precisa de relógio (`aurora_hoje`) para entender "hoje" e "amanhã".
+- **Um crachá de escrita, permissão por função.** Começamos com um crachá com nome da primeira ferramenta (`aurora_aviso`) e na segunda precisamos renomear (`aurora_escrita`). No playbook, nasce já com nome genérico. Renomear role com senha SCRAM mantém a senha, mas o nome do usuário na URL e o `EXPECTED_LOGIN_ROLE` do MCP precisam mudar **na mesma janela** (a escrita fica fora do ar entre a migration e o `.env`).
+- **Transição de etapa é regra do banco, não do prompt:** a função só aceita as transições que o agente pode fazer (novo→triagem, →perdido com motivo) e recusa as decisões humanas (agendado, ativo), com erro legível para o agente.
+- **Follow-up precisa de registro do que foi feito**, senão a lista do dia repete a mesma família. Tabela única por (lead, etapa) e a leitura exclui o que já foi feito.
+- Teste de leitura que depende de dado novo: `DO $$ … RAISE EXCEPTION 'RESULTADO …' $$` pela Management API (a exceção desfaz tudo e devolve o resultado).
 
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
