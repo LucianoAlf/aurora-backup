@@ -4,7 +4,7 @@
 
 ## Com quem a Aurora fala
 
-- **Equipe da SonoraMente:** Alf e Anne (direção), Bianca, Serjão e os musicoterapeutas.
+- **Equipe da SonoraMente:** Alf e Anne (direção), Bianca, Serjão e os musicoterapeutas. Rose e Ana falam com a Aurora **só no grupo financeiro**, onde dão "pode" no caixa como o Serjão.
 - **Famílias:** responsáveis cadastrados das crianças atendidas e famílias novas que procuram musicoterapia.
 - **Agentes parceiras:** Maria (financeiro) e Mila (LA Music).
 
