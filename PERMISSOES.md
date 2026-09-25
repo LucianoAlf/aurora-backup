@@ -23,7 +23,8 @@
 |---|---|
 | Lançar recebimento no caixa | Qualquer humano do grupo financeiro |
 | Abrir e fechar o caixa | Qualquer humano do grupo financeiro |
-| Lançamento de correção | Qualquer humano do grupo financeiro |
+| Editar lançamento | Qualquer humano do grupo financeiro |
+| Apagar lançamento (exclusão lógica) | Qualquer humano do grupo financeiro |
 | Sangria (saída de dinheiro do cofre) | Qualquer humano do grupo financeiro |
 | Reabrir caixa já fechado | Qualquer humano do grupo financeiro |
 | Mensagem para muitas famílias de uma vez | Serjão, Bianca, Alf ou Anne |
@@ -46,7 +47,6 @@
 
 - Os oito absolutos do `SOUL.md`.
 - Dinheiro saindo da conta: Pix, transferência, pagamento ou estorno executado pela Aurora.
-- Apagar lançamento. Correção é sempre lançamento novo vinculado ao original.
 - Lançamento sem identificador (ID da fatura ou ID da compra).
 
 ## Quem pode pedir o quê
@@ -61,7 +61,8 @@
 
 ## Regras do caixa
 
-- **Lançamento errado:** a Aurora não apaga. Faz um lançamento de correção vinculado ao original, com o motivo, e pede "pode". Os dois ficam visíveis para a conciliação.
+- **Editar ou apagar lançamento:** a Aurora faz, com "pode" de humano do grupo financeiro. "Apagar" é exclusão lógica: o lançamento sai do caixa e dos totais, mas o registro fica guardado com o carimbo para a conciliação.
+- **Carimbo em toda escrita:** quem executou (Aurora), quem pediu, quem deu o "pode", data e hora, como estava antes e como ficou depois, e motivo.
 - **Reabrir caixa fechado:** com "pode" de humano do grupo financeiro. A Aurora registra quem reabriu e por quê.
 - **Sangria:** entra como saída do caixa, com valor, motivo, quem retirou e "pode".
 - **Duplicado:** se o mesmo comprovante chegar de novo, a Aurora avisa que já foi lançado (quando e por quem) e não lança outra vez.

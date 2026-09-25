@@ -24,7 +24,7 @@ A Aurora mora em três lugares. Não misturar com o Fábio (LA Music) nem com a 
 | Sistema | SonoraMente é a casa operacional da Aurora. Banco, agenda, pacientes, central de WhatsApp. | Repo [LucianoAlf/Sonoramente](https://github.com/LucianoAlf/Sonoramente). Prod: https://sonoramente-la.vercel.app |
 | Banco | Um projeto só: **Sonoramente ERP** `krcuhpwvwilojcpofemw` | Supabase. Não é LA Report, LA Journey, Super Folha, nem o projeto da Julia. |
 | Agente | Repo da Aurora, no mesmo padrão dos outros agentes: repo e VPS sempre juntos. | [LucianoAlf/aurora-backup](https://github.com/LucianoAlf/aurora-backup), privado. Este handoff é o primeiro arquivo. Alma, skills e bridge ainda não foram copiadas. |
-| VPS | `la-hq` `89.116.73.186`, usuário Linux **`aurora`** | Home separada da do Fábio. Linger ligado. Hermes **ainda não instalado**. |
+| VPS | `la-hq` `<IP fora do repo>`, usuário Linux **`aurora`** | Home separada da do Fábio. Linger ligado. Hermes **ainda não instalado**. |
 
 O código de soul, skills, bridge e MCP que existe hoje está no Sonoramente, em `hermes/skills/sonora-mente/`, `hermes/mcp/aurora_rpc_mcp/` e `services/aurora-chat-bridge/`. Isso é semente. O repo vivo do agente passa a ser o `aurora-backup`. O Sonoramente continua dono da central, do schema e das tabelas `wa_*`.
 
@@ -33,7 +33,7 @@ O código de soul, skills, bridge e MCP que existe hoje está no Sonoramente, em
 ## 2. O que você pega
 
 1. Encher o `aurora-backup` (soul, skills, MCP, bridge, systemd, docs de operação) e manter esse repo igual à VPS.
-2. Instalar o Hermes **só** no usuário `aurora`. Gateway em `127.0.0.1:8656`. Bridge em `0.0.0.0:8655`.
+2. Instalar o Hermes **só** no usuário `aurora`. Gateway em `<porta interna>`. Bridge em `<porta interna>`.
 3. MCP com allowlist. Leitura e escrita no SonoraMente, acesso controlado. Você desenha a allowlist. Sem `postgres-mcp` unrestricted e sem `service_role` dentro do Hermes.
 4. Modo escuta primeiro. A Aurora não fala com paciente. Quem atende no WhatsApp, no início, é o Sergião, pela central.
 5. Quando o Luciano chamar ela nos grupos, ela responde com o contexto do que já rolou ali.
@@ -53,7 +53,7 @@ Usuário `aurora` criado hoje. Não existia antes.
 | Porta 8656 | livre (Hermes API, só loopback) |
 | Porta 8655 | livre (bridge UAZAPI) |
 | Porta 8654 | livre (webhook nativo Hermes, não usar no caminho UAZAPI) |
-| Fábio | **não mexer**: gateway `0.0.0.0:8644`, bridge `0.0.0.0:8645`, API `127.0.0.1:8652`, user `fabio`, home `/home/fabio` |
+| Fábio | **não mexer**: gateway `<porta interna>`, bridge `<porta interna>`, API `<porta interna>`, user `fabio`, home `/home/fabio` |
 
 SSH de auditoria antiga (`fabio` + `fabio-inspect`) só enxerga o Fábio. O user `aurora` foi criado por root. Acesso de deploy para o Alfredo: pedir ao Luciano.
 
@@ -70,7 +70,7 @@ Instância UAZAPI **Aurora - SonoraMente** em `https://lamusic.uazapi.com`.
 | Número | `552134008890` (21 3400-8890) |
 | Perfil | Sonoramente |
 | Status | connected |
-| Webhook | ligado, um só, `POST` em `https://krcuhpwvwilojcpofemw.supabase.co/functions/v1/webhook-whatsapp` |
+| Webhook | ligado, um só, `POST` em `edge function `webhook-whatsapp` do Sonoramente ERP (URL fora do repo)` |
 | Eventos | `messages` |
 | Filtro | `excludeMessages: ["wasSentByApi"]` |
 | Grupos | entram. Não está excluindo `isGroupYes`. |
@@ -79,7 +79,7 @@ O segredo `UAZAPI_TOKEN` do projeto clínica aponta para essa instância. Antes 
 
 **Teste de entrada, 23/09/2026 20:13 UTC.** Luciano mandou `Oi, Aurora` do celular final 8047. Caiu em `wa_mensagens` como `entrada`, contato Luciano Alf, chat privado. Não houve `saida`. A Aurora ficou muda. É o comportamento certo até o Hermes assumir.
 
-**Não apontar** o webhook da clínica para `http://89.116.73.186:8655/...` enquanto a bridge não existir e não gravar em `wa_mensagens`. Se apontar antes, a central para de receber.
+**Não apontar** o webhook da clínica para `bridge da Aurora na VPS (endereço fora do repo) enquanto a bridge não existir e não gravar em `wa_mensagens`. Se apontar antes, a central para de receber.
 
 ---
 
@@ -153,7 +153,7 @@ Até lá o webhook permanece na edge `webhook-whatsapp`.
 3. Copiar soul, skills, bridge e MCP do Sonoramente para o `aurora-backup` e subir o primeiro commit. Não deixar skill só na VPS.
 4. Instalar Hermes no user `aurora`. Não copiar `.env` do Fábio. Não usar porta 8644, 8645 ou 8652.
 5. Subir gateway e bridge em escuta, ainda **sem** trocar o webhook, e provar que um payload de teste grava em `wa_mensagens` e não envia texto.
-6. Só então, com o Luciano, trocar o webhook da instância para a bridge, com rollback de um passo: voltar a URL para `https://krcuhpwvwilojcpofemw.supabase.co/functions/v1/webhook-whatsapp`.
+6. Só então, com o Luciano, trocar o webhook da instância para a bridge, com rollback de um passo: voltar a URL para `edge function `webhook-whatsapp` do Sonoramente ERP (URL fora do repo)`.
 7. Allowlist MCP: começar pelo que a soul já pede (agenda, contato, escalar humano) e abrir escrita clínica com critério. Paciente, evolução e anamnese não entram soltos no prompt.
 
 ---
