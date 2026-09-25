@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { paraHermes, ehAvisoDoSistema } from '../src/mapear.mjs';
+import { paraHermes, ehAvisoDoSistema, motivoSilencio } from '../src/mapear.mjs';
 
 const base = { mensagem_id: 'u1', wa_message_id: 'W1', chat: '120363000000000000@g.us', grupo: true,
   remetente: '5521999998888', remetente_nome: 'Teste', tipo: 'texto', texto: 'oi Aurora', em: '2026-09-25T21:00:00Z' };
@@ -28,4 +28,15 @@ test('avisos do Hermes nunca viram mensagem', () => {
   assert.ok(ehAvisoDoSistema('📬 No home channel is set for Whatsapp.'));
   assert.ok(ehAvisoDoSistema('⚡ Interrupting current task.'));
   assert.ok(!ehAvisoDoSistema('Oi, Alf! Amanhã é sábado.'));
+});
+
+test('regra de silêncio', () => {
+  const dm = { ...base, grupo: false, texto: 'oi', aurora_ativa: true, atendente_humano: false, humano_recente: false };
+  assert.equal(motivoSilencio(dm), null);
+  assert.match(motivoSilencio({ ...dm, aurora_ativa: false }), /pausada/);
+  assert.match(motivoSilencio({ ...dm, atendente_humano: true }), /humano/);
+  assert.match(motivoSilencio({ ...dm, humano_recente: true }), /2 horas/);
+  // grupo que não chama a Aurora não gera registro de silêncio
+  assert.equal(motivoSilencio({ ...dm, grupo: true, texto: 'bom dia', humano_recente: true }), null);
+  assert.match(motivoSilencio({ ...dm, grupo: true, texto: 'Aurora, oi', humano_recente: true }), /2 horas/);
 });

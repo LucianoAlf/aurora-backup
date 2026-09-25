@@ -5,7 +5,7 @@
 import http from 'node:http';
 import { readFileSync } from 'node:fs';
 import pg from 'pg';
-import { paraHermes, ehAvisoDoSistema } from './mapear.mjs';
+import { paraHermes, ehAvisoDoSistema, motivoSilencio } from './mapear.mjs';
 
 const arg = (nome, padrao) => { const i = process.argv.indexOf(`--${nome}`); return i > 0 ? process.argv[i + 1] : padrao; };
 const PORTA = Number(arg('port', '3107'));
@@ -29,8 +29,17 @@ async function puxar() {
   try {
     const r = await pool.query('SELECT public.aurora_ponte_puxar(20) AS r');
     const lista = r.rows[0].r || [];
-    for (const m of lista) fila.push(paraHermes(m));
-    if (lista.length) log('entrada', { mensagens: lista.length });
+    let calada = 0;
+    for (const m of lista) {
+      const motivo = motivoSilencio(m);
+      if (motivo) {
+        calada += 1;
+        await sombra(String(m.chat), 'silencio', motivo).catch((e) => log('erro_silencio', { codigo: e.code || e.name }));
+        continue;
+      }
+      fila.push(paraHermes(m));
+    }
+    if (lista.length) log('entrada', { mensagens: lista.length, calada });
     ultimoPuxar = new Date(); erroSeguido = 0;
   } catch (e) {
     erroSeguido += 1;
