@@ -25,11 +25,16 @@
 
 Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita de diagnóstico.
 
-⚠️ **Pendente antes do canal:** hoje o solicitante é informado pela própria Aurora. Antes de ligar o WhatsApp, a ponte carimba o remetente real e as ferramentas passam a aceitar só esse carimbo.
+🔏 **Carimbo do remetente (no ar desde 2026-09-25):** quem está falando **não é informado pelo modelo**.
+- O plugin `aurora-carimbo` do Hermes (`runtime/hermes/plugins/aurora-carimbo`) roda antes de cada ferramenta `aurora_*`. Ele lê da sessão do gateway o remetente real, a conversa e se é grupo ou privado, e **escreve por cima** do campo de remetente (`identificador`, `solicitante`, `remetente` ou `numero`) um carimbo assinado: `AUR1.<plataforma>.<dm|group>.<número ou LID>.<hash da conversa>.<hora>.<assinatura>`.
+- O banco (`aurora_remetente_real`, `aurora_carimbo_abrir`) confere a assinatura HMAC (segredo no vault e em `/home/aurora/.hermes/aurora-carimbo.key`, 600) e a validade de 5 minutos. Os crachás `aurora_mcp` e `aurora_escrita` **recusam número solto**.
+- Sem remetente verificável (terminal, plataforma sem suporte, ferramenta nova sem regra), o plugin bloqueia e a Aurora diz que vai pedir ajuda à equipe.
+- Por enquanto, as ferramentas de lead valem para **quem está escrevendo** (a própria família). O follow-up ativo (a Aurora puxando a conversa) ganha carimbo de "sistema" junto com o agendador.
+- Testes: 12/12 no banco (carimbo verdadeiro passa; número solto, vencido e número trocado dentro do carimbo são recusados) e 3/3 ponta a ponta (sem remetente, desconhecido dizendo "sou o Alf" e o Alf de verdade). A prova no gateway real acontece junto com a ponte do WhatsApp.
 
 ---
 
-## Leitura (MCP `aurora-read` 0.4.0, 11 ferramentas)
+## Leitura (MCP `aurora-read` 0.5.0, 11 ferramentas)
 
 ### 1. `aurora_quem_e`: quem é esta pessoa
 - **O que é:** identificação pelo número de WhatsApp (com ou sem 55, com ou sem o nono dígito) ou pelo LID.
@@ -101,7 +106,7 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 
 ---
 
-## Escrita (MCP `aurora-write` 0.2.0, 4 ferramentas)
+## Escrita (MCP `aurora-write` 0.3.0, 4 ferramentas)
 
 ### E1. `aurora_avisar_atendimento`: avisar falta ou pedido de remarcação
 - **O que é:** o primeiro "braço" da Aurora. Registra na lista de avisos da equipe (`aurora_avisos_atendimento`) que a família avisou falta ou pediu remarcação.
@@ -146,11 +151,10 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 - O follow-up feito some da lista do dia.
 - Ponta a ponta: a Aurora identificou o número, registrou o lead, moveu para triagem, não falou de preço nem de diagnóstico e preparou o resumo para o Serjão. O lead de teste ficou como perdido (`outro`) com a anotação de teste.
 
-⚠️ As ferramentas de lead recebem o número da família. Até a ponte carimbar o remetente, uma pessoa poderia pedir para mexer no lead de outro número; o carimbo fecha isso antes do canal.
+✅ O risco de mexer no lead de outro número foi fechado pelo carimbo do remetente.
 
 ---
 
 ## Próximas (plano em `CHECKPOINT.md`)
-- Carimbo do remetente pela ponte.
 - Caixa novo no modelo da Sol.
 - Canal WhatsApp e Instagram; social media e scraping.

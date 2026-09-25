@@ -1,6 +1,6 @@
 # CHECKPOINT: onde a Aurora está e para onde vai
 
-**Atualizado:** 2026-09-25 20:20 UTC · Alf e Alfredo
+**Atualizado:** 2026-09-25 21:15 UTC · Alf e Alfredo
 Os números de CP seguem a seção 6 do `PLANO-FUNDACAO-E-ROLLOUT.md`.
 
 ## ✅ Feito
@@ -14,6 +14,7 @@ Os números de CP seguem a seção 6 do `PLANO-FUNDACAO-E-ROLLOUT.md`.
 | Memória | Backup do Honcho diário, criptografado, com cópia no Supabase LAHQ Memory e restauração testada a partir da cópia remota |
 | Fase 1 · leitura ✅ | MCP `aurora-read` 0.4.0 com 11 ferramentas: quem é, conferir criança, hoje, sessões da criança, agenda do dia, situação do pacote, pacotes em atenção, simular recesso, financeiro da família, lead, follow-ups de hoje. Testadas por papel |
 | Fase 2 · escrita 1 e 2 ✅ | MCP `aurora-write` 0.2.0, crachá `aurora_escrita` (ex-`aurora_aviso`, permissão função por função). **Escrita 1:** `aurora_avisar_atendimento` (aviso de falta/remarcação na lista da equipe; não mexe em sessão). **Escrita 2:** `aurora_lead_registrar`, `aurora_lead_mover_etapa` (só triagem ou perdido com motivo; nunca agendado/ativo) e `aurora_lead_followup_feito` (D+1/D+3/D+7 sem repetir). Testadas por papel (15/15) e ponta a ponta |
+| Carimbo do remetente ✅ | Plugin `aurora-carimbo` no Hermes sobrescreve o remetente de toda ferramenta com carimbo HMAC; o banco confere e recusa número solto (Sonoramente `20260925233000`). MCP read 0.5.0 / write 0.3.0. 12/12 no banco e 3/3 ponta a ponta. Falta a prova no gateway real, junto com a ponte |
 | CP7 (parte) · Fase 0 | Edge functions do app versionadas no repo `Sonoramente` e trancadas; cérebro antigo da Aurora (Gemini) aposentado; funções do banco sem trava fechadas; teste real pela Central aprovado |
 
 ## ▶️ Ferramentas (agora)
