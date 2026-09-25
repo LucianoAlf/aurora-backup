@@ -92,4 +92,14 @@ export const TOOL_DEFINITIONS = Object.freeze({
     sql: 'SELECT public.aurora_simular_recesso($1::text, $2::date, $3::date) AS result',
     values: (a) => [a.solicitante, a.inicio, a.fim],
   }),
+  aurora_hoje: Object.freeze({
+    title: 'Data, hora e expediente de hoje',
+    description:
+      'Data e hora de São Paulo, dia da semana, feriado ou recesso de hoje e de amanhã, e se a SonoraMente está em expediente ' +
+      '(seg–sex 10h–19h, sáb 8h–12h). Use sempre que alguém disser hoje, amanhã, depois ou quando precisar saber se é horário de atendimento.',
+    inputSchema: z.object({}).strict(),
+    annotations: READ_ONLY,
+    sql: 'SELECT public.aurora_hoje() AS result',
+    values: () => [],
+  }),
 });

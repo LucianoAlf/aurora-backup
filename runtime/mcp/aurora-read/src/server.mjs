@@ -4,7 +4,7 @@ import { errorEnvelope, normalizeError } from './errors.mjs';
 import { TOOL_DEFINITIONS } from './registry.mjs';
 
 export function createMcpServer(executor) {
-  const server = new McpServer({ name: 'aurora-read', version: '0.2.0' });
+  const server = new McpServer({ name: 'aurora-read', version: '0.3.0' });
 
   for (const [name, definition] of Object.entries(TOOL_DEFINITIONS)) {
     server.registerTool(
