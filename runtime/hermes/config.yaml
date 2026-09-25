@@ -6,12 +6,15 @@ platform_toolsets:
   cli:
   - skills
   - todo
+  - aurora-read
   telegram:
   - skills
   - todo
+  - aurora-read
   whatsapp:
   - skills
   - todo
+  - aurora-read
 agent:
   max_turns: 60
   gateway_timeout: 1800
@@ -105,3 +108,12 @@ hooks_auto_accept: false
 sessions:
   auto_prune: false
   retention_days: 90
+mcp_servers:
+  aurora-read:
+    command: /usr/bin/node
+    args:
+    - /home/aurora/releases/8a7d2b996255cc379bae307cb740a062d641ee1b/runtime/mcp/aurora-read/src/index.mjs
+    env:
+      AURORA_DB_READ_URL: ${AURORA_DB_READ_URL}
+    connect_timeout: 15.0
+    enabled: true

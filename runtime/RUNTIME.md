@@ -55,3 +55,19 @@ rm -rf /home/aurora/.hermes/hermes-agent /home/aurora/.hermes/config.yaml /home/
 - Tools carregadas: `skills_list`, `skill_view`, `skill_manage` (com `write_approval: true`) e as meta-tools `tool_search`, `tool_describe`, `tool_call` do núcleo do Hermes.
 - Risco: um `hermes update` pode trazer skill padrão nova, que nasce ligada. Depois de cada update, conferir `prompt-size` e completar a lista.
 - Rollback: `/root/backups/aurora/config.yaml.pre-cp6-skills-*` na la-hq.
+
+## Fase 1 · MCP `aurora-read` (2026-09-25)
+
+- A release imutável fica em `/home/aurora/releases/<sha>/runtime/mcp/aurora-read`. A primeira é a `8a7d2b9`, com `npm ci` e testes (3/3) rodados na VPS.
+- Hermes: `mcp_servers.aurora-read` usa `AURORA_DB_READ_URL`, que vem do `.env`. O toolset `aurora-read` está em `cli`, `telegram` e `whatsapp`. `hermes mcp test aurora-read` descobre 2 ferramentas.
+- TLS: `sslmode=verify-full` com a raiz `Supabase Root 2021 CA` fixada em `/home/aurora/.hermes/supabase-root-2021.crt`.
+  - Validade até 2031-04-26.
+  - SHA-256 `80:70:25:AD:…:CA:FA`, extraído da cadeia servida pelo banco.
+  - Melhor que o `sslmode=require` sem verificação usado pela Julia.
+  - A URL fica entre aspas no `.env` por causa do `&`.
+- Cada chamada confere o crachá antes de rodar: `aurora_mcp`, sem super, sem herança, sem grant em tabela sensível. O log registra só a ferramenta, a duração e o código de erro.
+- Teste ponta a ponta:
+  - Hugo foi reconhecido como suporte técnico.
+  - "Mãe do Pedrinho" vinda de número novo não recebeu nenhum dado da criança.
+  - Com o banco fora do ar, a Aurora não inventa e trata a pessoa como desconhecida.
+- Rollback: tirar `aurora-read` de `platform_toolsets` e de `mcp_servers`, ou restaurar `/root/backups/aurora/config.yaml.pre-mcp-aurora-read-*`.
