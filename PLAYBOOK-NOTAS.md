@@ -110,7 +110,8 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - Hermes: dá para usar a plataforma WhatsApp com uma ponte própria (`extra.bridge_script`), que precisa de `package.json` na pasta do script e de um `creds.json` marcador na sessão. `dm_policy`/`group_policy: open` exigem `WHATSAPP_ALLOW_ALL_USERS=true` (o controle de acesso real fica no banco).
 
 - Ao ligar um canal de mensagem no Hermes, **desligar os avisos da própria ferramenta** (progresso de ferramenta, dicas de primeira vez, "defina o canal padrão", aviso de interrupção): `display.tool_progress: off`, `display.platforms.<canal>.tool_progress: off`, `display.busy_input_mode: queue`, `onboarding.seen.*`, `<CANAL>_HOME_CHANNEL`. E filtrar na ponte por garantia. Foi a sombra que mostrou isso: sem ela, a família receberia "⚙️ tool_call...".
-- Em canal compartilhado com humanos (Central), o agente precisa saber **quando ficar calado**: botão da conversa e atendimento humano recente.
+- Em canal compartilhado com humanos (Central), o agente precisa saber **quando ficar calado**: botão da conversa, atendente humano e resposta humana recente (2 h). Implementar **durante a sombra**, não depois: assim a revisão mede o comportamento real, e o silêncio também fica registrado com motivo.
+- Conferir o que cada rótulo da tela significa antes de agir: o "Aurora desligada" da Central era o interruptor geral, não o da conversa.
 
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
