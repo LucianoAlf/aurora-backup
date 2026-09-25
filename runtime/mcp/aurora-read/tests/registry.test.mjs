@@ -4,7 +4,7 @@ import test from 'node:test';
 import { TOOL_DEFINITIONS } from '../src/registry.mjs';
 
 test('allowlist tem exatamente as ferramentas aprovadas', () => {
-  assert.deepEqual(Object.keys(TOOL_DEFINITIONS).sort(), ['aurora_agenda_do_dia', 'aurora_conferir_crianca', 'aurora_hoje', 'aurora_pacote_status', 'aurora_pacotes_atencao', 'aurora_quem_e', 'aurora_sessoes_paciente', 'aurora_simular_recesso']);
+  assert.deepEqual(Object.keys(TOOL_DEFINITIONS).sort(), ['aurora_agenda_do_dia', 'aurora_conferir_crianca', 'aurora_financeiro_familia', 'aurora_hoje', 'aurora_lead', 'aurora_leads_followup', 'aurora_pacote_status', 'aurora_pacotes_atencao', 'aurora_quem_e', 'aurora_sessoes_paciente', 'aurora_simular_recesso']);
 });
 
 test('aurora_quem_e aceita número e LID e recusa SQL ou texto livre', () => {

@@ -102,4 +102,33 @@ export const TOOL_DEFINITIONS = Object.freeze({
     sql: 'SELECT public.aurora_hoje() AS result',
     values: () => [],
   }),
+  aurora_financeiro_familia: Object.freeze({
+    title: 'Financeiro da família',
+    description:
+      'Parcelas em aberto de uma criança: descrição, valor, vencimento, se está a vencer ou atrasada (e há quantos dias), ' +
+      'total em aberto, próxima a vencer e link de pagamento quando houver. Para o próprio responsável (só as crianças dele) ' +
+      'e para o grupo financeiro (Alf, Anne, Bianca, Serjão, Rose, Ana). Nunca negocie, dê desconto ou mude valor: isso é com o Serjão.',
+    inputSchema: z.object({ solicitante: identificador, crianca: z.string().trim().min(2).max(80).optional() }).strict(),
+    annotations: READ_ONLY,
+    sql: 'SELECT public.aurora_financeiro_familia($1::text, $2::text) AS result',
+    values: (a) => [a.solicitante, a.crianca ?? null],
+  }),
+  aurora_lead: Object.freeze({
+    title: 'Situação de um lead',
+    description:
+      'Busca lead pelo número ou pelo nome do responsável ou da criança: etapa, canal de origem, dias desde o contato, ' +
+      'Consulta de Acolhimento marcada e follow-up da vez (D+1, D+3, D+7). Só para o time. Não traz suspeita de diagnóstico nem queixa.',
+    inputSchema: z.object({ solicitante: identificador, busca: z.string().trim().min(3).max(80) }).strict(),
+    annotations: READ_ONLY,
+    sql: 'SELECT public.aurora_lead($1::text, $2::text) AS result',
+    values: (a) => [a.solicitante, a.busca],
+  }),
+  aurora_leads_followup: Object.freeze({
+    title: 'Follow-ups de lead de hoje',
+    description: 'Leads abertos com D+1, D+3 ou D+7 vencendo hoje, para a rotina diária de follow-up. Só para o time.',
+    inputSchema: z.object({ solicitante: identificador }).strict(),
+    annotations: READ_ONLY,
+    sql: 'SELECT public.aurora_leads_followup($1::text) AS result',
+    values: (a) => [a.solicitante],
+  }),
 });
