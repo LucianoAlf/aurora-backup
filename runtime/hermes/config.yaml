@@ -115,7 +115,7 @@ mcp_servers:
   aurora-read:
     command: /usr/bin/node
     args:
-    - /home/aurora/releases/ee3c394d691db0ef89d15fa6be8036684752ab53/runtime/mcp/aurora-read/src/index.mjs
+    - /home/aurora/releases/ec0a1db13fe41f7ffb0898af12164e970f2a0931/runtime/mcp/aurora-read/src/index.mjs
     env:
       AURORA_DB_READ_URL: ${AURORA_DB_READ_URL}
     connect_timeout: 15.0
@@ -123,8 +123,23 @@ mcp_servers:
   aurora-write:
     command: /usr/bin/node
     args:
-    - /home/aurora/releases/ee3c394d691db0ef89d15fa6be8036684752ab53/runtime/mcp/aurora-write/src/index.mjs
+    - /home/aurora/releases/ec0a1db13fe41f7ffb0898af12164e970f2a0931/runtime/mcp/aurora-write/src/index.mjs
     env:
       AURORA_DB_ESCRITA_URL: ${AURORA_DB_ESCRITA_URL}
     connect_timeout: 15.0
     enabled: true
+plugins:
+  enabled:
+  - aurora-carimbo
+platforms:
+  whatsapp:
+    enabled: true
+    extra:
+      bridge_script: /home/aurora/releases/ec0a1db13fe41f7ffb0898af12164e970f2a0931/runtime/bridge/aurora-ponte/bridge.mjs
+      bridge_port: 3107
+      dm_policy: open
+      group_policy: open
+      require_mention: true
+      mention_patterns:
+      - '(?i)\baurora\b'
+      send_read_receipts: false

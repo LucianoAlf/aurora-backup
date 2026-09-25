@@ -103,6 +103,12 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 
 **Critério de promoção para outros agentes:** só reutilizar depois de confirmar que o runtime expõe identidade confiável no hook anterior à tool call e que os argumentos modificados são os efetivamente executados. Se isso não for provado, não improvisar crachá no prompt: manter o canal em sombra e criar um adaptador server-bound.
 
+## 4.1 Canal em modo sombra
+- **Sombra tem régua e prazo, ou vira abandono** (lição da Sol, que ficou em sombra sem critério). Ao ligar: data de início, critério numérico de promoção, prazo de decisão, placar diário automático e ordem de liberação. No fim do prazo decide-se: promove, ou diz por que não e marca nova data.
+- Sombra de verdade não tem efeito colateral: além de não enviar, **as ferramentas de escrita não executam** (o plugin registra a intenção para revisão).
+- Não trocar a porta de entrada do canal: a Central continua dona do webhook; o agente lê do banco por um crachá próprio, sem porta pública na VPS.
+- Hermes: dá para usar a plataforma WhatsApp com uma ponte própria (`extra.bridge_script`), que precisa de `package.json` na pasta do script e de um `creds.json` marcador na sessão. `dm_policy`/`group_policy: open` exigem `WHATSAPP_ALLOW_ALL_USERS=true` (o controle de acesso real fica no banco).
+
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.

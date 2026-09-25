@@ -155,6 +155,13 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 
 ---
 
+## Canal WhatsApp (ponte `aurora-ponte` 0.1.0) · modo sombra
+- **O que é:** a ponte entre a Central da SonoraMente e o Hermes da Aurora. O webhook da Central continua sendo a única porta da UAZAPI; a ponte lê as mensagens novas do banco a cada 2 s pelo crachá `aurora_ponte` (só `aurora_ponte_puxar` e `aurora_ponte_sombra`) e fala com o Hermes pelo contrato HTTP da ponte de WhatsApp dele (`/messages`, `/send`, `/health`).
+- **Como funciona:** o remetente real (participante do grupo ou número da conversa privada) vai como `senderId`, e o carimbo usa esse valor. Áudio chega como a transcrição feita pela Central. Em grupo, a Aurora só é acionada quando chamam "Aurora".
+- **Modo sombra:** `/home/aurora/.hermes/aurora-ponte.modo` = `sombra` (ausente também vale sombra). Nada sai para o WhatsApp: cada resposta vai para `aurora_sombra` (tipo `resposta`), e cada ferramenta de escrita é interceptada pelo plugin e registrada como `acao`, sem executar.
+- **Revisão:** `aurora_sombra.revisao` = pendente / ok / erro_leve / erro_grave. Placar diário às 09:00 SP no Telegram do Alf.
+- **Estado:** no ar em sombra desde 2026-09-25 21:42 UTC. O modo `ao_vivo` (envio pela função de envio da Central) ainda não existe e só entra depois da promoção.
+
 ## Próximas (plano em `CHECKPOINT.md`)
 - Caixa novo no modelo da Sol.
 - Canal WhatsApp e Instagram; social media e scraping.
