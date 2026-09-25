@@ -35,4 +35,61 @@ export const TOOL_DEFINITIONS = Object.freeze({
     sql: 'SELECT public.aurora_conferir_crianca($1::text, $2::text, $3::text, $4::date) AS result',
     values: (a) => [a.identificador, a.nome_crianca, a.nome_responsavel ?? null, a.data_nascimento ?? null],
   }),
+  aurora_sessoes_paciente: Object.freeze({
+    title: 'Próximas sessões da criança',
+    description:
+      'Próximas sessões (até 5) de uma criança: data, dia, hora, terapeuta, status e "sessão X de Y". ' +
+      'Responde para o responsável (só as crianças dele), o terapeuta (só os pacientes dele) e o time (Alf, Anne, Bianca, Serjão). ' +
+      'solicitante = número ou LID de quem perguntou. Remarcação não é com a Aurora: avise o atendimento (Serjão).',
+    inputSchema: z.object({ solicitante: identificador, crianca: z.string().trim().min(2).max(80).optional() }).strict(),
+    annotations: READ_ONLY,
+    sql: 'SELECT public.aurora_sessoes_paciente($1::text, $2::text) AS result',
+    values: (a) => [a.solicitante, a.crianca ?? null],
+  }),
+  aurora_agenda_do_dia: Object.freeze({
+    title: 'Agenda do dia',
+    description:
+      'Sessões de um dia (padrão: hoje) com hora, criança, terapeuta, sala e status, sem dado clínico. ' +
+      'Só para a equipe: o time vê tudo, o terapeuta vê a própria agenda. Família recebe sem_permissao.',
+    inputSchema: z.object({ solicitante: identificador, data: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() }).strict(),
+    annotations: READ_ONLY,
+    sql: 'SELECT public.aurora_agenda_do_dia($1::text, $2::date) AS result',
+    values: (a) => [a.solicitante, a.data ?? null],
+  }),
+  aurora_pacote_status: Object.freeze({
+    title: 'Situação do pacote (calendário inteligente)',
+    description:
+      'Para o time e o terapeuta: sessões do pacote, realizadas, faltas, última sessão prevista, parcelas, mês-alvo e cor ' +
+      '(verde = termina no mês da última parcela; amarelo = acaba antes; vermelho = passa do mês). ' +
+      'Para a família devolve só "sessão X de Y". Nunca fale de cor, parcelas ou mês-alvo com a família.',
+    inputSchema: z.object({ solicitante: identificador, crianca: z.string().trim().min(2).max(80).optional() }).strict(),
+    annotations: READ_ONLY,
+    sql: 'SELECT public.aurora_pacote_status($1::text, $2::text) AS result',
+    values: (a) => [a.solicitante, a.crianca ?? null],
+  }),
+  aurora_pacotes_atencao: Object.freeze({
+    title: 'Pacotes em atenção',
+    description:
+      'Lista de pacientes amarelos e vermelhos no calendário do pacote, para alertar o Serjão e entrar nos relatórios. ' +
+      'Só para o time (o terapeuta vê os próprios).',
+    inputSchema: z.object({ solicitante: identificador }).strict(),
+    annotations: READ_ONLY,
+    sql: 'SELECT public.aurora_pacotes_atencao($1::text) AS result',
+    values: (a) => [a.solicitante],
+  }),
+  aurora_simular_recesso: Object.freeze({
+    title: 'Simular recesso',
+    description:
+      'Só para a direção (Alf e Anne): simula um recesso ou feriado prolongado e mostra quais pacotes mudariam de cor. Não grava nada.',
+    inputSchema: z
+      .object({
+        solicitante: identificador,
+        inicio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        fim: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      })
+      .strict(),
+    annotations: READ_ONLY,
+    sql: 'SELECT public.aurora_simular_recesso($1::text, $2::date, $3::date) AS result',
+    values: (a) => [a.solicitante, a.inicio, a.fim],
+  }),
 });
