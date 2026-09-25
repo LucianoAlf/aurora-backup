@@ -1,6 +1,6 @@
 # CHECKPOINT: onde a Aurora está e para onde vai
 
-**Atualizado:** 2026-09-25 16:50 UTC · Alf e Alfredo
+**Atualizado:** 2026-09-25 19:50 UTC · Alf e Alfredo
 Os números de CP seguem a seção 6 do `PLANO-FUNDACAO-E-ROLLOUT.md`.
 
 ## ✅ Feito
@@ -13,6 +13,7 @@ Os números de CP seguem a seção 6 do `PLANO-FUNDACAO-E-ROLLOUT.md`.
 | CP6 (parte) | 57 skills padrão do Hermes desligadas; prompt de 47 KB para 42 KB |
 | Memória | Backup do Honcho diário, criptografado, com cópia no Supabase LAHQ Memory e restauração testada a partir da cópia remota |
 | Fase 1 · leitura ✅ | MCP `aurora-read` 0.4.0 com 11 ferramentas: quem é, conferir criança, hoje, sessões da criança, agenda do dia, situação do pacote, pacotes em atenção, simular recesso, financeiro da família, lead, follow-ups de hoje. Testadas por papel |
+| Fase 2 · escrita 1 | MCP `aurora-write` 0.1.0 com `aurora_avisar_atendimento` (crachá `aurora_aviso`, só grava aviso de falta/remarcação na lista da equipe; não mexe em sessão). Lista `aurora_avisos_atendimento` com status pendente/visto/resolvido; a tela é com o Cursor |
 | CP7 (parte) · Fase 0 | Edge functions do app versionadas no repo `Sonoramente` e trancadas; cérebro antigo da Aurora (Gemini) aposentado; funções do banco sem trava fechadas; teste real pela Central aprovado |
 
 ## ▶️ Ferramentas (agora)

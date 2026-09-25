@@ -7,14 +7,17 @@ platform_toolsets:
   - skills
   - todo
   - aurora-read
+  - aurora-write
   telegram:
   - skills
   - todo
   - aurora-read
+  - aurora-write
   whatsapp:
   - skills
   - todo
   - aurora-read
+  - aurora-write
 agent:
   max_turns: 60
   gateway_timeout: 1800
@@ -112,8 +115,16 @@ mcp_servers:
   aurora-read:
     command: /usr/bin/node
     args:
-    - /home/aurora/releases/b335c04c18d7c609c899b795d9ef16c5983463a0/runtime/mcp/aurora-read/src/index.mjs
+    - /home/aurora/releases/ee3c394d691db0ef89d15fa6be8036684752ab53/runtime/mcp/aurora-read/src/index.mjs
     env:
       AURORA_DB_READ_URL: ${AURORA_DB_READ_URL}
+    connect_timeout: 15.0
+    enabled: true
+  aurora-write:
+    command: /usr/bin/node
+    args:
+    - /home/aurora/releases/ee3c394d691db0ef89d15fa6be8036684752ab53/runtime/mcp/aurora-write/src/index.mjs
+    env:
+      AURORA_DB_AVISO_URL: ${AURORA_DB_AVISO_URL}
     connect_timeout: 15.0
     enabled: true
