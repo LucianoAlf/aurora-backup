@@ -1,0 +1,89 @@
+// aurora-ponte: ponte WhatsApp da Aurora para o Hermes (contrato HTTP da ponte Baileys do Hermes).
+// Entrada: mensagens novas da Central (wa_mensagens) pelo crachá aurora_ponte, só por RPC.
+// Saída: em modo sombra NADA é enviado; a resposta vai para aurora_sombra. O modo "ao_vivo" ainda não existe
+// e qualquer outro valor cai em sombra (falha segura).
+import http from 'node:http';
+import { readFileSync } from 'node:fs';
+import pg from 'pg';
+import { paraHermes } from './mapear.mjs';
+
+const arg = (nome, padrao) => { const i = process.argv.indexOf(`--${nome}`); return i > 0 ? process.argv[i + 1] : padrao; };
+const PORTA = Number(arg('port', '3107'));
+const ENV_FILE = process.env.AURORA_ENV_FILE || '/home/aurora/.hermes/.env';
+const INTERVALO_MS = 2000;
+
+function lerUrl() {
+  if (process.env.AURORA_DB_PONTE_URL) return process.env.AURORA_DB_PONTE_URL;
+  const m = readFileSync(ENV_FILE, 'utf8').match(/^AURORA_DB_PONTE_URL="?([^"\n]+)"?$/m);
+  if (!m) throw new Error('AURORA_DB_PONTE_URL ausente');
+  return m[1];
+}
+
+const log = (evento, extra = {}) => console.log(JSON.stringify({ t: new Date().toISOString(), evento, ...extra }));
+const pool = new pg.Pool({ connectionString: lerUrl(), max: 2, application_name: 'aurora-ponte', idleTimeoutMillis: 10000 });
+const fila = [];
+let ultimoPuxar = null;
+let erroSeguido = 0;
+
+async function puxar() {
+  try {
+    const r = await pool.query('SELECT public.aurora_ponte_puxar(20) AS r');
+    const lista = r.rows[0].r || [];
+    for (const m of lista) fila.push(paraHermes(m));
+    if (lista.length) log('entrada', { mensagens: lista.length });
+    ultimoPuxar = new Date(); erroSeguido = 0;
+  } catch (e) {
+    erroSeguido += 1;
+    log('erro_puxar', { codigo: e.code || 'desconhecido', seguidos: erroSeguido });
+  } finally {
+    setTimeout(puxar, erroSeguido ? Math.min(30000, INTERVALO_MS * 2 ** erroSeguido) : INTERVALO_MS);
+  }
+}
+
+async function sombra(chat, tipo, conteudo, ferramenta = null) {
+  const r = await pool.query('SELECT public.aurora_ponte_sombra($1, $2, $3, $4) AS r', [chat, tipo, conteudo, ferramenta]);
+  return r.rows[0].r;
+}
+
+function corpo(req) {
+  return new Promise((ok, falha) => {
+    let t = ''; req.on('data', (c) => { t += c; if (t.length > 200000) req.destroy(); });
+    req.on('end', () => { try { ok(t ? JSON.parse(t) : {}); } catch (e) { falha(e); } });
+  });
+}
+const responder = (res, status, obj) => { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(obj)); };
+
+const servidor = http.createServer(async (req, res) => {
+  const rota = new URL(req.url, 'http://x').pathname.replace(/^\//, '');
+  try {
+    if (req.method === 'GET' && rota === 'health') {
+      return responder(res, 200, { status: 'connected', modo: 'sombra', fila: fila.length, ultimo_puxar: ultimoPuxar, erros_seguidos: erroSeguido });
+    }
+    if (req.method === 'GET' && rota === 'messages') return responder(res, 200, fila.splice(0, fila.length));
+    if (req.method !== 'POST') return responder(res, 404, { error: 'rota' });
+    const b = await corpo(req);
+    if (rota === 'send' || rota === 'edit') {
+      const r = await sombra(String(b.chatId || ''), 'resposta', String(b.message || ''));
+      log('sombra_resposta', { ok: Boolean(r?.ok) });
+      return responder(res, 200, { success: true, messageId: `sombra-${r?.id || Date.now()}` });
+    }
+    if (rota === 'send-media' || rota === 'send-poll' || rota === 'poll' || rota === 'send-location' || rota === 'location') {
+      const desc = `[${rota}] ${JSON.stringify({ ...b, chatId: undefined }).slice(0, 2000)}`;
+      const r = await sombra(String(b.chatId || ''), 'resposta', desc);
+      return responder(res, 200, { success: true, messageId: `sombra-${r?.id || Date.now()}` });
+    }
+    if (rota === 'sombra-acao') {
+      const r = await sombra(String(b.chatId || ''), 'acao', JSON.stringify(b.args || {}).slice(0, 8000), String(b.ferramenta || ''));
+      log('sombra_acao', { ferramenta: String(b.ferramenta || ''), ok: Boolean(r?.ok) });
+      return responder(res, 200, { ok: Boolean(r?.ok) });
+    }
+    if (rota === 'typing' || rota === 'read') return responder(res, 200, { success: true });
+    return responder(res, 404, { error: 'rota' });
+  } catch (e) {
+    log('erro_rota', { rota, codigo: e.code || e.name });
+    return responder(res, 500, { error: 'falha' });
+  }
+});
+
+servidor.listen(PORTA, '127.0.0.1', () => { log('pronta', { porta: PORTA, modo: 'sombra' }); puxar(); });
+for (const s of ['SIGTERM', 'SIGINT']) process.on(s, () => { servidor.close(); pool.end().finally(() => process.exit(0)); });

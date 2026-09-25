@@ -37,7 +37,18 @@ def test_hook_bloqueia_sem_sessao(monkeypatch=None):
     assert c._on_pre_tool_call("terminal", {}) is None
 
 
+def test_sombra_bloqueia_escrita_e_libera_leitura():
+    c._sessao = lambda: {"PLATFORM": "whatsapp", "USER_ID": "5521900000001@s.whatsapp.net", "CHAT_ID": "5521900000001@s.whatsapp.net", "CHAT_TYPE": "dm"}
+    c._modo = lambda: "sombra"
+    enviados = []
+    c._registrar_acao_sombra = lambda nome, args, chat: enviados.append((nome, chat)) or True
+    r = c._on_pre_tool_call("mcp__aurora-write__aurora_avisar_atendimento", {"remetente": "auto", "tipo": "falta_avisada"})
+    assert r["action"] == "block" and "modo sombra" in r["message"] and enviados[0][0] == "aurora_avisar_atendimento"
+    assert c._on_pre_tool_call("mcp__aurora-read__aurora_quem_e", {"identificador": "auto"})["action"] == "modify"
+
+
 def test_hook_sobrescreve_o_que_o_modelo_mandou():
+    c._modo = lambda: "ao_vivo"
     c._sessao = lambda: {"PLATFORM": "whatsapp", "USER_ID": "5521900000001@s.whatsapp.net", "CHAT_ID": "5521900000001@s.whatsapp.net", "CHAT_TYPE": "dm"}
     r = c._on_pre_tool_call("mcp__aurora-write__aurora_lead_registrar", {"numero": "5521981278047", "origem": "instagram"})
     assert r["action"] == "modify" and r["args"]["numero"].startswith("AUR1.whatsapp.dm.5521900000001.")

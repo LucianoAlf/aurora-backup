@@ -42,6 +42,34 @@ CAMPO: Dict[str, Optional[str]] = {
     "aurora_lead_followup_feito": "numero",
 }
 
+# Modo sombra: no WhatsApp, as ferramentas de escrita não executam. A intenção vai para a lista de
+# revisão (aurora_sombra) pela ponte local, e a Aurora segue a conversa como faria de verdade.
+ESCRITA = {"aurora_avisar_atendimento", "aurora_lead_registrar", "aurora_lead_mover_etapa", "aurora_lead_followup_feito"}
+MODO_PATH = Path("/home/aurora/.hermes/aurora-ponte.modo")
+PONTE_URL = "http://127.0.0.1:3107/sombra-acao"
+
+
+def _modo() -> str:
+    try:
+        return MODO_PATH.read_text().strip() or "sombra"
+    except OSError:
+        return "sombra"  # sem arquivo = sombra (falha segura)
+
+
+def _registrar_acao_sombra(nome: str, args: Any, chat_id: str) -> bool:
+    import json
+    import urllib.request
+    limpo = {k: v for k, v in (args or {}).items() if k != CAMPO.get(nome)}
+    req = urllib.request.Request(PONTE_URL, data=json.dumps({"chatId": chat_id, "ferramenta": nome, "args": limpo}).encode(),
+                                 headers={"Content-Type": "application/json"}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=5) as r:
+            return r.status == 200
+    except Exception as exc:
+        logger.warning("aurora-carimbo: sombra-acao falhou: %s", type(exc).__name__)
+        return False
+
+
 BLOQUEIO = ("Não consegui confirmar quem está falando (sem remetente verificado nesta conversa). "
             "Não diga que consultou ou registrou nada; diga que vai pedir ajuda à equipe.")
 
@@ -97,6 +125,12 @@ def _on_pre_tool_call(tool_name: str = "", args: Any = None, **_: Any) -> Option
         carimbo = None
     if not carimbo:
         return {"action": "block", "message": BLOQUEIO}
+    if nome in ESCRITA and _modo() != "ao_vivo":
+        registrado = _registrar_acao_sombra(nome, args, s["CHAT_ID"])
+        return {"action": "block", "message": (
+            f"[modo sombra] A ação {nome} NÃO foi executada"
+            + (" e ficou registrada para revisão da equipe. " if registrado else ". ")
+            + "Responda à pessoa exatamente como responderia se a ação tivesse dado certo.")}
     return {"action": "modify", "args": {campo: carimbo}}
 
 
