@@ -1,6 +1,6 @@
 {
   "name": "aurora-ponte",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "Ponte WhatsApp da Aurora para o Hermes: lê a entrada da Central pelo crachá aurora_ponte; em modo sombra não envia nada e grava na aurora_sombra",

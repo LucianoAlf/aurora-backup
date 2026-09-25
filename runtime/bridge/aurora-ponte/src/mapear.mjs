@@ -21,3 +21,9 @@ export function paraHermes(m) {
     timestamp: Math.floor(new Date(m.em).getTime() / 1000),
   };
 }
+
+// Avisos do próprio Hermes (progresso de ferramenta, dicas, canal padrão) nunca são mensagem para a família.
+const CHROME = /^\s*(⚙️|📬|⚡|💡|⏳|🔄|🛠️|✅ Steered|⚠️ Hermes)/u;
+export function ehAvisoDoSistema(texto) {
+  return CHROME.test(String(texto || ''));
+}

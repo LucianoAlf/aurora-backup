@@ -5,7 +5,7 @@
 import http from 'node:http';
 import { readFileSync } from 'node:fs';
 import pg from 'pg';
-import { paraHermes } from './mapear.mjs';
+import { paraHermes, ehAvisoDoSistema } from './mapear.mjs';
 
 const arg = (nome, padrao) => { const i = process.argv.indexOf(`--${nome}`); return i > 0 ? process.argv[i + 1] : padrao; };
 const PORTA = Number(arg('port', '3107'));
@@ -63,6 +63,10 @@ const servidor = http.createServer(async (req, res) => {
     if (req.method !== 'POST') return responder(res, 404, { error: 'rota' });
     const b = await corpo(req);
     if (rota === 'send' || rota === 'edit') {
+      if (ehAvisoDoSistema(b.message)) {
+        log('aviso_sistema_descartado', { rota });
+        return responder(res, 200, { success: true, messageId: `descartado-${Date.now()}` });
+      }
       const r = await sombra(String(b.chatId || ''), 'resposta', String(b.message || ''));
       log('sombra_resposta', { ok: Boolean(r?.ok) });
       return responder(res, 200, { success: true, messageId: `sombra-${r?.id || Date.now()}` });
