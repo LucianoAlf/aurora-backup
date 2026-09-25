@@ -1,46 +1,60 @@
-# CHECKPOINT — onde a Aurora está e para onde vai
+# CHECKPOINT: onde a Aurora está e para onde vai
 
-**Atualizado:** 2026-09-25 03:00 UTC · Alf e Alfredo
+**Atualizado:** 2026-09-25 10:50 UTC · Alf e Alfredo
+Os números de CP seguem a seção 6 do `PLANO-FUNDACAO-E-ROLLOUT.md`.
 
-## Feito
+## ✅ Feito
 
-| CP | Entrega | Onde está |
-|---|---|---|
-| CP1 | `SOUL.md` | repo + `/home/aurora/.hermes/SOUL.md` |
-| CP2 | `USER.md` | repo + `/home/aurora/.hermes/memories/USER.md` |
-| CP3 | `AGENTS.md` | repo + `/home/aurora/AGENTS.md` |
-| CP3.5 | Hermes instalado sem canal (`deepseek-v4.1-flash` via OpenCode Go) | `hermes-gateway-aurora`, ativo e sem portas |
-| CP4 | `PERMISSOES.md` + checagem de hash no CI | repo + `/home/aurora/PERMISSOES.md` |
-| CP5 | `MEMORY.md` (regras de memória; família que saiu é apagada 12 meses depois do último contato) | repo + `/home/aurora/.hermes/memories/MEMORY.md` |
-| CP6 (início) | 57 skills padrão do Hermes desligadas; prompt caiu de 47 para 42 KB | `runtime/hermes/config.yaml` + VPS |
+| Etapa | Entrega |
+|---|---|
+| CP0 | Baseline, fontes e acessos |
+| CP1 a CP5 | `SOUL`, `USER`, `AGENTS`, `PERMISSOES` e `MEMORY` aprovados, no repo e na VPS com hash conferido |
+| CP3.5 | Hermes instalado sem canal (`deepseek-v4.1-flash` via OpenCode Go) |
+| CP6 (parte) | 57 skills padrão do Hermes desligadas; prompt de 47 KB para 42 KB |
+| Memória | Backup do Honcho diário, criptografado, com cópia no Supabase LAHQ Memory e restauração testada a partir da cópia remota |
+| CP7 (parte) · Fase 0 | Edge functions do app versionadas no repo `Sonoramente` e trancadas; cérebro antigo da Aurora (Gemini) aposentado; funções do banco sem trava fechadas; teste real pela Central aprovado |
 
-Memória (Honcho):
-- Backup diário criptografado na la-hq, com restauração testada (13 tabelas e 319 linhas conferidas, busca vetorial ok).
-- A cópia fora do servidor vai para o Supabase **LAHQ Memory** e ainda depende de gravar a chave na la-hq.
-- O Honcho **ainda não está ligado na Aurora**. Só liga depois que a cópia externa for provada.
+## ▶️ Ferramentas (agora)
 
-## Auditoria do ERP SonoraMente (2026-09-25)
+Cada ferramenta passa por: desenho → aprovação do Alf → RPC com teste por papel → entrada na allowlist do MCP → teste da Aurora.
 
-- O `MAPA-QUARTOS.md` acerta as páginas e os caminhos do código, mas está incompleto:
-  - a maior parte das funções do banco e das edge functions não tem código versionado no repo do app;
-  - já existem funções `wa_aurora_*` e um MCP inicial que o mapa não cita.
-- O ERP ainda tem pouco dado: os pacientes cadastrados são os da Bianca, e não há cobrança nem lead.
-- Não existe caixa, sangria, lojinha nem baixa manual de cobrança. Isso vai ser construído do zero, no modelo da Sol.
-- Agendar e remarcar gravam direto na tabela `sessoes`. A Aurora vai precisar de funções novas, com trava contra duplicidade.
-- Crons antigos já mandam avisos para famílias. Quando a Aurora assumir um aviso, o cron correspondente é desligado.
-- Há achados de segurança no ERP, com correção planejada para a Fase 0. Os detalhes ficam fora deste repo público.
+1. **CP7 · Fechar a fachada do banco:** crachá `aurora_mcp` com login próprio e sem `service_role`, dois MCPs separados (leitura e escrita, padrão Julia) e trilha de auditoria.
+2. **Fase 1 · MCP de leitura** (CP8, CP12 e partes de CP11 e CP13):
+   1. quem é esta pessoa (família, equipe ou lead, crianças e terapeuta);
+   2. agenda (próximas sessões e horários livres);
+   3. situação financeira da família (em aberto e vencimentos);
+   4. lead (situação, origem, follow-up);
+   5. resumo do dia para a equipe.
+3. **Fase 2 · Escrita controlada** (CP10 e CP11):
+   - registrar e atualizar lead, com canal de origem e desfecho;
+   - pedido de agendamento para o Serjão;
+   - marcar, remarcar e cancelar, quando aprovado.
 
-## Próximos passos
+   Cada escrita tem idempotência, recibo e "pode" onde o `PERMISSOES` exige.
+4. **Fase 3 · Caixa novo:**
+   - abertura e fechamento com "pode";
+   - lançamento com ID da fatura ou da compra;
+   - sangria;
+   - edição e exclusão lógica com carimbo;
+   - reabertura.
+5. **CP6 · Fechamento:** `TOOLS.md`, skills da SonoraMente (atendimento às famílias, SDR, régua de cobrança, caixa, equipe e crise) e alertas.
 
-1. **Fase 0 — fundação do banco:**
-   - trazer para o repo do app o código das funções do banco e das edge functions;
-   - aplicar as correções de segurança, com SQL e rollback aprovados pelo Alf.
-2. **Fase 1 — MCP de leitura**, no padrão da Julia (crachá `aurora_mcp`, só RPC): agenda, paciente e responsável pelo WhatsApp, lead e situação financeira.
-3. **Fase 2 — escrita:** lead e agenda por RPC nova, com desligamento do cron equivalente.
-4. **Fase 3 — caixa novo**, com ID da fatura, "pode", carimbo e exclusão lógica.
-5. Depois: skills de social media, scraping e conteúdo; `TOOLS.md`; canal WhatsApp.
+## ⏭️ Depois das ferramentas
+
+6. **CP8/CP9 · WhatsApp:**
+   - bridge Hermes ↔ UAZAPI gravando em `wa_*`;
+   - escuta silenciosa;
+   - grupos, quoted e LID.
+7. **Honcho ligado na Aurora:** workspace e token próprios, uma gaveta por pessoa.
+8. **Migração dos avisos:** a cada aviso que a Aurora assume, o cron antigo correspondente é desligado.
+9. **CP13 a CP15:** relatórios e dashboard, prontuário com trava clínica, convênios e configurações.
+10. **Canais e integrações:**
+    - Instagram (DM e comentários);
+    - skills de social media, scraping e conteúdo;
+    - ponte com a Mila (encaminhamento e retorno) e com a Maria (conciliação).
+11. **CP16 · Rollout:** shadow, troca do webhook com o Alf, rollback de um passo e soak.
 
 ## Pendências do Alf
 
-- Gravar a chave do LAHQ Memory na la-hq (1 minuto no computador).
-- Gerar a nova chave Asaas quando a cobrança começar (a antiga já foi cancelada).
+- Corrigir o nome antigo da instância UAZAPI que aparece na Central.
+- Gerar a nova chave Asaas quando a cobrança começar.

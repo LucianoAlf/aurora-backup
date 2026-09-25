@@ -12,7 +12,7 @@
 
 **Casa operacional:** SonoraMente
 
-**Estado:** CP0, CP1/SOUL, CP2/USER, CP3/AGENTS, CP3.5/Hermes sem canal, CP4/PERMISSOES e o texto do CP5/MEMORY concluídos em 2026-09-24/25; ligar o Honcho aguarda backup offsite provado; CP6 em andamento (ver `CHECKPOINT.md`)
+**Estado:** CP0, CP1/SOUL, CP2/USER, CP3/AGENTS, CP3.5/Hermes sem canal, CP4/PERMISSOES e o texto do CP5/MEMORY concluídos em 2026-09-24/25; ligar o Honcho aguarda backup offsite provado; CP6 e CP7 em andamento, Fase 0 concluída (ver `CHECKPOINT.md`)
 
 **Fluxo de publicação (decisão do Alf, 2026-09-24):** enquanto só o Alf e o Alfredo mexem neste repo, commit e push vão direto na `main`, sem PR. Continuam obrigatórios: a aprovação do texto inteiro, a varredura de segredos e o readback do hash no remoto. Cada arquivo aprovado também é copiado para o caminho vivo na VPS (`/home/aurora/.hermes/SOUL.md`, `/home/aurora/.hermes/memories/USER.md`, `/home/aurora/.hermes/memories/MEMORY.md` e `/home/aurora/AGENTS.md`), e o hash é conferido no repo, no GitHub e na VPS. A comprovação de que o arquivo foi "carregado no prompt" só passa a valer depois da instalação do Hermes.
 
