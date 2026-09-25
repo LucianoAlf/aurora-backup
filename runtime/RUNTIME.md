@@ -47,3 +47,11 @@ rm /etc/systemd/system/hermes-gateway-aurora.service && systemctl daemon-reload
 rm -rf /home/aurora/.hermes/hermes-agent /home/aurora/.hermes/config.yaml /home/aurora/.hermes/.env
 # estado anterior: /root/backups/aurora/pre-cp35-20260924T232830Z.tgz
 ```
+
+## CP6 · Skills padrão desligadas (2026-09-25)
+
+- `skills.disabled` lista as 57 skills que vêm com o Hermes (tudo do `.bundled_manifest`, menos `hermes-agent`, que é essencial e não pode ser desligada). Nada foi apagado do disco.
+- Resultado no `prompt-size`: índice de skills caiu de 5,2 KB para 0,3 KB; prompt total de 47,1 KB para 42,2 KB.
+- Tools carregadas: `skills_list`, `skill_view`, `skill_manage` (com `write_approval: true`) e as meta-tools `tool_search`, `tool_describe`, `tool_call` do núcleo do Hermes.
+- Risco: um `hermes update` pode trazer skill padrão nova, que nasce ligada. Depois de cada update, conferir `prompt-size` e completar a lista.
+- Rollback: `/root/backups/aurora/config.yaml.pre-cp6-skills-*` na la-hq.
