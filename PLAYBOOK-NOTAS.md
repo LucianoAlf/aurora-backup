@@ -113,6 +113,9 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - Em canal compartilhado com humanos (Central), o agente precisa saber **quando ficar calado**: botão da conversa, atendente humano e resposta humana recente (2 h). Implementar **durante a sombra**, não depois: assim a revisão mede o comportamento real, e o silêncio também fica registrado com motivo.
 - Conferir o que cada rótulo da tela significa antes de agir: o "Aurora desligada" da Central era o interruptor geral, não o da conversa.
 
+- **Memória (Honcho) só liga junto com o ao vivo.** Na sombra, a memória guardaria como dito o que nunca foi enviado. Na sombra dá para preparar tudo: workspace próprio, token restrito ao workspace (JWT HS256 com claim `w`), prova de isolamento (o agente não lê o workspace de outro, e vice-versa) e config com `enabled: false`.
+- Teste de memória pelo terminal não prova a gaveta por número (o terminal cai no peer padrão). A prova real é pelo canal, na virada.
+
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.
