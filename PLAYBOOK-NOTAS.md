@@ -109,6 +109,9 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - Não trocar a porta de entrada do canal: a Central continua dona do webhook; o agente lê do banco por um crachá próprio, sem porta pública na VPS.
 - Hermes: dá para usar a plataforma WhatsApp com uma ponte própria (`extra.bridge_script`), que precisa de `package.json` na pasta do script e de um `creds.json` marcador na sessão. `dm_policy`/`group_policy: open` exigem `WHATSAPP_ALLOW_ALL_USERS=true` (o controle de acesso real fica no banco).
 
+- Ao ligar um canal de mensagem no Hermes, **desligar os avisos da própria ferramenta** (progresso de ferramenta, dicas de primeira vez, "defina o canal padrão", aviso de interrupção): `display.tool_progress: off`, `display.platforms.<canal>.tool_progress: off`, `display.busy_input_mode: queue`, `onboarding.seen.*`, `<CANAL>_HOME_CHANNEL`. E filtrar na ponte por garantia. Foi a sombra que mostrou isso: sem ela, a família receberia "⚙️ tool_call...".
+- Em canal compartilhado com humanos (Central), o agente precisa saber **quando ficar calado**: botão da conversa e atendimento humano recente.
+
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.

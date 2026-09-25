@@ -1,6 +1,6 @@
 # CHECKPOINT: onde a Aurora está e para onde vai
 
-**Atualizado:** 2026-09-25 21:50 UTC · Alf e Alfredo
+**Atualizado:** 2026-09-25 22:15 UTC · Alf e Alfredo
 Os números de CP seguem a seção 6 do `PLANO-FUNDACAO-E-ROLLOUT.md`.
 
 ## ✅ Feito
@@ -16,6 +16,8 @@ Os números de CP seguem a seção 6 do `PLANO-FUNDACAO-E-ROLLOUT.md`.
 | Fase 2 · escrita 1 e 2 ✅ | MCP `aurora-write` 0.2.0, crachá `aurora_escrita` (ex-`aurora_aviso`, permissão função por função). **Escrita 1:** `aurora_avisar_atendimento` (aviso de falta/remarcação na lista da equipe; não mexe em sessão). **Escrita 2:** `aurora_lead_registrar`, `aurora_lead_mover_etapa` (só triagem ou perdido com motivo; nunca agendado/ativo) e `aurora_lead_followup_feito` (D+1/D+3/D+7 sem repetir). Testadas por papel (15/15) e ponta a ponta |
 | Carimbo do remetente ✅ | Plugin `aurora-carimbo` no Hermes sobrescreve o remetente de toda ferramenta com carimbo HMAC; o banco confere e recusa número solto (Sonoramente `20260925233000`). MCP read 0.5.0 / write 0.3.0. 12/12 no banco e 3/3 ponta a ponta. Falta a prova no gateway real, junto com a ponte |
 | Ponte WhatsApp · MODO SOMBRA 🟡 (desde 2026-09-25 21:42 UTC) | `aurora-ponte` roda dentro do Hermes da Aurora e lê a entrada da Central pelo crachá `aurora_ponte` (Sonoramente `20260926000000`). **Nada é enviado:** respostas e ações de escrita vão para `aurora_sombra`. Privado: responde tudo; grupo: só quando chamam "Aurora". **Critério de promoção (Alf):** 30 respostas revisadas com zero erro grave (vazar dado, prometer o que não pode, errar criança/pessoa, dizer que fez sem fazer). **Prazo de decisão: 2026-10-02.** Revisão diária às 09:00 SP (automação do Alfredo) com placar X/30. Liberação: Alf → equipe → famílias. Proibido prorrogar em silêncio |
+| Sombra · prova real ✅ (2026-09-25 19:08 SP) | Mensagem real do Alf no privado caiu na sombra com resposta coerente (usou quem_e, hoje, sessões e agenda); nada foi enviado. Achados corrigidos na hora: avisos do Hermes (progresso de ferramenta, dica de "interromper", "defina o canal padrão") iam junto; desligados no config e filtrados na ponte 0.1.1 |
+| **Pré-requisitos para sair da sombra** (além de 30 revisadas / 0 grave) | 1) Respeitar o botão "Aurora desligada" da Central (`aurora_ativa`) e ficar calada quando a equipe estiver atendendo a conversa (resposta humana nas últimas 2 h). 2) Revisar divergência de cadastro: contato marcado na Central como responsável/paciente sem responsável no ERP com o mesmo número (a Aurora trata como família nova). 3) Grupo: prova chamando "Aurora" |
 | CP7 (parte) · Fase 0 | Edge functions do app versionadas no repo `Sonoramente` e trancadas; cérebro antigo da Aurora (Gemini) aposentado; funções do banco sem trava fechadas; teste real pela Central aprovado |
 
 ## ▶️ Ferramentas (agora)

@@ -42,6 +42,12 @@ display:
   tool_progress_command: false
   runtime_footer:
     enabled: false
+  tool_progress: 'off'
+  busy_input_mode: queue
+  busy_steer_ack_enabled: false
+  platforms:
+    whatsapp:
+      tool_progress: 'off'
 skills:
   external_dirs: []
   inline_shell: false
@@ -115,7 +121,7 @@ mcp_servers:
   aurora-read:
     command: /usr/bin/node
     args:
-    - /home/aurora/releases/ec0a1db13fe41f7ffb0898af12164e970f2a0931/runtime/mcp/aurora-read/src/index.mjs
+    - /home/aurora/releases/18df3d5f7e6ea45ebad0d78f1c2bb8167f8cedd9/runtime/mcp/aurora-read/src/index.mjs
     env:
       AURORA_DB_READ_URL: ${AURORA_DB_READ_URL}
     connect_timeout: 15.0
@@ -123,7 +129,7 @@ mcp_servers:
   aurora-write:
     command: /usr/bin/node
     args:
-    - /home/aurora/releases/ec0a1db13fe41f7ffb0898af12164e970f2a0931/runtime/mcp/aurora-write/src/index.mjs
+    - /home/aurora/releases/18df3d5f7e6ea45ebad0d78f1c2bb8167f8cedd9/runtime/mcp/aurora-write/src/index.mjs
     env:
       AURORA_DB_ESCRITA_URL: ${AURORA_DB_ESCRITA_URL}
     connect_timeout: 15.0
@@ -135,11 +141,18 @@ platforms:
   whatsapp:
     enabled: true
     extra:
-      bridge_script: /home/aurora/releases/ec0a1db13fe41f7ffb0898af12164e970f2a0931/runtime/bridge/aurora-ponte/bridge.mjs
+      bridge_script: /home/aurora/releases/18df3d5f7e6ea45ebad0d78f1c2bb8167f8cedd9/runtime/bridge/aurora-ponte/bridge.mjs
       bridge_port: 3107
       dm_policy: open
       group_policy: open
       require_mention: true
       mention_patterns:
-      - '(?i)\baurora\b'
+      - (?i)\baurora\b
       send_read_receipts: false
+onboarding:
+  seen:
+    busy_input_prompt: true
+    tool_progress_prompt: true
+    openclaw_residue_cleanup: true
+    profile_build_offered: true
+  profile_build: 'off'
