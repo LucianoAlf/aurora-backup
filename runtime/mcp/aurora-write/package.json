@@ -1,0 +1,10 @@
+{
+  "name": "aurora-write",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP stdio de escrita da Aurora: só registrar aviso de falta ou remarcação, pelo crachá aurora_aviso",
+  "scripts": { "start": "node src/index.mjs", "test": "node --test tests/*.test.mjs" },
+  "engines": { "node": ">=20" },
+  "dependencies": { "@modelcontextprotocol/server": "2.0.0", "pg": "8.23.0", "zod": "4.6.5" }
+}
