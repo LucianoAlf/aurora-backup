@@ -125,6 +125,6 @@ mcp_servers:
     args:
     - /home/aurora/releases/ee3c394d691db0ef89d15fa6be8036684752ab53/runtime/mcp/aurora-write/src/index.mjs
     env:
-      AURORA_DB_AVISO_URL: ${AURORA_DB_AVISO_URL}
+      AURORA_DB_ESCRITA_URL: ${AURORA_DB_ESCRITA_URL}
     connect_timeout: 15.0
     enabled: true

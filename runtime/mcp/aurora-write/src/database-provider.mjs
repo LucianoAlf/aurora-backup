@@ -12,7 +12,8 @@ SELECT r.rolname, r.rolsuper, r.rolinherit, r.rolcreaterole, r.rolcreatedb, r.ro
        (SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
          WHERE n.nspname = 'public'
            AND c.relname IN ('pacientes','responsaveis','paciente_responsavel','sessoes','cobrancas','leads',
-                             'evolucoes','anamneses','aurora_equipe','aurora_identificadores','wa_mensagens','aurora_avisos_atendimento')
+                             'evolucoes','anamneses','aurora_equipe','aurora_identificadores','wa_mensagens','aurora_avisos_atendimento',
+                             'aurora_lead_followups','wa_contatos')
            AND (has_table_privilege(current_user, c.oid, 'SELECT') OR has_table_privilege(current_user, c.oid, 'INSERT')
              OR has_table_privilege(current_user, c.oid, 'UPDATE') OR has_table_privilege(current_user, c.oid, 'DELETE'))
        )::integer AS table_grants
@@ -25,7 +26,7 @@ function assertBadge(row, config) {
     row.rolcreatedb || !row.rolcanlogin || row.rolreplication || row.rolbypassrls ||
     row.memberships !== 0 || row.table_grants !== 0
   ) {
-    throw new AdapterError('CREDENTIAL_SCOPE_INVALID', 'O crachá da Aurora não está restrito à escrita de aviso por RPC.');
+    throw new AdapterError('CREDENTIAL_SCOPE_INVALID', 'O crachá da Aurora não está restrito à escrita por RPC.');
   }
 }
 

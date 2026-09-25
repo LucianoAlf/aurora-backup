@@ -1,6 +1,6 @@
 import { AdapterError } from './errors.mjs';
 
-const EXPECTED_LOGIN_ROLE = 'aurora_aviso';
+const EXPECTED_LOGIN_ROLE = 'aurora_escrita';
 
 function boundedInteger(raw, name, fallback, min, max) {
   const value = Number.parseInt(raw ?? String(fallback), 10);
@@ -11,7 +11,7 @@ function boundedInteger(raw, name, fallback, min, max) {
 }
 
 function parseDatabaseUrl(raw) {
-  if (!raw) throw new AdapterError('CONFIGURATION_ERROR', 'AURORA_DB_AVISO_URL é obrigatório.');
+  if (!raw) throw new AdapterError('CONFIGURATION_ERROR', 'AURORA_DB_ESCRITA_URL é obrigatório.');
   let parsed;
   try {
     parsed = new URL(raw);
@@ -33,7 +33,7 @@ function parseDatabaseUrl(raw) {
 
 export function loadConfig(env = process.env) {
   return Object.freeze({
-    databaseUrl: parseDatabaseUrl((env.AURORA_DB_AVISO_URL || '').trim()),
+    databaseUrl: parseDatabaseUrl((env.AURORA_DB_ESCRITA_URL || '').trim()),
     expectedLoginRole: EXPECTED_LOGIN_ROLE,
     timeoutMs: boundedInteger(env.AURORA_MCP_TIMEOUT_MS, 'AURORA_MCP_TIMEOUT_MS', 5000, 100, 15000),
     maxPayloadBytes: boundedInteger(env.AURORA_MCP_MAX_PAYLOAD_BYTES, 'AURORA_MCP_MAX_PAYLOAD_BYTES', 32768, 1024, 131072),
