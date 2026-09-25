@@ -112,7 +112,7 @@ mcp_servers:
   aurora-read:
     command: /usr/bin/node
     args:
-    - /home/aurora/releases/8a7d2b996255cc379bae307cb740a062d641ee1b/runtime/mcp/aurora-read/src/index.mjs
+    - /home/aurora/releases/506f9c73b1432559b22745ba4b9a562516177e93/runtime/mcp/aurora-read/src/index.mjs
     env:
       AURORA_DB_READ_URL: ${AURORA_DB_READ_URL}
     connect_timeout: 15.0
