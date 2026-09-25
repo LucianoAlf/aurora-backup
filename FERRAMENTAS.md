@@ -163,6 +163,11 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 - **Revisão:** `aurora_sombra.revisao` = pendente / ok / erro_leve / erro_grave. Placar diário às 09:00 SP no Telegram do Alf.
 - **Estado:** no ar em sombra desde 2026-09-25 21:42 UTC. O modo `ao_vivo` (envio pela função de envio da Central) ainda não existe e só entra depois da promoção.
 
+## Skills que usam estas ferramentas
+- `atendimento-familias`: quem é → hoje → sessões/pacote → aviso de falta/remarcação → cobrança.
+- `acolhimento-leads`: quem é → acolher → registrar lead → triagem → Serjão → perdido/follow-up.
+- `consultas-da-equipe`: agenda, pacotes, recesso, financeiro de família e leads, com o escopo aplicado pelas próprias ferramentas.
+
 ## Próximas (plano em `CHECKPOINT.md`)
 - Caixa novo no modelo da Sol.
 - Canal WhatsApp e Instagram; social media e scraping.

@@ -116,6 +116,10 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - **Memória (Honcho) só liga junto com o ao vivo.** Na sombra, a memória guardaria como dito o que nunca foi enviado. Na sombra dá para preparar tudo: workspace próprio, token restrito ao workspace (JWT HS256 com claim `w`), prova de isolamento (o agente não lê o workspace de outro, e vice-versa) e config com `enabled: false`.
 - Teste de memória pelo terminal não prova a gaveta por número (o terminal cai no peer padrão). A prova real é pelo canal, na virada.
 
+## 4.2 Skills
+- **Skill vem depois da ferramenta**, uma por frente de trabalho (atendimento, leads, equipe), curta (1,5–2 KB), com cada passo apontando a ferramenta e o critério de pronto. Regras que valem sempre (como "só diz que fez o que a ferramenta confirmou") ficam no AGENTS, não em skill.
+- Desligar as skills padrão do Hermes e medir o `prompt-size` depois de instalar as da casa (aqui: índice ~90 B por skill).
+
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.
