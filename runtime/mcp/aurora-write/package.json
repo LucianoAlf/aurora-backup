@@ -1,6 +1,6 @@
 {
   "name": "aurora-write",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "MCP stdio de escrita da Aurora: aviso de falta/remarcação e lead (registrar, mover etapa, follow-up), pelo crachá aurora_escrita",

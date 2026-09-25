@@ -1,7 +1,11 @@
 import * as z from 'zod/v4';
 
 // Allowlist de escrita da Aurora. Cada ferramenta entra aqui só depois de aprovada pelo Alf.
-const identificador = z.string().trim().min(8).max(80).regex(/^[0-9+()\s-]+(@(lid|s\.whatsapp\.net|c\.us))?$/);
+// O remetente vem do plugin aurora-carimbo do Hermes, nunca do modelo: carimbo assinado que o banco confere.
+const identificador = z
+  .string()
+  .regex(/^(auto|AUR1\.[a-z]+\.(dm|group)\.[0-9]{6,20}(@lid)?\.[0-9a-f]{16}\.[0-9]{10}\.[0-9a-f]{32})$/)
+  .describe('Preenchido automaticamente com o remetente verificado da conversa. Envie "auto".');
 
 const WRITE_SAFE = Object.freeze({ readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false });
 
@@ -10,7 +14,7 @@ export const TOOL_DEFINITIONS = Object.freeze({
     title: 'Avisar o atendimento (falta ou remarcação)',
     description:
       'Registra na lista de avisos da equipe que a família avisou falta ou pediu remarcação. NÃO marca falta, NÃO cancela e NÃO remarca: ' +
-      'isso é com o Serjão. remetente = número ou LID de quem mandou a mensagem. data_sessao = data da sessão de que a família fala ' +
+      'isso é com o Serjão. remetente é preenchido pelo sistema (envie "auto"). data_sessao = data da sessão de que a família fala ' +
       '(use aurora_hoje para saber o que é "hoje" e "amanhã"); sem data, vale a próxima sessão. saude = true quando o motivo for doença: ' +
       'aí peça o atestado e não prometa reposição. Depois de registrar, diga à família: "Vou avisar o atendimento" (falta) ou ' +
       '"Vou encaminhar pra equipe falar com a senhora/o senhor" (remarcação). Se voltar erro, não diga que avisou.',
@@ -32,7 +36,7 @@ export const TOOL_DEFINITIONS = Object.freeze({
   aurora_lead_registrar: Object.freeze({
     title: 'Registrar família nova (lead)',
     description:
-      'Registra ou completa o lead de uma família que chegou pela primeira vez. numero = número ou LID da família (não da equipe). ' +
+      'Registra ou completa o lead de uma família que chegou pela primeira vez. Vale para quem está escrevendo (numero é preenchido pelo sistema; envie "auto"). ' +
       'origem = por onde chegou (pergunte "como conheceu a SonoraMente?"). motivacao = o que a família contou que busca, com as palavras ' +
       'dela; NUNCA escreva diagnóstico nem suspeita. Criança com mais de 12 anos entra como perdido (fora da faixa etária): diga com ' +
       'carinho que o atendimento é até 12 anos. Se o número já for família ou equipe, volta erro ja_cadastrado: não registre de novo. ' +

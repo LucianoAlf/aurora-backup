@@ -1,7 +1,11 @@
 import * as z from 'zod/v4';
 
 // Allowlist da Aurora. Cada ferramenta entra aqui só depois de aprovada pelo Alf e testada no banco.
-const identificador = z.string().trim().min(8).max(80).regex(/^[0-9+()\s-]+(@(lid|s\.whatsapp\.net|c\.us))?$/);
+// O remetente vem do plugin aurora-carimbo do Hermes, nunca do modelo: carimbo assinado que o banco confere.
+const identificador = z
+  .string()
+  .regex(/^(auto|AUR1\.[a-z]+\.(dm|group)\.[0-9]{6,20}(@lid)?\.[0-9a-f]{16}\.[0-9]{10}\.[0-9a-f]{32})$/)
+  .describe('Preenchido automaticamente com o remetente verificado da conversa. Envie "auto".');
 
 const READ_ONLY = Object.freeze({ readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false });
 
@@ -40,7 +44,7 @@ export const TOOL_DEFINITIONS = Object.freeze({
     description:
       'Próximas sessões (até 5) de uma criança: data, dia, hora, terapeuta, status e "sessão X de Y". ' +
       'Responde para o responsável (só as crianças dele), o terapeuta (só os pacientes dele) e o time (Alf, Anne, Bianca, Serjão). ' +
-      'solicitante = número ou LID de quem perguntou. Remarcação não é com a Aurora: avise o atendimento (Serjão).',
+      'solicitante é preenchido pelo sistema (envie "auto"). Remarcação não é com a Aurora: avise o atendimento (Serjão).',
     inputSchema: z.object({ solicitante: identificador, crianca: z.string().trim().min(2).max(80).optional() }).strict(),
     annotations: READ_ONLY,
     sql: 'SELECT public.aurora_sessoes_paciente($1::text, $2::text) AS result',
