@@ -44,6 +44,6 @@
 
 1. O Serjão usar o privado e o Aurora Assistant a partir de segunda.
 2. Régua fechada → virada ao vivo + Honcho. Caixa e Instagram depois.
-3. **Sol:** revisão pelo playbook e Sol 100% nos três grupos.
-4. **Mike:** aplicar o playbook e trazer para o Hermes.
+3. **Mike:** aplicar o playbook e trazer para o Hermes (frente ativa desde 26/09 20:40).
+4. **Sol:** roda uns dias com #511/#513 e o placar do canário; depois, revisão pelo playbook e Sol 100% nos três grupos.
 5. **Alfredo no Hermes:** em paralelo até o Alfredo dar o ok, seguindo playbook + skill, com revisão da documentação de instalação do Hermes.
