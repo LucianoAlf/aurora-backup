@@ -1,6 +1,6 @@
 ---
 name: criar-agente-hermes
-description: Criar, migrar ou auditar agente no Hermes (LAHQ): novo agente, SOUL/AGENTS, ferramentas, carimbo, canal WhatsApp, sombra, copiloto, modelo. Segue o Playbook v1.
+description: "Criar, migrar ou auditar agente no Hermes (LAHQ): novo agente, SOUL/AGENTS, ferramentas, carimbo, canal WhatsApp, sombra, copiloto, modelo. Segue o Playbook v1."
 ---
 
 # Criar um agente no Hermes (método LAHQ)
