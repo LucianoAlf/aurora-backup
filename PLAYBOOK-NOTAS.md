@@ -140,6 +140,13 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - Modelo sem visão não lê foto: a escolha do modelo depende disso.
 - Equipe no privado ganha dois usos com uma skill só: **copiloto** (sugere a resposta, não age pelo cliente) e **treino** nos dois sentidos, com ações simuladas.
 
+## 4.5 Copiloto dentro do sistema da equipe
+- Em vez de calar quando o humano assume, o agente **sugere** no painel do atendente (Enviar / Editar / Copiar / Ignorar). O humano envia como ele mesmo: seguro mesmo em sombra.
+- O clique do atendente é a **revisão da régua de graça**: enviada = ok, editada = leve (guarda a diferença), ignorada = revisão manual.
+- Em modo sugestão: nada sai para o cliente, sem "digitando", ferramentas de escrita travadas.
+- O agente precisa saber **o que o humano respondeu de fato**; senão acha que a própria sugestão foi enviada e perde o fio.
+- Mídia: o sistema pode gravar a mensagem antes do arquivo. A ponte espera a URL antes de entregar.
+
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.
