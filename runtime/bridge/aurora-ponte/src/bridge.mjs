@@ -20,7 +20,10 @@ function lerUrl() {
 }
 
 const log = (evento, extra = {}) => console.log(JSON.stringify({ t: new Date().toISOString(), evento, ...extra }));
-const pool = new pg.Pool({ connectionString: lerUrl(), max: 2, application_name: 'aurora-ponte', idleTimeoutMillis: 10000 });
+// Prazos: sem eles, uma queda do banco deixa a ponte pendurada para sempre (incidente 26/09/2026).
+const pool = new pg.Pool({ connectionString: lerUrl(), max: 2, application_name: 'aurora-ponte', idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 10000, query_timeout: 15000, statement_timeout: 10000 });
+pool.on('error', (e) => log('erro_pool', { codigo: e.code || e.name }));
 const fila = [];
 let ultimoPuxar = null;
 let erroSeguido = 0;
@@ -66,7 +69,8 @@ const servidor = http.createServer(async (req, res) => {
   const rota = new URL(req.url, 'http://x').pathname.replace(/^\//, '');
   try {
     if (req.method === 'GET' && rota === 'health') {
-      return responder(res, 200, { status: 'connected', modo: 'sombra', fila: fila.length, ultimo_puxar: ultimoPuxar, erros_seguidos: erroSeguido });
+      return responder(res, 200, { status: 'connected', modo: 'sombra', fila: fila.length, ultimo_puxar: ultimoPuxar, erros_seguidos: erroSeguido,
+        banco_ok: Boolean(ultimoPuxar && Date.now() - ultimoPuxar.getTime() < 120000) });
     }
     if (req.method === 'GET' && rota === 'messages') return responder(res, 200, fila.splice(0, fila.length));
     if (req.method !== 'POST') return responder(res, 404, { error: 'rota' });
