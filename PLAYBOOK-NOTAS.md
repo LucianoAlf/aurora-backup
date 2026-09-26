@@ -147,6 +147,9 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - O agente precisa saber **o que o humano respondeu de fato**; senão acha que a própria sugestão foi enviada e perde o fio.
 - Mídia: o sistema pode gravar a mensagem antes do arquivo. A ponte espera a URL antes de entregar.
 
+- Áudio tem a mesma corrida da foto: o sistema grava "🎤 Audio" e transcreve depois. A ponte espera a transcrição antes de entregar.
+- Antes de criar botão novo na tela, procurar o marcador que o time já deixou ("Em breve"): usar o lugar planejado.
+
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.
