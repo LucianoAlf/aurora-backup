@@ -1,7 +1,7 @@
 # ROADMAP da Aurora (SonoraMente)
 
 > Estado vivo do projeto, atualizado a cada etapa. Detalhe técnico em `CHECKPOINT.md`, ferramentas em `FERRAMENTAS.md`, método em `PLAYBOOK-NOTAS.md`.
-> Última atualização: **2026-09-26 19:25 UTC** (Alfredo, com o Alf).
+> Última atualização: **2026-09-26 20:15 UTC** (Alfredo, com o Alf).
 
 ## Onde estamos
 
@@ -25,23 +25,25 @@
 | 16 | Memória da Aurora (Honcho ligado, uma gaveta por pessoa) | ⏳ | liga junto com a virada |
 | 17 | Caixa | ⏳ | |
 | 18 | Instagram e social media (+ ponte com Mila e Maria) | ⏳ | |
-| 19 | Playbook final | 🟡 | matéria-prima pronta; dá pra escrever a v1 agora |
+| 19 | Playbook | 🟡 | **v1 publicada** (`playbook/`) + skill `criar-agente-hermes` atualizada; v2 com caixa, Instagram e memória |
+| 20 | Cérebros antigos (Gemini) aposentados | ✅ | `aurora-assist` e `aurora-responder` respondem 410; código em `_aposentadas/` |
+| 21 | Documentação enxuta (35 KB → 10,6 KB) | 🟡 | proposta testada 10/10 em `propostas/2026-09-26-enxugar/`; aplica com o ok do Alf |
 
 ## Riscos e oportunidades (26/09)
 
 1. **A régua não fecha até 02/10 no ritmo atual.** Foram 92 mensagens e só 8 respostas em sombra, porque a maioria é grupo que não chama a Aurora. O Aurora Assistant resolve: cada clique do Serjão vira revisão. Ação: o Serjão usar o painel no dia a dia a partir de segunda. Se em 02/10 estiver abaixo de 30, estender o prazo em vez de baixar o critério.
 2. **Pouco dado no ERP:** só 3 pacientes cadastrados, então quase toda família real cai como lead. Ação: ampliar o cadastro (texto já entregue ao Alf para Bianca/Serjão).
-3. **Cérebros antigos (Gemini) ainda publicados:** `aurora-assist` e `aurora-responder` estão parados, mas no ar. Ação: aposentar com o ok do Alf.
+3. ~~Cérebros antigos (Gemini)~~: aposentados em 26/09 (estavam públicos, sem login).
 4. **Cérebro único em mais funções:** modo "família" da reescrita de evolução e resumos.
-5. **USER.md de 10 KB carregado inteiro** em toda mensagem. Ação: enxugar (custo e tempo).
+5. **USER.md de 10 KB acima do limite do Hermes** (travava a memória). Proposta de enxugar pronta e testada; aplica com o ok do Alf.
 6. **Ferramenta geral de parcelas atrasadas:** hoje só existe por criança.
 7. **Saúde diária:** o placar das 9h já confere a ponte. Ação: incluir o `aurora-cerebro` e o limite da assinatura.
 8. **Teste em grupo chamando "Aurora":** adiado pelo Alf.
 
-## Próximos passos (ordem proposta)
+## Próximos passos (ordem do Alf, 26/09)
 
-1. Serjão começa a usar o privado e o Aurora Assistant (segunda).
-2. Escrever o **Playbook v1** (da fundação ao atendimento assistido), com os capítulos de caixa, Instagram e memória como "próximas etapas".
-3. Aposentar os cérebros antigos e levar o cérebro único para evolução e resumos.
-4. Régua fechada → virada ao vivo + Honcho.
-5. Caixa → Instagram → Playbook final → Mike (DEC-OPS-47).
+1. Aplicar a documentação enxuta (ok do Alf) e o Serjão usar o privado e o Aurora Assistant a partir de segunda.
+2. Régua fechada → virada ao vivo + Honcho. Caixa e Instagram depois.
+3. **Sol:** revisão pelo playbook e Sol 100% nos três grupos.
+4. **Mike:** aplicar o playbook e trazer para o Hermes.
+5. **Alfredo no Hermes:** em paralelo até o Alfredo dar o ok, seguindo playbook + skill, com revisão da documentação de instalação do Hermes.
