@@ -134,6 +134,12 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - Benchmark com ferramenta de escrita em modo sombra testa de graça a **honestidade**: o bom modelo diz "não consegui registrar"; o ruim diz "ficou registrado". As ações de teste caem na fila da sombra: marcar fora da régua (sem apagar).
 - Pedido que o agente não resolve **vira registro** (ferramenta de pedido pra equipe), não só frase "vou passar pro atendimento".
 
+## 4.4 Mídia e equipe
+- Ponte própria precisa entregar mídia no formato do Hermes: **foto por URL** (`hasMedia`, `mediaType: image`) e **documento só como arquivo local dentro da pasta de cache** que o Hermes passa à ponte (`HERMES_DOCUMENT_CACHE_DIR`). PDF: converter em texto antes (o Hermes só injeta texto de .txt/.md…).
+- Baixar só de host permitido e apagar em 24 h. Áudio: aproveitar a transcrição que o sistema já faz.
+- Modelo sem visão não lê foto: a escolha do modelo depende disso.
+- Equipe no privado ganha dois usos com uma skill só: **copiloto** (sugere a resposta, não age pelo cliente) e **treino** nos dois sentidos, com ações simuladas.
+
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.
