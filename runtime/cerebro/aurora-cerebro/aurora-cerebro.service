@@ -1,0 +1,19 @@
+[Unit]
+Description=aurora-cerebro: GPT-6 Sol da assinatura para as funções de texto da Central SonoraMente
+After=network-online.target
+
+[Service]
+User=aurora
+Group=aurora
+WorkingDirectory=/home/aurora/aurora-cerebro
+Environment=HOME=/home/aurora
+Environment=HERMES_HOME=/home/aurora/.hermes
+Environment=AURORA_CEREBRO_PORT=8681
+ExecStart=/home/aurora/.hermes/hermes-agent/venv/bin/python /home/aurora/aurora-cerebro/cerebro.py
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
