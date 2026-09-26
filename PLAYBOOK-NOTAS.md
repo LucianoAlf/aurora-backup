@@ -153,6 +153,12 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - **Testar a função publicada antes de entregar**, com bateria automática (aqui: 5 tons × 3 mensagens, conferindo fatos preservados, texto inteiro e sem raciocínio do modelo). Função com LLM precisa de um jeito interno e autenticado de ser chamada pelo teste.
 - Gemini 3 "pensa" dentro do limite de saída: com limite baixo a resposta volta cortada ou misturada com o rascunho. Raciocínio mínimo, descartar partes `thought` e só aceitar `finishReason: STOP`.
 
+## 4.6 Cérebro único para o sistema do cliente
+- Funções de texto do sistema (tom, resumo, texto para família) usam o **mesmo modelo do agente**, pela assinatura, com o desenho da julia-bridge: edge function → túnel → serviço na VPS com token; o navegador nunca vê o token.
+- Serviço só texto→texto (sem agente, sem ferramenta), prompts na edge function (fonte única), limite por minuto e nada de conteúdo em log.
+- **Sempre com reserva** (aqui, Gemini): se a VPS cair, o botão continua funcionando. Testar a queda de propósito.
+- Sem permissão de Owner no Supabase, o token vai para o **Vault**, lido só por `service_role`.
+
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.
