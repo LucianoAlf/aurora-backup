@@ -131,6 +131,7 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - Mudança temporária de config (ex.: Fast) só depois que todos os outros terminarem, com cópia e restauração conferida (`cmp`).
 - **Ler o aviso do plano**: tier "contributor" treina com os dados. Com dado de família/criança, está fora, por melhor que seja.
 - Nome da equipe vaza também pela **descrição da ferramenta**: o modelo repete o que lê ali. Regra de "não citar nomes" vale para AGENTS, skills e descrições (com teste).
+- Benchmark com ferramenta de escrita em modo sombra testa de graça a **honestidade**: o bom modelo diz "não consegui registrar"; o ruim diz "ficou registrado". As ações de teste caem na fila da sombra: marcar fora da régua (sem apagar).
 - Pedido que o agente não resolve **vira registro** (ferramenta de pedido pra equipe), não só frase "vou passar pro atendimento".
 
 ## 5. Operação contínua
