@@ -26,7 +26,7 @@ export const TOOL_DEFINITIONS = Object.freeze({
     description:
       'Para contato novo que diz ser da família. Responde só confere, pista ou nao_encontrado, sem devolver dado. ' +
       '"pista" não libera nada: agenda, sessão e cobrança só com "confere" (nome da criança, nome do responsável e data de nascimento) ' +
-      'ou com confirmação do Serjão ou da Bianca.',
+      'ou com confirmação da equipe de atendimento.',
     inputSchema: z
       .object({
         identificador,
@@ -43,8 +43,8 @@ export const TOOL_DEFINITIONS = Object.freeze({
     title: 'Próximas sessões da criança',
     description:
       'Próximas sessões (até 5) de uma criança: data, dia, hora, terapeuta, status e "sessão X de Y". ' +
-      'Responde para o responsável (só as crianças dele), o terapeuta (só os pacientes dele) e o time (Alf, Anne, Bianca, Serjão). ' +
-      'solicitante é preenchido pelo sistema (envie "auto"). Remarcação não é com a Aurora: avise o atendimento (Serjão).',
+      'Responde para o responsável (só as crianças dele), o terapeuta (só os pacientes dele) e o time (direção, coordenação e atendimento). ' +
+      'solicitante é preenchido pelo sistema (envie "auto"). Remarcação não é com a Aurora: use aurora_avisar_atendimento.',
     inputSchema: z.object({ solicitante: identificador, crianca: z.string().trim().min(2).max(80).optional() }).strict(),
     annotations: READ_ONLY,
     sql: 'SELECT public.aurora_sessoes_paciente($1::text, $2::text) AS result',
@@ -74,7 +74,7 @@ export const TOOL_DEFINITIONS = Object.freeze({
   aurora_pacotes_atencao: Object.freeze({
     title: 'Pacotes em atenção',
     description:
-      'Lista de pacientes amarelos e vermelhos no calendário do pacote, para alertar o Serjão e entrar nos relatórios. ' +
+      'Lista de pacientes amarelos e vermelhos no calendário do pacote, para alertar a equipe de atendimento e entrar nos relatórios. ' +
       'Só para o time (o terapeuta vê os próprios).',
     inputSchema: z.object({ solicitante: identificador }).strict(),
     annotations: READ_ONLY,
@@ -111,7 +111,7 @@ export const TOOL_DEFINITIONS = Object.freeze({
     description:
       'Parcelas em aberto de uma criança: descrição, valor, vencimento, se está a vencer ou atrasada (e há quantos dias), ' +
       'total em aberto, próxima a vencer e link de pagamento quando houver. Para o próprio responsável (só as crianças dele) ' +
-      'e para o grupo financeiro (Alf, Anne, Bianca, Serjão, Rose, Ana). Nunca negocie, dê desconto ou mude valor: isso é com o Serjão.',
+      'e para o grupo financeiro da equipe. Nunca negocie, dê desconto ou mude valor: registre com aurora_pedido_equipe (assunto financeiro ou desconto).',
     inputSchema: z.object({ solicitante: identificador, crianca: z.string().trim().min(2).max(80).optional() }).strict(),
     annotations: READ_ONLY,
     sql: 'SELECT public.aurora_financeiro_familia($1::text, $2::text) AS result',

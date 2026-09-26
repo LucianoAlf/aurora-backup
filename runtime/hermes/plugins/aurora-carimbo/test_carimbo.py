@@ -54,6 +54,18 @@ def test_hook_sobrescreve_o_que_o_modelo_mandou():
     assert r["action"] == "modify" and r["args"]["numero"].startswith("AUR1.whatsapp.dm.5521900000001.")
 
 
+def test_pedido_equipe_carimba_e_respeita_sombra():
+    assert c.CAMPO["aurora_pedido_equipe"] == "remetente" and "aurora_pedido_equipe" in c.ESCRITA
+    c._sessao = lambda: {"PLATFORM": "whatsapp", "USER_ID": "5521900000001@s.whatsapp.net", "CHAT_ID": "5521900000001@s.whatsapp.net", "CHAT_TYPE": "dm"}
+    c._liberado = lambda chat: False
+    c._registrar_acao_sombra = lambda nome, args, chat: True
+    r = c._on_pre_tool_call("mcp__aurora-write__aurora_pedido_equipe", {"remetente": "auto", "assunto": "desconto", "resumo": "x"})
+    assert r["action"] == "block"
+    c._liberado = lambda chat: True
+    r = c._on_pre_tool_call("mcp__aurora-write__aurora_pedido_equipe", {"remetente": "5521981278047", "assunto": "desconto", "resumo": "x"})
+    assert r["action"] == "modify" and r["args"]["remetente"].startswith("AUR1.whatsapp.dm.5521900000001.")
+
+
 if __name__ == "__main__":
     for n, f in list(globals().items()):
         if n.startswith("test_"):

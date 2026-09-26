@@ -1,6 +1,6 @@
 {
   "name": "aurora-read",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "type": "module",
   "description": "MCP stdio só-leitura da Aurora (SonoraMente): allowlist de RPCs aurora_* pelo crachá aurora_mcp",

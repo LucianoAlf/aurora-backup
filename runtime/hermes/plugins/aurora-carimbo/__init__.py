@@ -37,6 +37,7 @@ CAMPO: Dict[str, Optional[str]] = {
     "aurora_lead": "solicitante",
     "aurora_leads_followup": "solicitante",
     "aurora_avisar_atendimento": "remetente",
+    "aurora_pedido_equipe": "remetente",
     "aurora_lead_registrar": "numero",
     "aurora_lead_mover_etapa": "numero",
     "aurora_lead_followup_feito": "numero",
@@ -44,7 +45,7 @@ CAMPO: Dict[str, Optional[str]] = {
 
 # Modo sombra: no WhatsApp, as ferramentas de escrita não executam. A intenção vai para a lista de
 # revisão (aurora_sombra) pela ponte local, e a Aurora segue a conversa como faria de verdade.
-ESCRITA = {"aurora_avisar_atendimento", "aurora_lead_registrar", "aurora_lead_mover_etapa", "aurora_lead_followup_feito"}
+ESCRITA = {"aurora_avisar_atendimento", "aurora_lead_registrar", "aurora_lead_mover_etapa", "aurora_lead_followup_feito", "aurora_pedido_equipe"}
 PONTE_URL = "http://127.0.0.1:3107/sombra-acao"
 
 

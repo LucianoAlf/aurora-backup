@@ -106,7 +106,7 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 
 ---
 
-## Escrita (MCP `aurora-write` 0.3.0, 4 ferramentas)
+## Escrita (MCP `aurora-write` 0.4.0, 5 ferramentas)
 
 ### E1. `aurora_avisar_atendimento`: avisar falta ou pedido de remarcação
 - **O que é:** o primeiro "braço" da Aurora. Registra na lista de avisos da equipe (`aurora_avisos_atendimento`) que a família avisou falta ou pediu remarcação.
@@ -152,6 +152,21 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 - Ponta a ponta: a Aurora identificou o número, registrou o lead, moveu para triagem, não falou de preço nem de diagnóstico e preparou o resumo para o Serjão. O lead de teste ficou como perdido (`outro`) com a anotação de teste.
 
 ✅ O risco de mexer no lead de outro número foi fechado pelo carimbo do remetente.
+
+### E3. `aurora_pedido_equipe`: passar um pedido pra equipe
+- **O que é:** o que a Aurora não pode resolver vira cartão na mesma lista de avisos da Central, com assunto e setor. Antes ela dizia "vou passar pro atendimento" sem registrar nada.
+- **Assuntos:** `financeiro`, `desconto`, `agenda`, `cadastro`, `clinico`, `falar_com_pessoa`, `outro`. `clinico` vai para a responsável técnica; o resto, para a equipe de atendimento. O setor é decidido pelo banco, não pelo modelo.
+- **Como funciona:**
+  - função `aurora_pedido_equipe` (crachá `aurora_escrita`), remetente pelo carimbo; número solto é recusado;
+  - vale para família, time e contato novo/lead (aparece como "Contato novo" com o número);
+  - criança é opcional e só é resolvida para família e time;
+  - um cartão por pessoa, assunto e dia: pedido repetido acrescenta o detalhe novo no mesmo cartão (e reabre se estava resolvido).
+- **Resposta:** "passei pra nossa equipe de atendimento" ou "passei pra responsável técnica". Sem nome, sem prazo, sem prometer resultado.
+- **Na Central:** o cartão mostra o assunto (ex.: "Desconto", "Dúvida clínica · Resp. técnica") e o rodapé "a Aurora só registrou o pedido".
+- **Testes (2026-09-26):** pelo crachá com carimbo real: registrar sem criança, com criança, repetir (juntou no mesmo cartão), assunto inventado recusado, número solto recusado. Os 2 cartões de teste ficaram como resolvidos.
+- **Estado:** no ar a partir do deploy junto com o fim do benchmark (migration `20260926150000`, Central `2607d94`).
+
+**Nomes fora das descrições (2026-09-26):** as descrições das ferramentas (leitura 0.5.1 e escrita 0.4.0) também citavam o Serjão e a Bianca, e o modelo lê isso. Trocamos por "equipe de atendimento" e um teste impede nome da equipe em descrição.
 
 ---
 

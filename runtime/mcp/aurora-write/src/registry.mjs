@@ -14,7 +14,7 @@ export const TOOL_DEFINITIONS = Object.freeze({
     title: 'Avisar o atendimento (falta ou remarcação)',
     description:
       'Registra na lista de avisos da equipe que a família avisou falta ou pediu remarcação. NÃO marca falta, NÃO cancela e NÃO remarca: ' +
-      'isso é com o Serjão. remetente é preenchido pelo sistema (envie "auto"). data_sessao = data da sessão de que a família fala ' +
+      'isso é com a equipe de atendimento. remetente é preenchido pelo sistema (envie "auto"). data_sessao = data da sessão de que a família fala ' +
       '(use aurora_hoje para saber o que é "hoje" e "amanhã"); sem data, vale a próxima sessão. saude = true quando o motivo for doença: ' +
       'aí peça o atestado e não prometa reposição. Depois de registrar, diga à família: "Vou avisar o atendimento" (falta) ou ' +
       '"Vou encaminhar pra equipe falar com a senhora/o senhor" (remarcação). Se voltar erro, não diga que avisou.',
@@ -40,7 +40,7 @@ export const TOOL_DEFINITIONS = Object.freeze({
       'origem = por onde chegou (pergunte "como conheceu a SonoraMente?"). motivacao = o que a família contou que busca, com as palavras ' +
       'dela; NUNCA escreva diagnóstico nem suspeita. Criança com mais de 12 anos entra como perdido (fora da faixa etária): diga com ' +
       'carinho que o atendimento é até 12 anos. Se o número já for família ou equipe, volta erro ja_cadastrado: não registre de novo. ' +
-      'Nunca marca agendado: a Consulta de Acolhimento quem marca é o Serjão.',
+      'Nunca marca agendado: a Consulta de Acolhimento quem marca é a equipe de atendimento.',
     inputSchema: z
       .object({
         numero: identificador,
@@ -91,5 +91,27 @@ export const TOOL_DEFINITIONS = Object.freeze({
     annotations: WRITE_SAFE,
     sql: 'SELECT public.aurora_lead_followup_registrar($1::text, $2::text, $3::text) AS result',
     values: (a) => [a.numero, a.etapa, a.resultado],
+  }),
+
+  aurora_pedido_equipe: Object.freeze({
+    title: 'Passar um pedido pra equipe',
+    description:
+      'Registra na lista de avisos da Central um pedido que a Aurora não pode resolver sozinha: desconto, dúvida de pagamento ou ' +
+      'valor (financeiro/desconto), horário novo ou encaixe (agenda), atualização de dados (cadastro), dúvida sobre a terapia ou a ' +
+      'criança (clinico: vai para a responsável técnica), pessoa que quer falar com alguém da equipe (falar_com_pessoa) ou outro. ' +
+      'Falta e remarcação continuam em aurora_avisar_atendimento. resumo = o pedido com as palavras da pessoa, sem diagnóstico. ' +
+      'crianca é opcional. remetente é preenchido pelo sistema (envie "auto"). Depois de ok, diga só "passei pra nossa equipe de ' +
+      'atendimento" ou "passei pra responsável técnica", sem nomes e sem prometer prazo ou resultado. Se voltar erro, não diga que passou.',
+    inputSchema: z
+      .object({
+        remetente: identificador,
+        assunto: z.enum(['financeiro', 'desconto', 'agenda', 'cadastro', 'clinico', 'falar_com_pessoa', 'outro']),
+        resumo: z.string().trim().min(3).max(400),
+        crianca: z.string().trim().min(2).max(80).optional(),
+      })
+      .strict(),
+    annotations: WRITE_SAFE,
+    sql: 'SELECT public.aurora_pedido_equipe($1::text, $2::text, $3::text, $4::text) AS result',
+    values: (a) => [a.remetente, a.assunto, a.resumo, a.crianca ?? null],
   }),
 });

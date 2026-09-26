@@ -3,9 +3,9 @@ import test from 'node:test';
 
 import { TOOL_DEFINITIONS } from '../src/registry.mjs';
 
-test('allowlist de escrita: aviso e as três de lead', () => {
+test('allowlist de escrita: aviso, as três de lead e o pedido pra equipe', () => {
   assert.deepEqual(Object.keys(TOOL_DEFINITIONS), [
-    'aurora_avisar_atendimento', 'aurora_lead_registrar', 'aurora_lead_mover_etapa', 'aurora_lead_followup_feito',
+    'aurora_avisar_atendimento', 'aurora_lead_registrar', 'aurora_lead_mover_etapa', 'aurora_lead_followup_feito', 'aurora_pedido_equipe',
   ]);
 });
 
@@ -40,7 +40,7 @@ test('registrar lead recusa origem fora do enum e campo de diagnóstico', () => 
 
 test('toda SQL de escrita chama só função aurora_ concedida', () => {
   for (const d of Object.values(TOOL_DEFINITIONS)) {
-    assert.match(d.sql, /^SELECT public\.aurora_(registrar_aviso_v2|lead_registrar|lead_mover_etapa|lead_followup_registrar)\(/);
+    assert.match(d.sql, /^SELECT public\.aurora_(registrar_aviso_v2|lead_registrar|lead_mover_etapa|lead_followup_registrar|pedido_equipe)\(/);
   }
 });
 
@@ -48,4 +48,20 @@ test('escrita recusa número solto no remetente', () => {
   const s = TOOL_DEFINITIONS.aurora_lead_mover_etapa.inputSchema;
   assert.ok(!s.safeParse({ numero: '5521999998888', etapa: 'triagem' }).success);
   assert.ok(s.safeParse({ numero: 'AUR1.whatsapp.dm.5521999998888.0123456789abcdef.1790000000.0123456789abcdef0123456789abcdef', etapa: 'triagem' }).success);
+});
+
+test('pedido pra equipe: assunto fechado, sem campo de destino livre', () => {
+  const s = TOOL_DEFINITIONS.aurora_pedido_equipe.inputSchema;
+  const ok = { remetente: 'auto', assunto: 'desconto', resumo: 'mãe pediu desconto na mensalidade' };
+  assert.ok(s.safeParse(ok).success);
+  assert.ok(s.safeParse({ ...ok, assunto: 'clinico', crianca: 'Maria' }).success);
+  assert.ok(!s.safeParse({ ...ok, assunto: 'aplicar_desconto' }).success);
+  assert.ok(!s.safeParse({ ...ok, destino: 'Fulana' }).success);
+  assert.ok(!s.safeParse({ ...ok, remetente: '5521999998888' }).success);
+});
+
+test('nenhuma descrição de ferramenta cita nome de pessoa da equipe', () => {
+  for (const d of Object.values(TOOL_DEFINITIONS)) {
+    assert.doesNotMatch(d.description, /Serj|Bianca|Kátia|Katia|Rose\b|Anne/);
+  }
 });

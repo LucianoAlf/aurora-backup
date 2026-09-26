@@ -1,5 +1,5 @@
 name: aurora-carimbo
-version: "0.3.0"
+version: "0.4.0"
 description: "Carimba o remetente real (da mensagem que chegou) em toda ferramenta da Aurora, com assinatura HMAC que o banco confere. O modelo nunca escolhe quem está falando."
 author: "Alfredo / LA Music"
 hooks:
