@@ -40,3 +40,24 @@ test('regra de silêncio', () => {
   assert.equal(motivoSilencio({ ...dm, grupo: true, texto: 'bom dia', humano_recente: true }), null);
   assert.match(motivoSilencio({ ...dm, grupo: true, texto: 'Aurora, oi', humano_recente: true }), /2 horas/);
 });
+
+test('foto de host permitido vai como imagem; de outro host só o rótulo', () => {
+  const ok = paraHermes({ ...base, tipo: 'imagem', texto: '', midia_url: 'https://lamusic.uazapi.com/files/abc.jpg', midia_tipo: 'image/jpeg' });
+  assert.equal(ok.hasMedia, true);
+  assert.equal(ok.mediaType, 'image');
+  assert.deepEqual(ok.mediaUrls, ['https://lamusic.uazapi.com/files/abc.jpg']);
+  const fora = paraHermes({ ...base, tipo: 'imagem', texto: '', midia_url: 'https://evil.example/x.jpg' });
+  assert.equal(fora.hasMedia, false);
+  assert.deepEqual(fora.mediaUrls, []);
+  assert.equal(paraHermes({ ...base, tipo: 'imagem', midia_url: 'http://lamusic.uazapi.com/x.jpg' }).hasMedia, false);
+});
+
+test('PDF chega como texto extraído; sem texto, avisa o motivo', () => {
+  const pdf = paraHermes({ ...base, tipo: 'documento', texto: '', midia_nome: 'laudo.pdf', doc_txt: '/cache/documents/aurora-u1.txt' });
+  assert.equal(pdf.mediaType, 'document');
+  assert.deepEqual(pdf.mediaUrls, ['/cache/documents/aurora-u1.txt']);
+  assert.match(pdf.body, /^\[PDF recebido: laudo\.pdf\]/);
+  const falhou = paraHermes({ ...base, tipo: 'documento', texto: '', doc_motivo: 'PDF sem texto (escaneado)' });
+  assert.equal(falhou.hasMedia, false);
+  assert.match(falhou.body, /não consegui abrir: PDF sem texto/);
+});

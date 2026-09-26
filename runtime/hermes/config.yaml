@@ -1,7 +1,9 @@
 model:
-  provider: opencode-go
-  default: deepseek-v4.1-flash
-fallback_providers: []
+  provider: openai-codex
+  default: gpt-6-sol
+fallback_providers:
+  - provider: opencode-go
+    model: deepseek-v4.1-flash
 platform_toolsets:
   cli:
   - skills
@@ -19,6 +21,7 @@ platform_toolsets:
   - aurora-read
   - aurora-write
 agent:
+  service_tier: fast
   max_turns: 60
   gateway_timeout: 1800
   restart_drain_timeout: 60
@@ -121,7 +124,7 @@ mcp_servers:
   aurora-read:
     command: /usr/bin/node
     args:
-    - /home/aurora/releases/18df3d5f7e6ea45ebad0d78f1c2bb8167f8cedd9/runtime/mcp/aurora-read/src/index.mjs
+    - /home/aurora/releases/16cf3485a53e71883a2e8b38ebfcfa7add6345ac/runtime/mcp/aurora-read/src/index.mjs
     env:
       AURORA_DB_READ_URL: ${AURORA_DB_READ_URL}
     connect_timeout: 15.0
@@ -129,7 +132,7 @@ mcp_servers:
   aurora-write:
     command: /usr/bin/node
     args:
-    - /home/aurora/releases/18df3d5f7e6ea45ebad0d78f1c2bb8167f8cedd9/runtime/mcp/aurora-write/src/index.mjs
+    - /home/aurora/releases/16cf3485a53e71883a2e8b38ebfcfa7add6345ac/runtime/mcp/aurora-write/src/index.mjs
     env:
       AURORA_DB_ESCRITA_URL: ${AURORA_DB_ESCRITA_URL}
     connect_timeout: 15.0
@@ -141,7 +144,7 @@ platforms:
   whatsapp:
     enabled: true
     extra:
-      bridge_script: /home/aurora/releases/18df3d5f7e6ea45ebad0d78f1c2bb8167f8cedd9/runtime/bridge/aurora-ponte/bridge.mjs
+      bridge_script: /home/aurora/releases/16cf3485a53e71883a2e8b38ebfcfa7add6345ac/runtime/bridge/aurora-ponte/bridge.mjs
       bridge_port: 3107
       dm_policy: open
       group_policy: open

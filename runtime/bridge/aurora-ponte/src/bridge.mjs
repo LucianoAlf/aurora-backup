@@ -6,11 +6,14 @@ import http from 'node:http';
 import { readFileSync } from 'node:fs';
 import pg from 'pg';
 import { paraHermes, ehAvisoDoSistema, motivoSilencio } from './mapear.mjs';
+import { ehPdf, prepararPdf } from './midia.mjs';
 
 const arg = (nome, padrao) => { const i = process.argv.indexOf(`--${nome}`); return i > 0 ? process.argv[i + 1] : padrao; };
 const PORTA = Number(arg('port', '3107'));
 const ENV_FILE = process.env.AURORA_ENV_FILE || '/home/aurora/.hermes/.env';
 const INTERVALO_MS = 2000;
+// O Hermes passa essa pasta para a ponte; ele só aceita documento local de dentro dela.
+const PASTA_DOC = process.env.HERMES_DOCUMENT_CACHE_DIR || '';
 
 function lerUrl() {
   if (process.env.AURORA_DB_PONTE_URL) return process.env.AURORA_DB_PONTE_URL;
@@ -40,6 +43,16 @@ async function puxar() {
         calada += 1;
         await sombra(String(m.chat), 'silencio', motivo).catch((e) => log('erro_silencio', { codigo: e.code || e.name }));
         continue;
+      }
+      if (ehPdf(m)) {
+        try {
+          const { caminho, motivo } = await prepararPdf(m, PASTA_DOC);
+          m.doc_txt = caminho; m.doc_motivo = motivo;
+          log('pdf', { ok: Boolean(caminho), motivo });
+        } catch (e) {
+          m.doc_motivo = 'falha ao baixar';
+          log('erro_pdf', { codigo: e.code || e.name });
+        }
       }
       fila.push(paraHermes(m));
     }

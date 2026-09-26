@@ -1,4 +1,6 @@
 // Tradução entre a mensagem gravada pela Central (aurora_ponte_puxar) e o contrato da ponte WhatsApp do Hermes.
+import { midiaPermitida } from './midia.mjs';
+
 const ROTULO = { imagem: '[imagem recebida]', audio: '[áudio recebido, sem transcrição]', video: '[vídeo recebido]',
   sticker: '[figurinha]', documento: '[documento recebido]' };
 
@@ -7,6 +9,17 @@ export function paraHermes(m) {
   let body = String(m.texto || '').trim();
   if (!body) body = ROTULO[m.tipo] || '[mensagem sem texto]';
   else if (m.tipo !== 'texto' && m.tipo !== 'audio' && ROTULO[m.tipo]) body = `${ROTULO[m.tipo]} ${body}`;
+  // Foto de host permitido vai como imagem (o Hermes baixa e mostra ao modelo). PDF chega já convertido em
+  // texto pela ponte (m.doc_txt, caminho na pasta de cache do Hermes).
+  let midia = { hasMedia: false, mediaType: '', mediaUrls: [] };
+  if (m.tipo === 'imagem' && midiaPermitida(m.midia_url)) {
+    midia = { hasMedia: true, mediaType: 'image', mediaUrls: [String(m.midia_url)], mime: m.midia_tipo || 'image/jpeg' };
+  } else if (m.tipo === 'documento' && m.doc_txt) {
+    midia = { hasMedia: true, mediaType: 'document', mediaUrls: [String(m.doc_txt)], mime: 'text/plain' };
+    body = `[PDF recebido: ${m.midia_nome || 'documento'}] ${String(m.texto || '').trim()}`.trim();
+  } else if (m.tipo === 'documento' && m.doc_motivo) {
+    body = `${body} (não consegui abrir: ${m.doc_motivo})`;
+  }
   return {
     messageId: String(m.wa_message_id || m.mensagem_id),
     chatId: String(m.chat),
@@ -15,9 +28,7 @@ export function paraHermes(m) {
     senderId: remetente ? `${remetente}@s.whatsapp.net` : '',
     senderName: m.remetente_nome || null,
     body,
-    hasMedia: false,
-    mediaType: '',
-    mediaUrls: [],
+    ...midia,
     timestamp: Math.floor(new Date(m.em).getTime() / 1000),
   };
 }
