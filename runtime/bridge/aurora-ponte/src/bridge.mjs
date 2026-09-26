@@ -5,7 +5,7 @@
 import http from 'node:http';
 import { readFileSync } from 'node:fs';
 import pg from 'pg';
-import { paraHermes, ehAvisoDoSistema, motivoSilencio } from './mapear.mjs';
+import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao } from './mapear.mjs';
 import { ehPdf, prepararPdf } from './midia.mjs';
 
 const arg = (nome, padrao) => { const i = process.argv.indexOf(`--${nome}`); return i > 0 ? process.argv[i + 1] : padrao; };
@@ -29,6 +29,11 @@ const pool = new pg.Pool({ connectionString: lerUrl(), max: 2, application_name:
 pool.on('error', (e) => log('erro_pool', { codigo: e.code || e.name }));
 const fila = [];
 const ultimoDigitando = new Map();
+// Conversas em modo sugestão (humano atendendo): a resposta da Aurora vira sugestão na Central, não sai
+// para a família, não mostra "digitando" e as ferramentas de escrita ficam travadas. Vale por 5 minutos.
+const modoSugestao = new Map();
+const SUGESTAO_MS = 5 * 60 * 1000;
+const emSugestao = (chat) => (modoSugestao.get(chat) || 0) > Date.now();
 let ultimoPuxar = null;
 let erroSeguido = 0;
 
@@ -41,8 +46,13 @@ async function puxar() {
       const motivo = motivoSilencio(m);
       if (motivo) {
         calada += 1;
-        await sombra(String(m.chat), 'silencio', motivo).catch((e) => log('erro_silencio', { codigo: e.code || e.name }));
-        continue;
+        if (!geraSugestao(m, motivo)) {
+          await sombra(String(m.chat), 'silencio', motivo).catch((e) => log('erro_silencio', { codigo: e.code || e.name }));
+          continue;
+        }
+        modoSugestao.set(String(m.chat), Date.now() + SUGESTAO_MS);
+      } else {
+        modoSugestao.delete(String(m.chat));
       }
       // A Central grava a mensagem antes de baixar a mídia: espera a URL por até 20 s (incidente 26/09, foto do Alf).
       if ((m.tipo === 'imagem' || m.tipo === 'documento') && !m.midia_url) {
@@ -98,6 +108,7 @@ const servidor = http.createServer(async (req, res) => {
     if (req.method === 'GET' && rota === 'messages') return responder(res, 200, fila.splice(0, fila.length));
     if (req.method === 'GET' && rota === 'liberado') {
       const chat = new URL(req.url, 'http://x').searchParams.get('chat') || '';
+      if (emSugestao(chat)) return responder(res, 200, { liberado: false });
       const q = await pool.query('SELECT public.aurora_ponte_liberado($1) AS r', [chat]);
       return responder(res, 200, { liberado: q.rows[0].r === true });
     }
@@ -110,8 +121,13 @@ const servidor = http.createServer(async (req, res) => {
       }
       // A chave é do banco (aurora_canal_config): conversa não liberada vai para a sombra, liberada sai pela Central.
       if (rota === 'edit') {
-        const r = await sombra(String(b.chatId || ''), 'resposta', String(b.message || ''));
+        const r = await sombra(String(b.chatId || ''), emSugestao(String(b.chatId || '')) ? 'sugestao' : 'resposta', String(b.message || ''));
         return responder(res, 200, { success: true, messageId: `sombra-${r?.id || Date.now()}` });
+      }
+      if (emSugestao(String(b.chatId || ''))) {
+        const r = await sombra(String(b.chatId || ''), 'sugestao', String(b.message || ''));
+        log('sugestao', { ok: Boolean(r?.ok) });
+        return responder(res, 200, { success: true, messageId: `sugestao-${r?.id || Date.now()}` });
       }
       const q = await pool.query('SELECT public.aurora_ponte_enviar($1, $2) AS r', [String(b.chatId || ''), String(b.message || '')]);
       const r = q.rows[0].r || {};
@@ -133,7 +149,7 @@ const servidor = http.createServer(async (req, res) => {
       // "digitando…" só em conversa liberada (o banco decide); no máximo 1 aviso a cada 6 s por conversa.
       const chat = String(b.chatId || '');
       const agora = Date.now();
-      if (chat && agora - (ultimoDigitando.get(chat) || 0) > 6000) {
+      if (chat && !emSugestao(chat) && agora - (ultimoDigitando.get(chat) || 0) > 6000) {
         ultimoDigitando.set(chat, agora);
         pool.query('SELECT public.aurora_ponte_digitando($1) AS r', [chat]).catch((e) => log('erro_digitando', { codigo: e.code || e.name }));
       }

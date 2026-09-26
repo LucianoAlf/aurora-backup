@@ -20,6 +20,12 @@ export function paraHermes(m) {
   } else if (m.tipo === 'documento' && m.doc_motivo) {
     body = `${body} (não consegui abrir: ${m.doc_motivo})`;
   }
+  // O que a equipe respondeu desde a última mensagem do cliente: sem isso, a Aurora acha que a sugestão
+  // dela foi enviada e perde o fio da conversa real.
+  const equipe = Array.isArray(m.respostas_equipe) ? m.respostas_equipe.filter((t) => String(t || '').trim()) : [];
+  if (equipe.length) {
+    body = `[A equipe já respondeu nesta conversa: ${equipe.map((t) => `"${String(t).trim()}"`).join(' / ')}]\n${body}`;
+  }
   return {
     messageId: String(m.wa_message_id || m.mensagem_id),
     chatId: String(m.chat),
@@ -43,6 +49,11 @@ export function ehAvisoDoSistema(texto) {
 // humano, ou quando a equipe respondeu nas últimas 2 horas. Só conta mensagem que seria para ela
 // (privado, ou grupo chamando "Aurora").
 const CHAMA_AURORA = /\baurora\b/i;
+// Aurora Assistant (Alf, 2026-09-26): nesses casos ela não fala com a família, mas deixa sugestão na Central.
+export function geraSugestao(m, motivo) {
+  return Boolean(motivo);
+}
+
 export function motivoSilencio(m) {
   if (m.grupo && !CHAMA_AURORA.test(String(m.texto || ''))) return null;
   if (m.aurora_ativa === false) return 'conversa pausada na Central';

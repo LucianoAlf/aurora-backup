@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { paraHermes, ehAvisoDoSistema, motivoSilencio } from '../src/mapear.mjs';
+import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao } from '../src/mapear.mjs';
 
 const base = { mensagem_id: 'u1', wa_message_id: 'W1', chat: '120363000000000000@g.us', grupo: true,
   remetente: '5521999998888', remetente_nome: 'Teste', tipo: 'texto', texto: 'oi Aurora', em: '2026-09-25T21:00:00Z' };
@@ -60,4 +60,16 @@ test('PDF chega como texto extraído; sem texto, avisa o motivo', () => {
   const falhou = paraHermes({ ...base, tipo: 'documento', texto: '', doc_motivo: 'PDF sem texto (escaneado)' });
   assert.equal(falhou.hasMedia, false);
   assert.match(falhou.body, /não consegui abrir: PDF sem texto/);
+});
+
+test('Assistant: com humano atendendo gera sugestão; sem motivo, conversa normal', () => {
+  const dm = { ...base, grupo: false, texto: 'oi', aurora_ativa: true, atendente_humano: true, humano_recente: false };
+  assert.equal(geraSugestao(dm, motivoSilencio(dm)), true);
+  assert.equal(geraSugestao({ ...dm, atendente_humano: false }, null), false);
+});
+
+test('respostas da equipe entram no começo da mensagem para a Aurora', () => {
+  const h = paraHermes({ ...base, texto: 'e o horário?', respostas_equipe: ['Oi! Temos terça 16h.', ''] });
+  assert.equal(h.body, '[A equipe já respondeu nesta conversa: "Oi! Temos terça 16h."]\noi Aurora'.replace('oi Aurora', 'e o horário?'));
+  assert.equal(paraHermes({ ...base, respostas_equipe: null }).body, 'oi Aurora');
 });
