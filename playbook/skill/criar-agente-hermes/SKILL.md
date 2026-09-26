@@ -5,9 +5,12 @@ description: Criar, migrar ou auditar agente no Hermes (LAHQ): novo agente, SOUL
 
 # Criar um agente no Hermes (método LAHQ)
 
+Fonte canônica: repo `LucianoAlf/aurora-backup`, pasta `playbook/` (clone no Alfredo: `/root/.openclaw/workspace/repos/aurora-backup/playbook/`). Antes de começar, `git pull` e leia a versão mais nova do playbook lá; as cópias em `references/` podem estar atrasadas.
+
 Referências:
 - `references/PLAYBOOK-AGENTE-HERMES-v1.md`: o porquê e as armadilhas de cada etapa;
-- `references/GUIA-CRIAR-AGENTE-HERMES.md`: comandos e detalhes do runtime.
+- `references/GUIA-CRIAR-AGENTE-HERMES.md`: comandos e detalhes do runtime;
+- exemplo vivo completo: a própria Aurora no mesmo repo (`AGENTS.md`, `runtime/`, `CHECKPOINT.md`, `ROADMAP.md`).
 
 Uma etapa por vez. Prévia → ok do dono → publica (repo + servidor, hash conferido). Atualize `CHECKPOINT.md`, `ROADMAP.md` e `PLAYBOOK-NOTAS.md` ao fechar cada etapa.
 
