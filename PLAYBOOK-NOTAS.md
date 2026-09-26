@@ -150,6 +150,9 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - Áudio tem a mesma corrida da foto: o sistema grava "🎤 Audio" e transcreve depois. A ponte espera a transcrição antes de entregar.
 - Antes de criar botão novo na tela, procurar o marcador que o time já deixou ("Em breve"): usar o lugar planejado.
 
+- **Testar a função publicada antes de entregar**, com bateria automática (aqui: 5 tons × 3 mensagens, conferindo fatos preservados, texto inteiro e sem raciocínio do modelo). Função com LLM precisa de um jeito interno e autenticado de ser chamada pelo teste.
+- Gemini 3 "pensa" dentro do limite de saída: com limite baixo a resposta volta cortada ou misturada com o rascunho. Raciocínio mínimo, descartar partes `thought` e só aceitar `finishReason: STOP`.
+
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.
