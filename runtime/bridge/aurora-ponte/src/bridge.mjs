@@ -44,6 +44,15 @@ async function puxar() {
         await sombra(String(m.chat), 'silencio', motivo).catch((e) => log('erro_silencio', { codigo: e.code || e.name }));
         continue;
       }
+      // A Central grava a mensagem antes de baixar a mídia: espera a URL por até 20 s (incidente 26/09, foto do Alf).
+      if ((m.tipo === 'imagem' || m.tipo === 'documento') && !m.midia_url) {
+        for (let i = 0; i < 10 && !m.midia_url; i += 1) {
+          await new Promise((ok) => setTimeout(ok, 2000));
+          const q = await pool.query('SELECT public.aurora_ponte_midia($1::uuid) AS r', [m.mensagem_id]).catch(() => null);
+          Object.assign(m, q?.rows?.[0]?.r || {});
+        }
+        log('midia_espera', { tipo: m.tipo, ok: Boolean(m.midia_url) });
+      }
       if (ehPdf(m)) {
         try {
           const { caminho, motivo } = await prepararPdf(m, PASTA_DOC);
