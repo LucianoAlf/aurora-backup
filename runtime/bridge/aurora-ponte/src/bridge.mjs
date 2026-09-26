@@ -69,10 +69,15 @@ const servidor = http.createServer(async (req, res) => {
   const rota = new URL(req.url, 'http://x').pathname.replace(/^\//, '');
   try {
     if (req.method === 'GET' && rota === 'health') {
-      return responder(res, 200, { status: 'connected', modo: 'sombra', fila: fila.length, ultimo_puxar: ultimoPuxar, erros_seguidos: erroSeguido,
+      return responder(res, 200, { status: 'connected', modo: 'chave_no_banco', fila: fila.length, ultimo_puxar: ultimoPuxar, erros_seguidos: erroSeguido,
         banco_ok: Boolean(ultimoPuxar && Date.now() - ultimoPuxar.getTime() < 120000) });
     }
     if (req.method === 'GET' && rota === 'messages') return responder(res, 200, fila.splice(0, fila.length));
+    if (req.method === 'GET' && rota === 'liberado') {
+      const chat = new URL(req.url, 'http://x').searchParams.get('chat') || '';
+      const q = await pool.query('SELECT public.aurora_ponte_liberado($1) AS r', [chat]);
+      return responder(res, 200, { liberado: q.rows[0].r === true });
+    }
     if (req.method !== 'POST') return responder(res, 404, { error: 'rota' });
     const b = await corpo(req);
     if (rota === 'send' || rota === 'edit') {
@@ -80,9 +85,16 @@ const servidor = http.createServer(async (req, res) => {
         log('aviso_sistema_descartado', { rota });
         return responder(res, 200, { success: true, messageId: `descartado-${Date.now()}` });
       }
-      const r = await sombra(String(b.chatId || ''), 'resposta', String(b.message || ''));
-      log('sombra_resposta', { ok: Boolean(r?.ok) });
-      return responder(res, 200, { success: true, messageId: `sombra-${r?.id || Date.now()}` });
+      // A chave é do banco (aurora_canal_config): conversa não liberada vai para a sombra, liberada sai pela Central.
+      if (rota === 'edit') {
+        const r = await sombra(String(b.chatId || ''), 'resposta', String(b.message || ''));
+        return responder(res, 200, { success: true, messageId: `sombra-${r?.id || Date.now()}` });
+      }
+      const q = await pool.query('SELECT public.aurora_ponte_enviar($1, $2) AS r', [String(b.chatId || ''), String(b.message || '')]);
+      const r = q.rows[0].r || {};
+      log(r.enviado ? 'enviado' : 'sombra_resposta', { ok: Boolean(r.ok), erro: r.erro || null });
+      if (r.erro && !r.sombra) return responder(res, 500, { success: false, error: r.erro });
+      return responder(res, 200, { success: true, messageId: `${r.enviado ? 'aurora' : 'sombra'}-${r.id || Date.now()}` });
     }
     if (rota === 'send-media' || rota === 'send-poll' || rota === 'poll' || rota === 'send-location' || rota === 'location') {
       const desc = `[${rota}] ${JSON.stringify({ ...b, chatId: undefined }).slice(0, 2000)}`;

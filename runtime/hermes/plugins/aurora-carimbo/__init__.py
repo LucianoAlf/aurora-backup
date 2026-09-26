@@ -45,15 +45,20 @@ CAMPO: Dict[str, Optional[str]] = {
 # Modo sombra: no WhatsApp, as ferramentas de escrita não executam. A intenção vai para a lista de
 # revisão (aurora_sombra) pela ponte local, e a Aurora segue a conversa como faria de verdade.
 ESCRITA = {"aurora_avisar_atendimento", "aurora_lead_registrar", "aurora_lead_mover_etapa", "aurora_lead_followup_feito"}
-MODO_PATH = Path("/home/aurora/.hermes/aurora-ponte.modo")
 PONTE_URL = "http://127.0.0.1:3107/sombra-acao"
 
 
-def _modo() -> str:
+def _liberado(chat_id: str) -> bool:
+    """A chave é do banco (aurora_canal_config), consultada pela ponte. Qualquer falha = sombra."""
+    import json
+    import urllib.parse
+    import urllib.request
     try:
-        return MODO_PATH.read_text().strip() or "sombra"
-    except OSError:
-        return "sombra"  # sem arquivo = sombra (falha segura)
+        url = "http://127.0.0.1:3107/liberado?chat=" + urllib.parse.quote(chat_id or "", safe="")
+        with urllib.request.urlopen(url, timeout=5) as r:
+            return json.load(r).get("liberado") is True
+    except Exception:
+        return False
 
 
 def _registrar_acao_sombra(nome: str, args: Any, chat_id: str) -> bool:
@@ -125,7 +130,7 @@ def _on_pre_tool_call(tool_name: str = "", args: Any = None, **_: Any) -> Option
         carimbo = None
     if not carimbo:
         return {"action": "block", "message": BLOQUEIO}
-    if nome in ESCRITA and _modo() != "ao_vivo":
+    if nome in ESCRITA and not _liberado(s["CHAT_ID"]):
         registrado = _registrar_acao_sombra(nome, args, s["CHAT_ID"])
         return {"action": "block", "message": (
             f"[modo sombra] A ação {nome} NÃO foi executada"
