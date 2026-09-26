@@ -120,6 +120,11 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - **Skill vem depois da ferramenta**, uma por frente de trabalho (atendimento, leads, equipe), curta (1,5–2 KB), com cada passo apontando a ferramenta e o critério de pronto. Regras que valem sempre (como "só diz que fez o que a ferramenta confirmou") ficam no AGENTS, não em skill.
 - Desligar as skills padrão do Hermes e medir o `prompt-size` depois de instalar as da casa (aqui: índice ~90 B por skill).
 
+- **A chave do ao vivo mora no banco, por conversa**, não num arquivo na VPS: liberar o número do dono primeiro, depois a equipe, depois `*`. Monta-se o caminho de envio **desligado** durante a sombra, para a virada ser um UPDATE.
+- Ponte que fala com o banco precisa de prazo de conexão e de consulta; sem isso, uma queda do banco pendura o agente mesmo depois que o banco volta.
+- Placar e alerta agendados rodam como **script** (automação de comando), não como turno do agente.
+- Antes de criar migration, `git pull` e conferir o número de versão: o Cursor usou o mesmo `20260926003000` no mesmo dia.
+
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.

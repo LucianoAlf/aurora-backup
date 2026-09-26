@@ -161,7 +161,8 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 - **Modo sombra:** `/home/aurora/.hermes/aurora-ponte.modo` = `sombra` (ausente também vale sombra). Nada sai para o WhatsApp: cada resposta vai para `aurora_sombra` (tipo `resposta`), e cada ferramenta de escrita é interceptada pelo plugin e registrada como `acao`, sem executar.
 - **Regra de silêncio (0.2.0):** a Aurora não é acionada quando a conversa está pausada na Central, atribuída a atendente humano, ou quando a equipe respondeu nas últimas 2 horas. Vale no privado e no grupo quando chamam "Aurora"; o silêncio fica na sombra com o motivo.
 - **Revisão:** `aurora_sombra.revisao` = pendente / ok / erro_leve / erro_grave. Placar diário às 09:00 SP no Telegram do Alf.
-- **Estado:** no ar em sombra desde 2026-09-25 21:42 UTC. O modo `ao_vivo` (envio pela função de envio da Central) ainda não existe e só entra depois da promoção.
+- **Chave (0.3.0):** fica no banco, em `aurora_canal_config`. Com `modo = sombra` (padrão) nada sai. Com `modo = ao_vivo`, só as conversas em `liberados` recebem de verdade, pela `send-whatsapp` (chamada interna restrita a texto da Aurora em conversa existente), e a escrita (aviso, lead) só executa nelas. Todo envio fica em `aurora_saida`.
+- **Estado:** em sombra desde 2026-09-25 21:42 UTC; caminho ao vivo montado e desligado em 2026-09-26.
 
 ## Skills que usam estas ferramentas
 - `atendimento-familias`: quem é → hoje → sessões/pacote → aviso de falta/remarcação → cobrança.
