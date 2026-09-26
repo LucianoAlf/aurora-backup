@@ -25,6 +25,7 @@ const pool = new pg.Pool({ connectionString: lerUrl(), max: 2, application_name:
   connectionTimeoutMillis: 10000, query_timeout: 15000, statement_timeout: 10000 });
 pool.on('error', (e) => log('erro_pool', { codigo: e.code || e.name }));
 const fila = [];
+const ultimoDigitando = new Map();
 let ultimoPuxar = null;
 let erroSeguido = 0;
 
@@ -106,7 +107,17 @@ const servidor = http.createServer(async (req, res) => {
       log('sombra_acao', { ferramenta: String(b.ferramenta || ''), ok: Boolean(r?.ok) });
       return responder(res, 200, { ok: Boolean(r?.ok) });
     }
-    if (rota === 'typing' || rota === 'read') return responder(res, 200, { success: true });
+    if (rota === 'typing') {
+      // "digitando…" só em conversa liberada (o banco decide); no máximo 1 aviso a cada 6 s por conversa.
+      const chat = String(b.chatId || '');
+      const agora = Date.now();
+      if (chat && agora - (ultimoDigitando.get(chat) || 0) > 6000) {
+        ultimoDigitando.set(chat, agora);
+        pool.query('SELECT public.aurora_ponte_digitando($1) AS r', [chat]).catch((e) => log('erro_digitando', { codigo: e.code || e.name }));
+      }
+      return responder(res, 200, { success: true });
+    }
+    if (rota === 'read') return responder(res, 200, { success: true });
     return responder(res, 404, { error: 'rota' });
   } catch (e) {
     log('erro_rota', { rota, codigo: e.code || e.name });
