@@ -125,6 +125,14 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - Placar e alerta agendados rodam como **script** (automação de comando), não como turno do agente.
 - Antes de criar migration, `git pull` e conferir o número de versão: o Cursor usou o mesmo `20260926003000` no mesmo dia.
 
+## 4.3 Escolha do modelo
+- **Benchmark com a bateria real, não com prompt genérico:** as mesmas 10 perguntas (data/expediente, agenda, pacote, recesso, lead, financeiro sem ferramenta, diagnóstico, desconto, golpe) pelo CLI com o remetente fixo, só leitura. Medir tempo, tamanho e nota por resposta (certo · leve · erro).
+- Rodar modelos **em paralelo** (unidades separadas) com timeout por pergunta; os lentos travam a fila em série.
+- Mudança temporária de config (ex.: Fast) só depois que todos os outros terminarem, com cópia e restauração conferida (`cmp`).
+- **Ler o aviso do plano**: tier "contributor" treina com os dados. Com dado de família/criança, está fora, por melhor que seja.
+- Nome da equipe vaza também pela **descrição da ferramenta**: o modelo repete o que lê ali. Regra de "não citar nomes" vale para AGENTS, skills e descrições (com teste).
+- Pedido que o agente não resolve **vira registro** (ferramenta de pedido pra equipe), não só frase "vou passar pro atendimento".
+
 ## 5. Operação contínua
 - Backup do Honcho: diário às 03:30 SP, cópia no Supabase LAHQ Memory e restauração testada todo domingo.
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.

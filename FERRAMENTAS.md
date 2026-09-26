@@ -164,7 +164,7 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 - **Resposta:** "passei pra nossa equipe de atendimento" ou "passei pra responsável técnica". Sem nome, sem prazo, sem prometer resultado.
 - **Na Central:** o cartão mostra o assunto (ex.: "Desconto", "Dúvida clínica · Resp. técnica") e o rodapé "a Aurora só registrou o pedido".
 - **Testes (2026-09-26):** pelo crachá com carimbo real: registrar sem criança, com criança, repetir (juntou no mesmo cartão), assunto inventado recusado, número solto recusado. Os 2 cartões de teste ficaram como resolvidos.
-- **Estado:** no ar a partir do deploy junto com o fim do benchmark (migration `20260926150000`, Central `2607d94`).
+- **Estado:** no ar desde 2026-09-26 11:57 SP (release `16cf348`, migration `20260926150000`, Central `2607d94`). Smoke: o GPT-6 Sol chamou a ferramenta; o DeepSeek 4.1 Flash não chamou (respondeu que não conseguia identificar a pessoa).
 
 **Nomes fora das descrições (2026-09-26):** as descrições das ferramentas (leitura 0.5.1 e escrita 0.4.0) também citavam o Serjão e a Bianca, e o modelo lê isso. Trocamos por "equipe de atendimento" e um teste impede nome da equipe em descrição.
 
