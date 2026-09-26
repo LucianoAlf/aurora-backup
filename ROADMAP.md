@@ -25,9 +25,9 @@
 | 16 | Memória da Aurora (Honcho ligado, uma gaveta por pessoa) | ⏳ | liga junto com a virada |
 | 17 | Caixa | ⏳ | |
 | 18 | Instagram e social media (+ ponte com Mila e Maria) | ⏳ | |
-| 19 | Playbook | 🟡 | **v1 publicada** (`playbook/`) + skill `criar-agente-hermes` atualizada; v2 com caixa, Instagram e memória |
+| 19 | Playbook | 🟡 | **v1 publicada** (`playbook/`) + skill `criar-agente-hermes` instalada no Alfredo, apontando para o repo; v2 com caixa, Instagram e memória |
 | 20 | Cérebros antigos (Gemini) aposentados | ✅ | `aurora-assist` e `aurora-responder` respondem 410; código em `_aposentadas/` |
-| 21 | Documentação enxuta (35 KB → 10,6 KB) | 🟡 | proposta testada 10/10 em `propostas/2026-09-26-enxugar/`; aplica com o ok do Alf |
+| 21 | Documentação enxuta (35 KB → 11,2 KB) | ✅ | em produção 26/09 (`e208f1d`), hash conferido; USER/MEMORY dentro dos limites; backup em `/home/aurora/backups/` |
 
 ## Riscos e oportunidades (26/09)
 
@@ -35,14 +35,14 @@
 2. **Pouco dado no ERP:** só 3 pacientes cadastrados, então quase toda família real cai como lead. Ação: ampliar o cadastro (texto já entregue ao Alf para Bianca/Serjão).
 3. ~~Cérebros antigos (Gemini)~~: aposentados em 26/09 (estavam públicos, sem login).
 4. **Cérebro único em mais funções:** modo "família" da reescrita de evolução e resumos.
-5. **USER.md de 10 KB acima do limite do Hermes** (travava a memória). Proposta de enxugar pronta e testada; aplica com o ok do Alf.
+5. ~~USER.md acima do limite~~: resolvido em 26/09 (documentação enxuta em produção).
 6. **Ferramenta geral de parcelas atrasadas:** hoje só existe por criança.
 7. **Saúde diária:** o placar das 9h já confere a ponte. Ação: incluir o `aurora-cerebro` e o limite da assinatura.
 8. **Teste em grupo chamando "Aurora":** adiado pelo Alf.
 
 ## Próximos passos (ordem do Alf, 26/09)
 
-1. Aplicar a documentação enxuta (ok do Alf) e o Serjão usar o privado e o Aurora Assistant a partir de segunda.
+1. O Serjão usar o privado e o Aurora Assistant a partir de segunda.
 2. Régua fechada → virada ao vivo + Honcho. Caixa e Instagram depois.
 3. **Sol:** revisão pelo playbook e Sol 100% nos três grupos.
 4. **Mike:** aplicar o playbook e trazer para o Hermes.
