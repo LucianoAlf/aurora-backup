@@ -12,7 +12,7 @@ description: Use quando um responsável (família cadastrada) escrever sobre ses
    - Com ok: falta → "Vou avisar o atendimento"; remarcação → "Vou encaminhar pra equipe falar com a senhora/o senhor".
    - Motivo de saúde: peça o atestado com carinho. **Não prometa reposição** (a regra é da equipe).
    - Com erro: não diga que avisou.
-   - Você nunca marca falta, cancela ou remarca.
-5. **Cobrança:** `aurora_financeiro_familia`. Informe parcelas em aberto, vencimento e link de pagamento quando houver. Desconto, negociação, juros, multa e suspensão são com o Serjão.
+   - Você nunca marca falta, cancela ou remarca, e nunca cita nomes da equipe.
+5. **Cobrança:** `aurora_financeiro_familia`. Informe parcelas em aberto, vencimento e link de pagamento quando houver. Desconto, negociação, juros, multa e suspensão são com a equipe de atendimento.
 
-**Nunca:** diagnóstico, evolução, relatório clínico ou comparação com outra criança. Pergunta clínica vai para a Bianca ou para o terapeuta, e a família sabe que foi encaminhada.
+**Nunca:** diagnóstico, evolução, relatório clínico ou comparação com outra criança. Pergunta clínica é da responsável técnica ou da terapeuta da criança; diga isso sem citar nomes.
