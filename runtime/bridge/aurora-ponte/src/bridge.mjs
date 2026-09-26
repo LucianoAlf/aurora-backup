@@ -5,7 +5,7 @@
 import http from 'node:http';
 import { readFileSync } from 'node:fs';
 import pg from 'pg';
-import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao } from './mapear.mjs';
+import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao, temTranscricao } from './mapear.mjs';
 import { ehPdf, prepararPdf } from './midia.mjs';
 
 const arg = (nome, padrao) => { const i = process.argv.indexOf(`--${nome}`); return i > 0 ? process.argv[i + 1] : padrao; };
@@ -62,6 +62,16 @@ async function puxar() {
           Object.assign(m, q?.rows?.[0]?.r || {});
         }
         log('midia_espera', { tipo: m.tipo, ok: Boolean(m.midia_url) });
+      }
+      // Áudio: a Central transcreve depois de gravar. Espera a transcrição por até 30 s.
+      if (m.tipo === 'audio' && !temTranscricao(m)) {
+        for (let i = 0; i < 15 && !m.transcricao; i += 1) {
+          await new Promise((ok) => setTimeout(ok, 2000));
+          const q = await pool.query('SELECT public.aurora_ponte_midia($1::uuid) AS r', [m.mensagem_id]).catch(() => null);
+          Object.assign(m, q?.rows?.[0]?.r || {});
+        }
+        if (m.transcricao) m.texto = m.transcricao;
+        log('audio_espera', { ok: Boolean(m.transcricao) });
       }
       if (ehPdf(m)) {
         try {

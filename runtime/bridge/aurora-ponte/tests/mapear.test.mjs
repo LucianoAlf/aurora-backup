@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao } from '../src/mapear.mjs';
+import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao, temTranscricao } from '../src/mapear.mjs';
 
 const base = { mensagem_id: 'u1', wa_message_id: 'W1', chat: '120363000000000000@g.us', grupo: true,
   remetente: '5521999998888', remetente_nome: 'Teste', tipo: 'texto', texto: 'oi Aurora', em: '2026-09-25T21:00:00Z' };
@@ -72,4 +72,11 @@ test('respostas da equipe entram no começo da mensagem para a Aurora', () => {
   const h = paraHermes({ ...base, texto: 'e o horário?', respostas_equipe: ['Oi! Temos terça 16h.', ''] });
   assert.equal(h.body, '[A equipe já respondeu nesta conversa: "Oi! Temos terça 16h."]\noi Aurora'.replace('oi Aurora', 'e o horário?'));
   assert.equal(paraHermes({ ...base, respostas_equipe: null }).body, 'oi Aurora');
+});
+
+test('áudio sem transcrição não passa o texto provisório', () => {
+  assert.equal(temTranscricao({ texto: '🎤 Audio' }), false);
+  assert.equal(temTranscricao({ texto: '🎤 Áudio' }), false);
+  assert.equal(temTranscricao({ texto: 'ele não vai hoje' }), true);
+  assert.equal(paraHermes({ ...base, tipo: 'audio', texto: '🎤 Audio' }).body, '[áudio recebido, sem transcrição]');
 });

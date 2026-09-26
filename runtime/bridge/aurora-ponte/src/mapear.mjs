@@ -4,9 +4,15 @@ import { midiaPermitida } from './midia.mjs';
 const ROTULO = { imagem: '[imagem recebida]', audio: '[áudio recebido, sem transcrição]', video: '[vídeo recebido]',
   sticker: '[figurinha]', documento: '[documento recebido]' };
 
+// "🎤 Audio" é o texto provisório que a Central grava antes de transcrever.
+export function temTranscricao(m) {
+  const t = String(m.texto || '').trim();
+  return Boolean(t) && !/^🎤\s*[AÁ]udio$/u.test(t);
+}
+
 export function paraHermes(m) {
   const remetente = String(m.remetente || '').replace(/\D/g, '');
-  let body = String(m.texto || '').trim();
+  let body = m.tipo === 'audio' && !temTranscricao(m) ? '' : String(m.texto || '').trim();
   if (!body) body = ROTULO[m.tipo] || '[mensagem sem texto]';
   else if (m.tipo !== 'texto' && m.tipo !== 'audio' && ROTULO[m.tipo]) body = `${ROTULO[m.tipo]} ${body}`;
   // Foto de host permitido vai como imagem (o Hermes baixa e mostra ao modelo). PDF chega já convertido em
