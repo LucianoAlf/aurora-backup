@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao, temTranscricao } from '../src/mapear.mjs';
+import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao, temTranscricao,
+  ehReferenciaInstagram, GRUPO_REFERENCIAS_INSTAGRAM } from '../src/mapear.mjs';
 
 const base = { mensagem_id: 'u1', wa_message_id: 'W1', chat: '120363000000000000@g.us', grupo: true,
   remetente: '5521999998888', remetente_nome: 'Teste', tipo: 'texto', texto: 'oi Aurora', em: '2026-09-25T21:00:00Z' };
@@ -79,4 +80,13 @@ test('áudio sem transcrição não passa o texto provisório', () => {
   assert.equal(temTranscricao({ texto: '🎤 Áudio' }), false);
   assert.equal(temTranscricao({ texto: 'ele não vai hoje' }), true);
   assert.equal(paraHermes({ ...base, tipo: 'audio', texto: '🎤 Audio' }).body, '[áudio recebido, sem transcrição]');
+});
+
+test('intake Instagram só reconhece link público no grupo exato', () => {
+  const alvo = { ...base, chat: GRUPO_REFERENCIAS_INSTAGRAM, texto: 'https://www.instagram.com/reel/DQo43SYjsGm/' };
+  assert.equal(ehReferenciaInstagram(alvo), true);
+  assert.match(paraHermes(alvo).body, /^Aurora, registre esta referência/);
+  assert.equal(ehReferenciaInstagram({ ...alvo, chat: '120363999@g.us' }), false);
+  assert.equal(ehReferenciaInstagram({ ...alvo, texto: 'https://example.com/reel/DQo43SYjsGm/' }), false);
+  assert.equal(ehReferenciaInstagram({ ...alvo, grupo: false }), false);
 });

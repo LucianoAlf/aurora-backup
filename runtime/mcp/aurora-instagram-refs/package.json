@@ -1,0 +1,10 @@
+{
+  "name": "aurora-instagram-refs",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP estreito da Aurora: registra post público do Instagram na planilha de referências",
+  "scripts": { "start": "node src/index.mjs", "test": "node --test tests/*.test.mjs" },
+  "engines": { "node": ">=20" },
+  "dependencies": { "@modelcontextprotocol/server": "2.0.0", "zod": "4.6.5" }
+}

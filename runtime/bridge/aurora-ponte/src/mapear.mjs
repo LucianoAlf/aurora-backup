@@ -4,6 +4,13 @@ import { midiaPermitida } from './midia.mjs';
 const ROTULO = { imagem: '[imagem recebida]', audio: '[áudio recebido, sem transcrição]', video: '[vídeo recebido]',
   sticker: '[figurinha]', documento: '[documento recebido]' };
 
+export const GRUPO_REFERENCIAS_INSTAGRAM = '120363431536497281@g.us';
+const LINK_INSTAGRAM = /https?:\/\/(?:www\.)?instagram\.com\/(?:[A-Za-z0-9_.]+\/)?(?:p|reel|reels|tv)\/[A-Za-z0-9_-]+\/?(?:\?[^\s]*)?/i;
+
+export function ehReferenciaInstagram(m) {
+  return Boolean(m?.grupo) && String(m?.chat || '') === GRUPO_REFERENCIAS_INSTAGRAM && LINK_INSTAGRAM.test(String(m?.texto || ''));
+}
+
 // "🎤 Audio" é o texto provisório que a Central grava antes de transcrever.
 export function temTranscricao(m) {
   const t = String(m.texto || '').trim();
@@ -31,6 +38,11 @@ export function paraHermes(m) {
   const equipe = Array.isArray(m.respostas_equipe) ? m.respostas_equipe.filter((t) => String(t || '').trim()) : [];
   if (equipe.length) {
     body = `[A equipe já respondeu nesta conversa: ${equipe.map((t) => `"${String(t).trim()}"`).join(' / ')}]\n${body}`;
+  }
+  // Este grupo é uma caixa de entrada automática. O prefixo faz o gateway reconhecer a mensagem
+  // sem exigir que o Alf escreva "Aurora" junto do link. Só o grupo exato e URL de post/reel passam.
+  if (ehReferenciaInstagram(m) && !/\baurora\b/i.test(body)) {
+    body = `Aurora, registre esta referência do Instagram: ${body}`;
   }
   return {
     messageId: String(m.wa_message_id || m.mensagem_id),

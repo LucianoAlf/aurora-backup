@@ -54,6 +54,15 @@ def test_hook_sobrescreve_o_que_o_modelo_mandou():
     assert r["action"] == "modify" and r["args"]["numero"].startswith("AUR1.whatsapp.dm.5521900000001.")
 
 
+def test_referencia_instagram_recebe_contexto_server_bound():
+    c._sessao = lambda: {"PLATFORM": "whatsapp", "USER_ID": "5521900000001@s.whatsapp.net", "CHAT_ID": "120363431536497281@g.us", "CHAT_TYPE": "group"}
+    c.KEY_PATH = pathlib.Path(__file__)
+    r = c._on_pre_tool_call("mcp__aurora-instagram-refs__aurora_referencia_instagram_registrar", {"contexto": "auto", "link": "https://www.instagram.com/reel/abc/"})
+    assert r["action"] == "modify"
+    assert r["args"] == {"contexto": r["args"]["contexto"]}
+    assert ".whatsapp.group.5521900000001." in r["args"]["contexto"]
+
+
 def test_pedido_equipe_carimba_e_respeita_sombra():
     assert c.CAMPO["aurora_pedido_equipe"] == "remetente" and "aurora_pedido_equipe" in c.ESCRITA
     c._sessao = lambda: {"PLATFORM": "whatsapp", "USER_ID": "5521900000001@s.whatsapp.net", "CHAT_ID": "5521900000001@s.whatsapp.net", "CHAT_TYPE": "dm"}

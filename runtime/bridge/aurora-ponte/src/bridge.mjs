@@ -3,9 +3,10 @@
 // Saída: em modo sombra NADA é enviado; a resposta vai para aurora_sombra. O modo "ao_vivo" ainda não existe
 // e qualquer outro valor cai em sombra (falha segura).
 import http from 'node:http';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import pg from 'pg';
-import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao, temTranscricao } from './mapear.mjs';
+import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao, temTranscricao,
+  ehReferenciaInstagram, GRUPO_REFERENCIAS_INSTAGRAM } from './mapear.mjs';
 import { ehPdf, prepararPdf } from './midia.mjs';
 
 const arg = (nome, padrao) => { const i = process.argv.indexOf(`--${nome}`); return i > 0 ? process.argv[i + 1] : padrao; };
@@ -14,6 +15,7 @@ const ENV_FILE = process.env.AURORA_ENV_FILE || '/home/aurora/.hermes/.env';
 const INTERVALO_MS = 2000;
 // O Hermes passa essa pasta para a ponte; ele só aceita documento local de dentro dela.
 const PASTA_DOC = process.env.HERMES_DOCUMENT_CACHE_DIR || '';
+const IG_REF_ENABLED = process.env.IG_REF_ENABLED_FILE || '/home/aurora/.hermes/referencias-instagram.enabled';
 
 function lerUrl() {
   if (process.env.AURORA_DB_PONTE_URL) return process.env.AURORA_DB_PONTE_URL;
@@ -43,6 +45,11 @@ async function puxar() {
     const lista = r.rows[0].r || [];
     let calada = 0;
     for (const m of lista) {
+      // No grupo de referências a Aurora só recebe links públicos do Instagram. Qualquer outro texto,
+      // inclusive uma chamada pelo nome, é ignorado. Remover o arquivo desliga a automação na hora.
+      if (String(m.chat || '') === GRUPO_REFERENCIAS_INSTAGRAM) {
+        if (!existsSync(IG_REF_ENABLED) || !ehReferenciaInstagram(m)) continue;
+      }
       const motivo = motivoSilencio(m);
       if (motivo) {
         calada += 1;

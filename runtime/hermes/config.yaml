@@ -20,6 +20,7 @@ platform_toolsets:
   - todo
   - aurora-read
   - aurora-write
+  - aurora-instagram-refs
 agent:
   service_tier: fast
   max_turns: 60
@@ -135,6 +136,17 @@ mcp_servers:
     - /home/aurora/releases/16cf3485a53e71883a2e8b38ebfcfa7add6345ac/runtime/mcp/aurora-write/src/index.mjs
     env:
       AURORA_DB_ESCRITA_URL: ${AURORA_DB_ESCRITA_URL}
+    connect_timeout: 15.0
+    enabled: true
+  aurora-instagram-refs:
+    command: /usr/bin/node
+    args:
+    - /home/aurora/releases/RELEASE_SHA/runtime/mcp/aurora-instagram-refs/src/index.mjs
+    env:
+      AURORA_CARIMBO_KEY_FILE: /home/aurora/.hermes/aurora-carimbo.key
+      CONTENT_READERS_ENV: /home/aurora/.hermes/referencias-instagram.env
+      COMPOSIO_BIN: /home/aurora/.local/bin/composio
+      IG_REF_ENABLED_FILE: /home/aurora/.hermes/referencias-instagram.enabled
     connect_timeout: 15.0
     enabled: true
 plugins:
