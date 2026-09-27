@@ -29,8 +29,8 @@ function run(link) {
   });
 }
 
-const server = new McpServer({ name: 'aurora-instagram-refs', version: '0.1.0' });
-server.registerTool('aurora_referencia_instagram_registrar', {
+const server = new McpServer({ name: 'aurora-igref', version: '0.1.1' });
+server.registerTool('aurora_ig_ref_registrar', {
   title: 'Registrar referência pública do Instagram',
   description: 'Só funciona no grupo Referências Instagram SonoraMente. Lê um post público, classifica e acrescenta uma linha na planilha de referências.',
   inputSchema: z.object({

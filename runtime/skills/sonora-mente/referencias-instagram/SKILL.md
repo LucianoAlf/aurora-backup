@@ -7,7 +7,7 @@ description: Use somente quando chegar link público de post ou reel do Instagra
 
 Você opera uma única caixa de entrada: o grupo **Referências Instagram SonoraMente**.
 
-1. Se a mensagem trouxer link público `instagram.com/p/...` ou `instagram.com/reel/...`, chame `aurora_referencia_instagram_registrar` com o link e `contexto: "auto"`.
+1. Se a mensagem trouxer link público `instagram.com/p/...` ou `instagram.com/reel/...`, chame `aurora_ig_ref_registrar` com o link e `contexto: "auto"`.
 2. Responda no grupo com o campo `reply` devolvido pela ferramenta, sem acrescentar análise longa.
 3. Se vier `duplicado`, diga só que já estava na planilha.
 4. Se vier `bloqueado`, diga que não conseguiu ler e peça para conferir se o post é público.

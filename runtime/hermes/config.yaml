@@ -20,7 +20,7 @@ platform_toolsets:
   - todo
   - aurora-read
   - aurora-write
-  - aurora-instagram-refs
+  - aurora-igref
 agent:
   service_tier: fast
   max_turns: 60
@@ -138,7 +138,7 @@ mcp_servers:
       AURORA_DB_ESCRITA_URL: ${AURORA_DB_ESCRITA_URL}
     connect_timeout: 15.0
     enabled: true
-  aurora-instagram-refs:
+  aurora-igref:
     command: /usr/bin/node
     args:
     - /home/aurora/releases/64aea901ff8f436f65d177e0c60f9d03ca298eda/runtime/mcp/aurora-instagram-refs/src/index.mjs

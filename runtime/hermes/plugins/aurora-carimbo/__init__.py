@@ -41,7 +41,7 @@ CAMPO: Dict[str, Optional[str]] = {
     "aurora_lead_registrar": "numero",
     "aurora_lead_mover_etapa": "numero",
     "aurora_lead_followup_feito": "numero",
-    "aurora_referencia_instagram_registrar": "contexto",
+    "aurora_ig_ref_registrar": "contexto",
 }
 
 # Modo sombra: no WhatsApp, as ferramentas de escrita não executam. A intenção vai para a lista de
