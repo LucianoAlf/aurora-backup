@@ -164,6 +164,13 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.
 - Ainda a formalizar para o playbook: laudo diário do agente, heartbeat e alertas (CP6/CP7).
 
+### 5.1 Intake estreito em grupo
+- Canal novo começa por **grupo exato + tipo exato de conteúdo**, não por permissão geral do WhatsApp.
+- Use dois gates independentes: allowlist do canal e kill switch local. Qualquer falha de entrega pausa os dois antes de investigar.
+- Ferramenta de conteúdo não herda o MCP operacional: um servidor separado, uma função, destino fixo e sem credencial clínica.
+- O contexto do grupo precisa ser carimbado no servidor; texto dizendo "vim do grupo" não vale como autoridade.
+- Teste interno do agente não prova entrega. Critério de pronto inclui recibo no grupo e log do provedor. Aqui, 3/3 internos passaram, mas 0/3 chegaram porque a UAZAPI estava desconectada; portanto a frente ficou pausada.
+
 ## 6. Para virar skill (quando a Aurora fechar)
 - Juntar com a Julia (MCP read/write, releases por sha, crachás) e com a Sol (caixa V3, "pode", ledger, cards).
 - Produzir: `playbook-criacao-agente-hermes` (passo a passo com critério de pronto por etapa) e os templates `SOUL`/`USER`/`AGENTS`/`PERMISSOES`/`MEMORY`/`FERRAMENTAS`/`CHECKPOINT`.

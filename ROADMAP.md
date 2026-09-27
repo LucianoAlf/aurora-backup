@@ -1,7 +1,7 @@
 # ROADMAP da Aurora (SonoraMente)
 
 > Estado vivo do projeto, atualizado a cada etapa. Detalhe técnico em `CHECKPOINT.md`, ferramentas em `FERRAMENTAS.md`, método em `PLAYBOOK-NOTAS.md`.
-> Última atualização: **2026-09-26 20:15 UTC** (Alfredo, com o Alf).
+> Última atualização: **2026-09-27 22:30 UTC** (Alfredo, com o Alf).
 
 ## Onde estamos
 
@@ -24,7 +24,7 @@
 | 15 | Virada ao vivo para as famílias + interruptor geral na Central | ⏳ | depende da régua |
 | 16 | Memória da Aurora (Honcho ligado, uma gaveta por pessoa) | ⏳ | liga junto com a virada |
 | 17 | Caixa | ⏳ | |
-| 18 | Instagram e social media (+ ponte com Mila e Maria) | ⏳ | |
+| 18 | Intake de referências do Instagram | 🟡 | Skill/MCP instalados e 3/3 no agente; **pausado** porque a sessão UAZAPI da Aurora está desconectada e não reconectável. 0/3 recibos chegaram ao grupo |
 | 19 | Playbook | 🟡 | **v1 publicada** (`playbook/`) + skill `criar-agente-hermes` instalada no Alfredo, apontando para o repo; v2 com caixa, Instagram e memória |
 | 20 | Cérebros antigos (Gemini) aposentados | ✅ | `aurora-assist` e `aurora-responder` respondem 410; código em `_aposentadas/` |
 | 21 | Documentação enxuta (35 KB → 11,2 KB) | ✅ | em produção 26/09 (`e208f1d`), hash conferido; USER/MEMORY dentro dos limites; backup em `/home/aurora/backups/` |
@@ -39,6 +39,7 @@
 6. **Ferramenta geral de parcelas atrasadas:** hoje só existe por criança.
 7. **Saúde diária:** o placar das 9h já confere a ponte. Ação: incluir o `aurora-cerebro` e o limite da assinatura.
 8. **Teste em grupo chamando "Aurora":** adiado pelo Alf.
+9. **WhatsApp da Aurora desconectado:** a UAZAPI marcou a sessão como não reconectável durante o teste de referências. O intake foi pausado e o grupo saiu da allowlist. Reconectar o número antes de repetir 3 testes reais.
 
 ## Próximos passos (ordem do Alf, 26/09)
 
@@ -47,3 +48,4 @@
 3. **Mike:** aplicar o playbook e trazer para o Hermes (frente ativa desde 26/09 20:40).
 4. **Sol:** roda uns dias com #511/#513 e o placar do canário; depois, revisão pelo playbook e Sol 100% nos três grupos.
 5. **Alfredo no Hermes:** em paralelo até o Alfredo dar o ok, seguindo playbook + skill, com revisão da documentação de instalação do Hermes.
+6. **Referências Instagram:** após o Alf reconectar o WhatsApp da Aurora, reativar os dois gates e provar 3 links no grupo; não ampliar o escopo para nenhum outro chat.
