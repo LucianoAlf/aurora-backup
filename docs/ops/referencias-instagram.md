@@ -14,6 +14,7 @@
 2. O arquivo `/home/aurora/.hermes/referencias-instagram.enabled` precisa existir.
 3. O MCP `aurora-igref` precisa descobrir exatamente uma ferramenta: `aurora_ig_ref_registrar`.
 4. A ponte só encaminha URL pública do Instagram nesse grupo. Qualquer outro texto é ignorado.
+5. A ponte libera no máximo uma referência por vez e só entrega a próxima depois do recibo anterior voltar por `/send`; isso impede o Hermes de agrupar dois links no mesmo turno.
 
 ## Desligar na hora
 
@@ -35,3 +36,14 @@ Mover o arquivo de habilitação para o estado pausado e remover o JID do grupo 
 - Entrega ao grupo: 0/3. UAZAPI respondeu `WhatsApp disconnected: session is not reconnectable`.
 - Estado final: pausado e fora da allowlist, aguardando reconexão humana do número.
 - Backup pré-rollout: `/home/aurora/backups/igref-before-20260927T2215Z`.
+
+## Evidência de 2026-09-28
+
+- O Alf reconectou o WhatsApp; a ponte voltou saudável, com banco disponível e `NRestarts=0`.
+- Primeira rodada: três links processados, todos duplicados, mas o Hermes agrupou os dois últimos em um único recibo. Os dois gates foram fechados imediatamente.
+- Correção: release `dd8cbfc08ad54c1b477f8d4a5ad6f55d1bee3788`; fila do grupo serializada por resposta. Testes da ponte: 14/14 local e 14/14 na VPS.
+- Rodada final: três entradas e três saídas separadas no grupo; nenhuma saída da Aurora em outro chat na janela.
+- Resultado: dois duplicados e uma linha nova única de `@wagnerbrito.mt`, classificada como `Ambos`, `Musicoterapia (pra famílias)`, destino `Carrossel + Newsletter`.
+- Readback da planilha: shortcode novo aparece exatamente uma vez.
+- Custo medido do OpenRouter na linha nova: US$ 0,000564; duplicados: US$ 0. O recibo atual não expõe o custo exato do Apify, embora a chamada permaneça limitada por `maxTotalChargeUsd=0.1`.
+- Estado final: `.enabled` presente e grupo exato na allowlist. Para desligar, executar os dois passos de **Desligar na hora**.
