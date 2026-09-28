@@ -7,6 +7,28 @@ const ROTULO = { imagem: '[imagem recebida]', audio: '[áudio recebido, sem tran
 export const GRUPO_REFERENCIAS_INSTAGRAM = '120363431536497281@g.us';
 const LINK_INSTAGRAM = /https?:\/\/(?:www\.)?instagram\.com\/(?:[A-Za-z0-9_.]+\/)?(?:p|reel|reels|tv)\/[A-Za-z0-9_-]+\/?(?:\?[^\s]*)?/i;
 
+// O Hermes incorpora uma nova mensagem do mesmo chat ao turno que ainda esta rodando. Para o intake
+// isso juntava dois links em uma unica resposta. A ponte entrega no maximo uma referencia por vez e
+// so libera a proxima depois que a resposta anterior volta pela rota /send.
+export function retirarParaEntrega(fila, referenciaEmProcessamento = false) {
+  const mensagens = [];
+  const restantes = [];
+  let referenciaSelecionada = false;
+  for (const mensagem of fila) {
+    if (String(mensagem?.chatId || '') !== GRUPO_REFERENCIAS_INSTAGRAM) {
+      mensagens.push(mensagem);
+      continue;
+    }
+    if (referenciaEmProcessamento || referenciaSelecionada) restantes.push(mensagem);
+    else {
+      mensagens.push(mensagem);
+      referenciaSelecionada = true;
+    }
+  }
+  fila.splice(0, fila.length, ...restantes);
+  return { mensagens, referenciaSelecionada };
+}
+
 export function ehReferenciaInstagram(m) {
   return Boolean(m?.grupo) && String(m?.chat || '') === GRUPO_REFERENCIAS_INSTAGRAM && LINK_INSTAGRAM.test(String(m?.texto || ''));
 }

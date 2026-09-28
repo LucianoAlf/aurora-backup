@@ -6,7 +6,7 @@ import http from 'node:http';
 import { existsSync, readFileSync } from 'node:fs';
 import pg from 'pg';
 import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao, temTranscricao,
-  ehReferenciaInstagram, GRUPO_REFERENCIAS_INSTAGRAM } from './mapear.mjs';
+  ehReferenciaInstagram, GRUPO_REFERENCIAS_INSTAGRAM, retirarParaEntrega } from './mapear.mjs';
 import { ehPdf, prepararPdf } from './midia.mjs';
 
 const arg = (nome, padrao) => { const i = process.argv.indexOf(`--${nome}`); return i > 0 ? process.argv[i + 1] : padrao; };
@@ -30,6 +30,7 @@ const pool = new pg.Pool({ connectionString: lerUrl(), max: 2, application_name:
   connectionTimeoutMillis: 10000, query_timeout: 15000, statement_timeout: 10000 });
 pool.on('error', (e) => log('erro_pool', { codigo: e.code || e.name }));
 const fila = [];
+let referenciaEmProcessamento = false;
 const ultimoDigitando = new Map();
 // Conversas em modo sugestão (humano atendendo): a resposta da Aurora vira sugestão na Central, não sai
 // para a família, não mostra "digitando" e as ferramentas de escrita ficam travadas. Vale por 5 minutos.
@@ -120,9 +121,13 @@ const servidor = http.createServer(async (req, res) => {
   try {
     if (req.method === 'GET' && rota === 'health') {
       return responder(res, 200, { status: 'connected', modo: 'chave_no_banco', fila: fila.length, ultimo_puxar: ultimoPuxar, erros_seguidos: erroSeguido,
-        banco_ok: Boolean(ultimoPuxar && Date.now() - ultimoPuxar.getTime() < 120000) });
+        banco_ok: Boolean(ultimoPuxar && Date.now() - ultimoPuxar.getTime() < 120000), referencia_em_processamento: referenciaEmProcessamento });
     }
-    if (req.method === 'GET' && rota === 'messages') return responder(res, 200, fila.splice(0, fila.length));
+    if (req.method === 'GET' && rota === 'messages') {
+      const retirada = retirarParaEntrega(fila, referenciaEmProcessamento);
+      if (retirada.referenciaSelecionada) referenciaEmProcessamento = true;
+      return responder(res, 200, retirada.mensagens);
+    }
     if (req.method === 'GET' && rota === 'liberado') {
       const chat = new URL(req.url, 'http://x').searchParams.get('chat') || '';
       if (emSugestao(chat)) return responder(res, 200, { liberado: false });
@@ -139,6 +144,7 @@ const servidor = http.createServer(async (req, res) => {
       // A chave é do banco (aurora_canal_config): conversa não liberada vai para a sombra, liberada sai pela Central.
       if (rota === 'edit') {
         const r = await sombra(String(b.chatId || ''), emSugestao(String(b.chatId || '')) ? 'sugestao' : 'resposta', String(b.message || ''));
+        if (String(b.chatId || '') === GRUPO_REFERENCIAS_INSTAGRAM && r?.ok) referenciaEmProcessamento = false;
         return responder(res, 200, { success: true, messageId: `sombra-${r?.id || Date.now()}` });
       }
       if (emSugestao(String(b.chatId || ''))) {
@@ -150,6 +156,7 @@ const servidor = http.createServer(async (req, res) => {
       const r = q.rows[0].r || {};
       log(r.enviado ? 'enviado' : 'sombra_resposta', { ok: Boolean(r.ok), erro: r.erro || null });
       if (r.erro && !r.sombra) return responder(res, 500, { success: false, error: r.erro });
+      if (String(b.chatId || '') === GRUPO_REFERENCIAS_INSTAGRAM && (r.enviado || r.sombra)) referenciaEmProcessamento = false;
       return responder(res, 200, { success: true, messageId: `${r.enviado ? 'aurora' : 'sombra'}-${r.id || Date.now()}` });
     }
     if (rota === 'send-media' || rota === 'send-poll' || rota === 'poll' || rota === 'send-location' || rota === 'location') {

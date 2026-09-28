@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao, temTranscricao,
-  ehReferenciaInstagram, GRUPO_REFERENCIAS_INSTAGRAM } from '../src/mapear.mjs';
+  ehReferenciaInstagram, GRUPO_REFERENCIAS_INSTAGRAM, retirarParaEntrega } from '../src/mapear.mjs';
 
 const base = { mensagem_id: 'u1', wa_message_id: 'W1', chat: '120363000000000000@g.us', grupo: true,
   remetente: '5521999998888', remetente_nome: 'Teste', tipo: 'texto', texto: 'oi Aurora', em: '2026-09-25T21:00:00Z' };
@@ -89,4 +89,26 @@ test('intake Instagram só reconhece link público no grupo exato', () => {
   assert.equal(ehReferenciaInstagram({ ...alvo, chat: '120363999@g.us' }), false);
   assert.equal(ehReferenciaInstagram({ ...alvo, texto: 'https://example.com/reel/DQo43SYjsGm/' }), false);
   assert.equal(ehReferenciaInstagram({ ...alvo, grupo: false }), false);
+});
+
+test('intake Instagram entrega um link por resposta sem bloquear outros chats', () => {
+  const outro = { chatId: '5521999998888@s.whatsapp.net', body: 'oi' };
+  const ref1 = { chatId: GRUPO_REFERENCIAS_INSTAGRAM, body: 'link 1' };
+  const ref2 = { chatId: GRUPO_REFERENCIAS_INSTAGRAM, body: 'link 2' };
+  const fila = [ref1, ref2, outro];
+
+  const primeira = retirarParaEntrega(fila, false);
+  assert.deepEqual(primeira.mensagens, [ref1, outro]);
+  assert.equal(primeira.referenciaSelecionada, true);
+  assert.deepEqual(fila, [ref2]);
+
+  const bloqueada = retirarParaEntrega(fila, true);
+  assert.deepEqual(bloqueada.mensagens, []);
+  assert.equal(bloqueada.referenciaSelecionada, false);
+  assert.deepEqual(fila, [ref2]);
+
+  const segunda = retirarParaEntrega(fila, false);
+  assert.deepEqual(segunda.mensagens, [ref2]);
+  assert.equal(segunda.referenciaSelecionada, true);
+  assert.deepEqual(fila, []);
 });
