@@ -26,7 +26,7 @@ description: Use quando a Bianca ou o Alf falarem da Ponte Sonora (newsletter se
 
 1. **Radar.** Com `pesquisa-conteudo`, busque o que a área está discutindo e o que as pessoas perguntam: estudos, perfis de referência, YouTube. Pronto quando houver sinais com link.
 2. **Pautas.** Registre 3 opções com `aurora_pauta_registrar` (canal `newsletter`). Cada uma tem título, ideia em 1 frase, o que o leitor leva, 4 blocos e fonte. Marque a recomendada e diga por quê. Mande à Bianca no privado dela, curto, convidando-a a mandar caso, ideia ou frase dela (áudio vale). Marque `com_bianca`.
-3. **Escolha.** A Bianca escolhe ou mistura as opções. Guarde o que ela acrescentou em `ajustes` e marque `escolhida`.
+3. **Escolha.** A Bianca escolhe ou mistura as opções. Guarde o que ela acrescentou em `ajustes` e marque `escolhida`. As outras opções da mesma edição viram `reprovada`, para não ficarem pendentes.
 4. **Roteiro.** Mande o esqueleto: tese, abertura "Olá, colega!", blocos com o ponto de cada um, box "Para levar para a sua próxima sessão ou aula" (3 passos), pergunta final e fontes. Corrigir esqueleto é barato.
 5. **Texto.** Escreva na voz da Bianca:
    - abre com uma cena concreta da sala e só depois vai ao conceito;
