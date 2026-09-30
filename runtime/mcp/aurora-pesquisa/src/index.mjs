@@ -11,9 +11,16 @@ const SCRIPT = process.env.PESQUISA_SCRIPT || new URL('../scripts/pesquisa.py', 
 const PYTHON = process.env.PYTHON_BIN || '/usr/bin/python3';
 const AVISO = 'Conteúdo público. Tema clínico sai marcado "a validar pela Bianca" antes de virar pauta. Nunca envie nome, caso ou dado de paciente para estas ferramentas.';
 
-function run(args, timeoutMs) {
+const PAUTAS = process.env.PAUTAS_SCRIPT || new URL('../scripts/pautas.py', import.meta.url).pathname;
+const PONTE = process.env.PONTE_URL || 'http://127.0.0.1:3107';
+const DESTINOS = { bianca: '5521997382027@s.whatsapp.net', serjao: '5521964751340@s.whatsapp.net' };
+const STATUS = ['sugerida', 'escolhida', 'com_bianca', 'ajustes', 'aprovada', 'reprovada', 'com_serjao', 'com_alfredo', 'publicada'];
+// Regras de quem pode mudar cada status (decisão do Alf, 2026-09-30): só a Bianca aprova ou reprova.
+const QUEM_PODE = { aprovada: ['Bianca'], reprovada: ['Bianca'], publicada: ['Serjão', 'Alf'] };
+
+function run(args, timeoutMs, script = SCRIPT) {
   return new Promise((resolve, reject) => {
-    const child = spawn(PYTHON, [SCRIPT, ...args], { env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawn(PYTHON, [script, ...args], { env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '';
     const timer = setTimeout(() => { child.kill('SIGTERM'); reject(new Error('tempo_esgotado')); }, timeoutMs);
     child.stdout.on('data', (b) => { out += b; if (out.length > 262144) child.kill('SIGTERM'); });
@@ -72,5 +79,60 @@ ferramenta(server, 'aurora_pesquisa_youtube', 'Assistir vídeo público do YouTu
   'Assiste e resume um vídeo público do YouTube (Gemini). Limite: 10 vídeos por semana e até 20 minutos; acima disso, pedir ao Alf.',
   { link: z.string().max(500) },
   ({ link }) => { const u = linkYoutube(link); return u ? ['youtube', u] : null; }, 285000);
+
+function pautaTool(nome, titulo, descricao, campos, executar) {
+  server.registerTool(nome, {
+    title: titulo,
+    description: descricao,
+    inputSchema: z.object({ solicitante: z.string().describe('Preenchido automaticamente pelo sistema. Envie "auto".'), ...campos }).strict(),
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  }, async ({ solicitante, ...args }) => {
+    try {
+      if (!fs.existsSync(ENABLED)) return responder({ ok: false, erro: 'pausada' });
+      const quem = quemPediu(solicitante);
+      if (!quem) return responder({ ok: false, erro: 'sem_permissao', explicacao: 'Fluxo de pautas só para Alf, Anne, Bianca e Serjão.' });
+      return responder({ quem, ...(await executar(quem, args)) });
+    } catch {
+      return responder({ ok: false, erro: 'falha_na_ferramenta' });
+    }
+  });
+}
+
+pautaTool('aurora_pauta_registrar', 'Registrar pauta sugerida',
+  'Registra uma pauta na planilha "Pautas de Conteúdo — SonoraMente" com status "sugerida". Canal: instagram ou newsletter (Ponte Sonora).',
+  { canal: z.enum(['instagram', 'newsletter']), titulo: z.string().min(3).max(200), ideia: z.string().min(3).max(1500),
+    publico: z.string().max(200).optional(), fontes: z.string().max(3000).optional() },
+  (quem, a) => run(['registrar', JSON.stringify({ ...a, pedido_por: quem })], 120000, PAUTAS));
+
+pautaTool('aurora_pauta_atualizar', 'Atualizar status, texto ou ajustes de uma pauta',
+  'Muda o status de uma pauta e guarda a última versão do texto e os ajustes pedidos. Só a Bianca aprova ou reprova; só Serjão ou Alf marcam publicada.',
+  { id: z.string().regex(/^P-\d{6}-\d{6}$/), status: z.enum(STATUS).optional(), texto: z.string().max(20000).optional(), ajustes: z.string().max(3000).optional() },
+  async (quem, a) => {
+    if (a.status && QUEM_PODE[a.status] && !QUEM_PODE[a.status].includes(quem)) {
+      return { ok: false, erro: 'sem_permissao_para_status', explicacao: `Só ${QUEM_PODE[a.status].join(' ou ')} pode marcar "${a.status}".` };
+    }
+    const r = await run(['atualizar', JSON.stringify(a)], 120000, PAUTAS);
+    if (r.ok && a.status === 'aprovada' && r.canal === 'newsletter') {
+      const h = await run(['atualizar', JSON.stringify({ id: a.id, status: 'com_alfredo' })], 120000, PAUTAS);
+      return { ...r, status: h.ok ? 'com_alfredo' : r.status, handoff: h.ok ? 'Alfredo avisado automaticamente para imagens e página.' : 'falhou_ao_marcar_handoff' };
+    }
+    return r;
+  });
+
+pautaTool('aurora_pauta_listar', 'Listar pautas',
+  'Lista pautas da planilha, com filtro opcional por status e canal.',
+  { status: z.enum(STATUS).optional(), canal: z.enum(['instagram', 'newsletter']).optional() },
+  (quem, a) => run(['listar', JSON.stringify(a)], 120000, PAUTAS));
+
+pautaTool('aurora_conteudo_encaminhar', 'Encaminhar pauta ou texto para Bianca ou Serjão',
+  'Envia uma mensagem no WhatsApp privado da Bianca (escolha de pauta e aprovação de texto) ou do Serjão (texto aprovado para arte e publicação). Só esses dois destinos.',
+  { para: z.enum(['bianca', 'serjao']), mensagem: z.string().min(3).max(4000) },
+  async (quem, { para, mensagem }) => {
+    const r = await fetch(`${PONTE}/send`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chatId: DESTINOS[para], message: mensagem }), signal: AbortSignal.timeout(30000) });
+    const j = await r.json().catch(() => ({}));
+    const enviado = String(j.messageId || '').startsWith('aurora-');
+    return { ok: Boolean(j.success) && enviado, para, enviado, erro: enviado ? undefined : 'nao_saiu_ao_vivo' };
+  });
 
 serveStdio(() => server, { legacy: 'serve' });

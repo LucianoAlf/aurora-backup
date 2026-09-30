@@ -15,6 +15,8 @@ def test_mapa_de_ferramentas():
     assert c._ferramenta("mcp_aurora_pesquisa_aurora_pesquisa_ler_pagina") == "aurora_pesquisa_ler_pagina"
     assert c.CAMPO["aurora_pesquisa_youtube"] == "solicitante"
     assert "aurora_pesquisa_instagram" not in c.ESCRITA  # leitura: roda mesmo em sombra
+    assert c._ferramenta("mcp__aurora_pesquisa__aurora_pauta_atualizar") == "aurora_pauta_atualizar"
+    assert "aurora_conteudo_encaminhar" in c.ESCRITA and "aurora_pauta_listar" not in c.ESCRITA
 
 
 def test_carimbo_assinado_e_formato():
