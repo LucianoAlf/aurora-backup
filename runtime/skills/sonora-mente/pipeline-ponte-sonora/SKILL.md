@@ -40,7 +40,7 @@ description: Use quando a Bianca ou o Alf falarem da Ponte Sonora (newsletter se
 
 ## Pautas que chegam pela rotina semanal
 
-As rotinas automáticas (terça para a Bianca, segunda para o Serjão) mandam pautas que ainda **não** estão na planilha. Quando a pessoa escolher uma delas, registre com `aurora_pauta_registrar` e já marque `escolhida`. Depois siga os passos normalmente.
+A rotina de terça manda as 3 opções da próxima edição. Quando a Bianca escolher, registre a escolhida, marque `escolhida` e reprove as outras opções da mesma edição. Depois siga os passos normalmente.
 
 ## Limites
 

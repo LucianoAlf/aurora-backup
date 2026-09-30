@@ -183,6 +183,17 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 - `atendimento-familias`: quem é → hoje → sessões/pacote → aviso de falta/remarcação → cobrança.
 - `acolhimento-leads`: quem é → acolher → registrar lead → triagem → Serjão → perdido/follow-up.
 - `consultas-da-equipe`: agenda, pacotes, recesso, financeiro de família e leads, com o escopo aplicado pelas próprias ferramentas.
+- `pesquisa-conteudo`: Tavily/Firecrawl + leitores Gemini para conteúdo público, sem dado de paciente.
+- `pipeline-instagram`: meta semanal 3 carrosséis + 1 Reel; Serjão escolhe, Aurora escreve, Bianca aprova, Serjão + Marketing produzem e publicam.
+- `pipeline-ponte-sonora`: radar, pauta, roteiro e texto com a Bianca; aprovado segue ao Alfredo para imagens e página.
+
+## Pesquisa e pipeline editorial (`aurora-pesquisa`)
+
+- **Pesquisa pública:** `aurora_pesquisa_web`, `aurora_pesquisa_ler_pagina`, `aurora_pesquisa_instagram` e `aurora_pesquisa_youtube`. Só Alf, Anne, Bianca e Serjão; nunca dado de paciente; tema clínico passa pela Bianca.
+- **Controle editorial:** `aurora_pauta_registrar`, `aurora_pauta_atualizar` e `aurora_pauta_listar` operam a planilha "Pautas de Conteúdo — SonoraMente". Cada linha guarda canal, formato, semana, data planejada, responsável, status, texto e ajustes.
+- **Encaminhamento fechado:** `aurora_conteudo_encaminhar` envia somente para Bianca ou Serjão. Só Bianca aprova/reprova; Serjão ou Alf marcam publicada.
+- **Cadência Instagram:** 3 carrosséis + 1 Reel por semana. Dias-base: terça, quinta e sábado (carrosséis), sexta (Reel), ajustáveis pelo Serjão conforme Insights.
+- **Produção:** a Aurora não cria arte/vídeo nem publica. Serjão fecha com o Marketing; a Bianca valida tema e redação.
 
 ## Próximas (plano em `CHECKPOINT.md`)
 - Caixa novo no modelo da Sol.

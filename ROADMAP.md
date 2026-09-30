@@ -1,7 +1,7 @@
 # ROADMAP da Aurora (SonoraMente)
 
 > Estado vivo do projeto, atualizado a cada etapa. Detalhe técnico em `CHECKPOINT.md`, ferramentas em `FERRAMENTAS.md`, método em `PLAYBOOK-NOTAS.md`.
-> Última atualização: **2026-09-27 22:30 UTC** (Alfredo, com o Alf).
+> Última atualização: **2026-09-30 15:30 UTC** (Alfredo, com o Alf).
 
 ## Onde estamos
 
@@ -28,6 +28,7 @@
 | 19 | Playbook | 🟡 | **v1 publicada** (`playbook/`) + skill `criar-agente-hermes` instalada no Alfredo, apontando para o repo; v2 com caixa, Instagram e memória |
 | 20 | Cérebros antigos (Gemini) aposentados | ✅ | `aurora-assist` e `aurora-responder` respondem 410; código em `_aposentadas/` |
 | 21 | Documentação enxuta (35 KB → 11,2 KB) | ✅ | em produção 26/09 (`e208f1d`), hash conferido; USER/MEMORY dentro dos limites; backup em `/home/aurora/backups/` |
+| 22 | Pesquisa + pipelines Instagram/Ponte Sonora | ✅ | pesquisa pública; planilha editorial; Bianca aprova; Instagram 3 carrosséis + 1 Reel; Serjão + Marketing produzem/publicam; crons condicionais |
 
 ## Riscos e oportunidades (26/09)
 

@@ -99,14 +99,19 @@ function pautaTool(nome, titulo, descricao, campos, executar) {
 }
 
 pautaTool('aurora_pauta_registrar', 'Registrar pauta sugerida',
-  'Registra uma pauta na planilha "Pautas de Conteúdo — SonoraMente" com status "sugerida". Canal: instagram ou newsletter (Ponte Sonora).',
+  'Registra uma pauta na planilha "Pautas de Conteúdo — SonoraMente" com status "sugerida", formato, semana e data planejada.',
   { canal: z.enum(['instagram', 'newsletter']), titulo: z.string().min(3).max(200), ideia: z.string().min(3).max(1500),
-    publico: z.string().max(200).optional(), fontes: z.string().max(3000).optional() },
+    publico: z.string().max(200).optional(), fontes: z.string().max(3000).optional(),
+    formato: z.enum(['carrossel', 'reel', 'newsletter']).optional(), semana: z.string().max(12).optional(),
+    data_publicacao: z.string().max(10).optional(), responsavel_producao: z.string().max(120).optional() },
   (quem, a) => run(['registrar', JSON.stringify({ ...a, pedido_por: quem })], 120000, PAUTAS));
 
 pautaTool('aurora_pauta_atualizar', 'Atualizar status, texto ou ajustes de uma pauta',
-  'Muda o status de uma pauta e guarda a última versão do texto e os ajustes pedidos. Só a Bianca aprova ou reprova; só Serjão ou Alf marcam publicada.',
-  { id: z.string().regex(/^P-\d{6}-\d{6}$/), status: z.enum(STATUS).optional(), texto: z.string().max(20000).optional(), ajustes: z.string().max(3000).optional() },
+  'Muda status, texto, ajustes, formato, data planejada ou responsável. Só a Bianca aprova/reprova; só Serjão ou Alf marcam publicada.',
+  { id: z.string().regex(/^P-\d{6}-\d{6}$/), status: z.enum(STATUS).optional(), texto: z.string().max(20000).optional(),
+    ajustes: z.string().max(3000).optional(), formato: z.enum(['carrossel', 'reel', 'newsletter']).optional(),
+    semana: z.string().max(12).optional(), data_publicacao: z.string().max(10).optional(),
+    responsavel_producao: z.string().max(120).optional() },
   async (quem, a) => {
     if (a.status && QUEM_PODE[a.status] && !QUEM_PODE[a.status].includes(quem)) {
       return { ok: false, erro: 'sem_permissao_para_status', explicacao: `Só ${QUEM_PODE[a.status].join(' ou ')} pode marcar "${a.status}".` };

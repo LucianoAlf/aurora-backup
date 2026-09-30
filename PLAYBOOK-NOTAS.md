@@ -164,6 +164,12 @@ Antes de dar qualquer ferramenta ao agente, **fechar o que já estava aberto**:
 - Checkpoint versionado a cada etapa (`CHECKPOINT.md`) e memória do Alfredo com backup no `alfredo-backup`.
 - Ainda a formalizar para o playbook: laudo diário do agente, heartbeat e alertas (CP6/CP7).
 
+### 5.2 Pipeline editorial com humano no comando
+- Separar **aprovação editorial** de **produção/publicação**: a responsável técnica valida tema e texto; o administrativo/Marketing produz a peça e publica.
+- A planilha precisa guardar formato, semana, data planejada, responsável e status — título sozinho não fecha calendário.
+- Rotina semanal deve cobrar lacunas, não mandar lembrete cego: seleção incompleta, texto parado na aprovação ou peça aprovada ainda sem produção.
+- Formatos diferentes pedem entregáveis diferentes: carrossel recebe slides; Reel recebe gancho, cenas, fala/narração, texto na tela, legenda e fontes.
+
 ### 5.1 Intake estreito em grupo
 - Canal novo começa por **grupo exato + tipo exato de conteúdo**, não por permissão geral do WhatsApp.
 - Use dois gates independentes: allowlist do canal e kill switch local. Qualquer falha de entrega pausa os dois antes de investigar.

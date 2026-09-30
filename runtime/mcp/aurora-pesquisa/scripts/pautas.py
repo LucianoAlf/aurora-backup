@@ -15,7 +15,8 @@ COMPOSIO = os.environ.get("COMPOSIO_BIN", "/home/aurora/.local/bin/composio")
 LOCK = os.environ.get("PAUTAS_LOCK", "/home/aurora/.hermes/pautas.lock")
 API = f"https://sheets.googleapis.com/v4/spreadsheets/{SHEET}/values"
 SP = ZoneInfo("America/Sao_Paulo")
-COLS = ["id", "criada_em", "canal", "titulo", "ideia", "publico", "fontes", "pedido_por", "status", "texto", "ajustes", "atualizado_em"]
+COLS = ["id", "criada_em", "canal", "titulo", "ideia", "publico", "fontes", "pedido_por", "status", "texto", "ajustes",
+        "atualizado_em", "formato", "semana", "data_publicacao", "responsavel_producao"]
 
 
 class Falha(Exception):
@@ -45,7 +46,7 @@ def agora():
 def linhas():
     # O proxy às vezes devolve corpo vazio; sem "range" a leitura não valeu e é refeita.
     for _ in range(3):
-        resp = proxy(f"{API}/Pautas!A2:L")
+        resp = proxy(f"{API}/Pautas!A2:P")
         if "range" in resp:
             break
     else:
@@ -59,10 +60,15 @@ def registrar(a):
         if not str(a.get(campo) or "").strip():
             raise Falha(f"falta_{campo}")
     pid = "P-" + datetime.datetime.now(SP).strftime("%y%m%d-%H%M%S")
+    formato = a.get("formato") or ("newsletter" if a["canal"] == "newsletter" else "carrossel")
+    if formato not in ("carrossel", "reel", "newsletter"):
+        raise Falha("formato_invalido")
+    semana = a.get("semana") or datetime.datetime.now(SP).strftime("%G-W%V")
+    responsavel = a.get("responsavel_producao") or ("Alfredo" if a["canal"] == "newsletter" else "Serjão + Marketing")
     row = [pid, agora(), a["canal"], a["titulo"], a["ideia"], a.get("publico", ""), a.get("fontes", ""),
-           a["pedido_por"], "sugerida", "", "", agora()]
-    proxy(f"{API}/Pautas!A:L:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS", "POST", {"values": [row]})
-    return {"ok": True, "id": pid, "status": "sugerida"}
+           a["pedido_por"], "sugerida", "", "", agora(), formato, semana, a.get("data_publicacao", ""), responsavel]
+    proxy(f"{API}/Pautas!A:P:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS", "POST", {"values": [row]})
+    return {"ok": True, "id": pid, "status": "sugerida", "formato": formato, "semana": semana}
 
 
 def atualizar(a):
@@ -70,13 +76,17 @@ def atualizar(a):
     if not alvo:
         raise Falha("pauta_nao_encontrada")
     novo = {"status": a.get("status") or alvo["status"], "texto": a.get("texto", alvo["texto"]),
-            "ajustes": a.get("ajustes", alvo["ajustes"])}
+            "ajustes": a.get("ajustes", alvo["ajustes"]),
+            "formato": a.get("formato", alvo["formato"]), "semana": a.get("semana", alvo["semana"]),
+            "data_publicacao": a.get("data_publicacao", alvo["data_publicacao"]),
+            "responsavel_producao": a.get("responsavel_producao", alvo["responsavel_producao"])}
     if a.get("ajustes") and alvo["ajustes"]:
         novo["ajustes"] = alvo["ajustes"] + "\n— " + a["ajustes"]
-    proxy(f"{API}/Pautas!I{alvo['linha']}:L{alvo['linha']}?valueInputOption=RAW", "PUT",
-          {"values": [[novo["status"], novo["texto"], novo["ajustes"], agora()]]})
+    proxy(f"{API}/Pautas!I{alvo['linha']}:P{alvo['linha']}?valueInputOption=RAW", "PUT",
+          {"values": [[novo["status"], novo["texto"], novo["ajustes"], agora(), novo["formato"], novo["semana"],
+                       novo["data_publicacao"], novo["responsavel_producao"]]]})
     return {"ok": True, "id": alvo["id"], "canal": alvo["canal"], "titulo": alvo["titulo"], "status": novo["status"],
-            "status_anterior": alvo["status"]}
+            "status_anterior": alvo["status"], "formato": novo["formato"], "data_publicacao": novo["data_publicacao"]}
 
 
 def listar(a):
