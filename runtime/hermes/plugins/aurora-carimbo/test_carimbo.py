@@ -11,6 +11,10 @@ def test_mapa_de_ferramentas():
     assert c._ferramenta("mcp_aurora_read_aurora_leads_followup") == "aurora_leads_followup"
     assert c._ferramenta("mcp__aurora-write__aurora_lead_registrar") == "aurora_lead_registrar"
     assert c._ferramenta("terminal") is None
+    assert c._ferramenta("mcp__aurora-pesquisa__aurora_pesquisa_web") == "aurora_pesquisa_web"
+    assert c._ferramenta("mcp_aurora_pesquisa_aurora_pesquisa_ler_pagina") == "aurora_pesquisa_ler_pagina"
+    assert c.CAMPO["aurora_pesquisa_youtube"] == "solicitante"
+    assert "aurora_pesquisa_instagram" not in c.ESCRITA  # leitura: roda mesmo em sombra
 
 
 def test_carimbo_assinado_e_formato():
