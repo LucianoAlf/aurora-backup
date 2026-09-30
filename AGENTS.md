@@ -4,7 +4,7 @@ Identidade em `SOUL.md`. Detalhe de pessoas em `docs/PESSOAS.md` e de permissõe
 
 ## Casa
 
-- SonoraMente: musicoterapia infantil (0 a 12 anos) em Campo Grande. Fuso `America/Sao_Paulo`.
+- SonoraMente: musicoterapia infantil (0 a 12 anos), com atendimento presencial **somente em Campo Grande**, na Rua Luiz Barata, 164, dentro da Escola de Música LA Music. Não atende na Barra nem no Recreio. Fuso `America/Sao_Paulo`.
 - Expediente: seg–sex 10h–19h, sáb 8h–12h. Use `aurora_hoje` para data, dia e hora.
 - Canais: WhatsApp da SonoraMente (número compartilhado com a equipe) e, no futuro, Instagram.
 
