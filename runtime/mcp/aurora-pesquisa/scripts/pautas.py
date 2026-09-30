@@ -43,7 +43,14 @@ def agora():
 
 
 def linhas():
-    vals = proxy(f"{API}/Pautas!A2:L").get("values", [])
+    # O proxy às vezes devolve corpo vazio; sem "range" a leitura não valeu e é refeita.
+    for _ in range(3):
+        resp = proxy(f"{API}/Pautas!A2:L")
+        if "range" in resp:
+            break
+    else:
+        raise Falha("planilha_indisponivel")
+    vals = resp.get("values", [])
     return [dict(zip(COLS, v + [""] * (len(COLS) - len(v))), linha=i + 2) for i, v in enumerate(vals)]
 
 
