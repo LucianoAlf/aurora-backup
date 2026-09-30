@@ -30,6 +30,10 @@ A Aurora **não** faz arte e **não** publica. Controle: planilha "Pautas de Con
    - "Reprovado": marque `reprovada` e avise o Serjão com o motivo.
 6. **Entrega ao Serjão.** Com a pauta `aprovada`, envie a ele (`para: serjao`) o texto final por slide, a legenda e as fontes. Marque `com_serjao`. Quando ele disser que publicou, marque `publicada`.
 
+## Pautas que chegam pela rotina semanal
+
+As rotinas automáticas (terça para a Bianca, segunda para o Serjão) mandam pautas que ainda **não** estão na planilha. Quando a pessoa escolher uma delas, registre com `aurora_pauta_registrar` e já marque `escolhida`. Depois siga os passos normalmente.
+
 ## Limites
 
 - Nada vai para o Serjão fazer arte sem o "aprovado" da Bianca.

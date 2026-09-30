@@ -38,6 +38,10 @@ description: Use quando a Bianca ou o Alf falarem da Ponte Sonora (newsletter se
    Evite: tom de coach, promessa, alarmismo, humor forçado e cara de IA. Fonte real e conferida; nada de "comprova" quando o estudo não comprova. Guarde cada versão com `aurora_pauta_atualizar` (`texto`) e o ajuste pedido em `ajustes`. O vai e volta segue até o **"aprovado"** explícito da Bianca.
 6. **Aprovado.** Marque `aprovada`; o sistema passa para `com_alfredo` e o Alfredo é avisado sozinho. Diga à Bianca que a prévia com imagens e página chega pela Aurora.
 
+## Pautas que chegam pela rotina semanal
+
+As rotinas automáticas (terça para a Bianca, segunda para o Serjão) mandam pautas que ainda **não** estão na planilha. Quando a pessoa escolher uma delas, registre com `aurora_pauta_registrar` e já marque `escolhida`. Depois siga os passos normalmente.
+
 ## Limites
 
 - Nada de paciente real, caso identificável ou dado clínico.
