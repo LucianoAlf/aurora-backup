@@ -99,7 +99,7 @@ function pautaTool(nome, titulo, descricao, campos, executar) {
 }
 
 pautaTool('aurora_pauta_registrar', 'Registrar pauta sugerida',
-  'Registra uma pauta na planilha "Pautas de Conteúdo — SonoraMente" com status "sugerida", formato, semana e data planejada.',
+  'Registra uma pauta na planilha "Pautas de Conteúdo — SonoraMente" com status "sugerida", formato, semana e data planejada. Use também para texto da Ponte Sonora que nasceu em conversa livre com a Bianca.',
   { canal: z.enum(['instagram', 'newsletter']), titulo: z.string().min(3).max(200), ideia: z.string().min(3).max(1500),
     publico: z.string().max(200).optional(), fontes: z.string().max(3000).optional(),
     formato: z.enum(['carrossel', 'reel', 'newsletter']).optional(), semana: z.string().max(12).optional(),
@@ -107,7 +107,7 @@ pautaTool('aurora_pauta_registrar', 'Registrar pauta sugerida',
   (quem, a) => run(['registrar', JSON.stringify({ ...a, pedido_por: quem })], 120000, PAUTAS));
 
 pautaTool('aurora_pauta_atualizar', 'Atualizar status, texto ou ajustes de uma pauta',
-  'Muda status, texto, ajustes, formato, data planejada ou responsável. Só a Bianca aprova/reprova; só Serjão ou Alf marcam publicada.',
+  'Muda status, texto, ajustes, formato, data planejada ou responsável. Só a Bianca aprova/reprova; só Serjão ou Alf marcam publicada. Newsletter aprovada exige o texto final (mande junto) e vai sozinha ao Alfredo.',
   { id: z.string().regex(/^P-\d{6}-\d{6}$/), status: z.enum(STATUS).optional(), texto: z.string().max(20000).optional(),
     ajustes: z.string().max(3000).optional(), formato: z.enum(['carrossel', 'reel', 'newsletter']).optional(),
     semana: z.string().max(12).optional(), data_publicacao: z.string().max(10).optional(),
@@ -130,7 +130,7 @@ pautaTool('aurora_pauta_listar', 'Listar pautas',
   (quem, a) => run(['listar', JSON.stringify(a)], 120000, PAUTAS));
 
 pautaTool('aurora_conteudo_encaminhar', 'Encaminhar pauta ou texto para Bianca ou Serjão',
-  'Envia uma mensagem no WhatsApp privado da Bianca (escolha de pauta e aprovação de texto) ou do Serjão (texto aprovado para arte e publicação). Só esses dois destinos.',
+  'Envia uma mensagem no WhatsApp privado da Bianca (escolha de pauta e aprovação de texto) ou do Serjão (Instagram aprovado, para arte e publicação). Só esses dois destinos. Ponte Sonora aprovada não passa por aqui: vai ao Alfredo pela planilha.',
   { para: z.enum(['bianca', 'serjao']), mensagem: z.string().min(3).max(4000) },
   async (quem, { para, mensagem }) => {
     const r = await fetch(`${PONTE}/send`, { method: 'POST', headers: { 'Content-Type': 'application/json' },

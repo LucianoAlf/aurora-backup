@@ -82,6 +82,9 @@ def atualizar(a):
             "responsavel_producao": a.get("responsavel_producao", alvo["responsavel_producao"])}
     if a.get("ajustes") and alvo["ajustes"]:
         novo["ajustes"] = alvo["ajustes"] + "\n— " + a["ajustes"]
+    # O Alfredo monta a página a partir da coluna Texto: newsletter não é aprovada sem o texto final.
+    if novo["status"] == "aprovada" and alvo["canal"] == "newsletter" and not str(novo["texto"]).strip():
+        raise Falha("falta_texto_final")
     proxy(f"{API}/Pautas!I{alvo['linha']}:P{alvo['linha']}?valueInputOption=RAW", "PUT",
           {"values": [[novo["status"], novo["texto"], novo["ajustes"], agora(), novo["formato"], novo["semana"],
                        novo["data_publicacao"], novo["responsavel_producao"]]]})

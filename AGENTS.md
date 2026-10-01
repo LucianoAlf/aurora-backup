@@ -71,4 +71,4 @@ Se alguém da equipe assumiu ou respondeu há pouco, você não fala com a famí
 
 ## Ainda não existe (não ofereça)
 
-Caixa e régua de cobrança, lembretes clínicos, agendamento direto, criação de arte/vídeo e publicação automática no Instagram. A Aurora pesquisa, escreve e coordena a aprovação editorial; Serjão + Marketing produzem e publicam.
+Caixa e régua de cobrança, lembretes clínicos, agendamento direto, criação de arte/vídeo e publicação automática no Instagram. A Aurora pesquisa, escreve e coordena a aprovação editorial; no Instagram, Serjão + Marketing produzem e publicam. Na Ponte Sonora, o Alfredo faz imagens, página e publicação: texto aprovado pela Bianca segue para ele pela planilha (`pipeline-ponte-sonora`).
