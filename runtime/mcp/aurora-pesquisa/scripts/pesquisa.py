@@ -62,13 +62,13 @@ def ler(url):
             "texto": corta(texto, MAX_TEXTO), "cortado": len(texto) > MAX_TEXTO}
 
 
-def rodar(args, timeout):
+def rodar(args, timeout, aceitos=(0,)):
     env = {**os.environ, "PATH": f"{Path(COMPOSIO).parent}:{os.environ.get('PATH', '/usr/bin:/bin')}"}
     try:
         r = subprocess.run([PYTHON, *args], capture_output=True, text=True, timeout=timeout, env=env)
     except subprocess.TimeoutExpired:
         raise Falha("tempo_esgotado")
-    if r.returncode:
+    if r.returncode not in aceitos:
         raise Falha("leitor_falhou")
 
 
@@ -92,8 +92,9 @@ def instagram(url):
 def youtube(url):
     TRABALHO.mkdir(parents=True, exist_ok=True, mode=0o700)
     pasta = Path(tempfile.mkdtemp(prefix="yt-", dir=TRABALHO))
-    rodar([str(AQUI / "youtube_reader.py"), "read", url, "--out", str(pasta), "--no-fallback"], 270)
-    r = json.loads((pasta / "perception.json").read_text(encoding="utf-8"))
+    # O leitor exige pasta ainda inexistente.
+    rodar([str(AQUI / "youtube_reader.py"), "read", url, "--out", str(pasta / "leitura"), "--no-fallback"], 270, aceitos=(0, 3, 4))
+    r = json.loads((pasta / "leitura" / "perception.json").read_text(encoding="utf-8"))
     if r.get("status") == "limit_reached_ask_alf":
         raise Falha("limite_semanal_ou_video_longo_pedir_ao_alf")
     if r.get("status") == "quota_exhausted_stop_and_notify_alf":
