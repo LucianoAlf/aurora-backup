@@ -55,3 +55,33 @@ test('instagram segue sem exigir texto', () => {
   const { out } = atualizar([linha('P-261001-100000', 'instagram', 'escolhida')], { id: 'P-261001-100000', status: 'aprovada' });
   assert.equal(out.ok, true);
 });
+
+test('liberada só sai de previa_enviada, e grava', () => {
+  const { out, escreveu } = atualizar([linha('P-261002-100000', 'newsletter', 'previa_enviada', 'Olá, colega!')], { id: 'P-261002-100000', status: 'liberada' });
+  assert.equal(out.ok, true);
+  assert.equal(out.status, 'liberada');
+  assert.equal(out.status_anterior, 'previa_enviada');
+  assert.equal(escreveu, true);
+});
+
+test('liberada antes da prévia é recusada', () => {
+  for (const st of ['com_alfredo', 'aprovada', 'escolhida']) {
+    const { out, escreveu } = atualizar([linha('P-261002-100000', 'newsletter', st, 'Olá, colega!')], { id: 'P-261002-100000', status: 'liberada' });
+    assert.equal(out.erro, 'liberada_sem_previa', st);
+    assert.equal(escreveu, false);
+  }
+});
+
+test('liberada não vale para instagram', () => {
+  const { out, escreveu } = atualizar([linha('P-261002-100000', 'instagram', 'previa_enviada')], { id: 'P-261002-100000', status: 'liberada' });
+  assert.equal(out.erro, 'liberada_so_newsletter');
+  assert.equal(escreveu, false);
+});
+
+test('ajuste na página volta para com_alfredo com o pedido em ajustes', () => {
+  const { out, escreveu } = atualizar([linha('P-261002-100000', 'newsletter', 'previa_enviada', 'Olá, colega!')],
+    { id: 'P-261002-100000', status: 'com_alfredo', ajustes: 'Bianca: trocar a foto do topo' });
+  assert.equal(out.ok, true);
+  assert.equal(out.status, 'com_alfredo');
+  assert.equal(escreveu, true);
+});

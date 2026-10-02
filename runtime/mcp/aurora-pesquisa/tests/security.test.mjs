@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { linkInstagram, linkYoutube, quemPediu, urlPublica } from '../src/security.mjs';
+import { linkInstagram, linkYoutube, podeMarcar, quemPediu, STATUS, urlPublica } from '../src/security.mjs';
 
 const keyFile = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'pesq-')), 'k');
 fs.writeFileSync(keyFile, 'chave-de-teste');
@@ -38,4 +38,14 @@ test('links', () => {
   assert.equal(linkInstagram('https://evil.com/p/abc'), null);
   assert.equal(linkYoutube('https://youtu.be/xJeBtA_Qi-Y?t=3'), 'https://www.youtube.com/watch?v=xJeBtA_Qi-Y');
   assert.equal(linkYoutube('https://vimeo.com/1'), null);
+});
+
+test('status novos da Ponte Sonora: só a Bianca libera', () => {
+  assert.ok(STATUS.includes('previa_enviada') && STATUS.includes('liberada'));
+  assert.equal(podeMarcar('Bianca', 'liberada'), true);
+  for (const quem of ['Alf', 'Anne', 'Serjão']) assert.equal(podeMarcar(quem, 'liberada'), false, quem);
+  assert.equal(podeMarcar('Bianca', 'previa_enviada'), false);
+  assert.equal(podeMarcar('Alf', 'previa_enviada'), true);
+  assert.equal(podeMarcar('Bianca', 'com_alfredo'), true); // ajuste pedido pela Bianca
+  assert.equal(podeMarcar('Serjão', 'aprovada'), false);
 });

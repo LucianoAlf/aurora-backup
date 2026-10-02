@@ -185,7 +185,7 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 - `consultas-da-equipe`: agenda, pacotes, recesso, financeiro de família e leads, com o escopo aplicado pelas próprias ferramentas.
 - `pesquisa-conteudo`: Tavily/Firecrawl + leitores Gemini para conteúdo público, sem dado de paciente.
 - `pipeline-instagram`: meta semanal 3 carrosséis + 1 Reel; Serjão escolhe, Aurora escreve, Bianca aprova, Serjão + Marketing produzem e publicam.
-- `pipeline-ponte-sonora`: radar, pauta, roteiro e texto com a Bianca; aprovado segue ao Alfredo para imagens e página.
+- `pipeline-ponte-sonora`: radar, pauta, roteiro e texto com a Bianca; aprovado segue ao Alfredo para imagens e página; link, ajuste (`com_alfredo`) e ok da página (`liberada`, só a Bianca). Status `previa_enviada` e `liberada` desde 2026-10-02.
 
 ## Pesquisa e pipeline editorial (`aurora-pesquisa`)
 

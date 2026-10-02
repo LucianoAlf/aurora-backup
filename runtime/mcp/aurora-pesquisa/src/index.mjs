@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { McpServer } from '@modelcontextprotocol/server';
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import * as z from 'zod/v4';
-import { linkInstagram, linkYoutube, quemPediu, urlPublica } from './security.mjs';
+import { linkInstagram, linkYoutube, podeMarcar, QUEM_PODE, quemPediu, STATUS, urlPublica } from './security.mjs';
 
 const ENABLED = process.env.PESQUISA_ENABLED_FILE || '/home/aurora/.hermes/pesquisa.enabled';
 const SCRIPT = process.env.PESQUISA_SCRIPT || new URL('../scripts/pesquisa.py', import.meta.url).pathname;
@@ -14,9 +14,6 @@ const AVISO = 'Conteúdo público. Tema clínico sai marcado "a validar pela Bia
 const PAUTAS = process.env.PAUTAS_SCRIPT || new URL('../scripts/pautas.py', import.meta.url).pathname;
 const PONTE = process.env.PONTE_URL || 'http://127.0.0.1:3107';
 const DESTINOS = { bianca: '5521997382027@s.whatsapp.net', serjao: '5521964751340@s.whatsapp.net' };
-const STATUS = ['sugerida', 'escolhida', 'com_bianca', 'ajustes', 'aprovada', 'reprovada', 'com_serjao', 'com_alfredo', 'publicada'];
-// Regras de quem pode mudar cada status (decisão do Alf, 2026-09-30): só a Bianca aprova ou reprova.
-const QUEM_PODE = { aprovada: ['Bianca'], reprovada: ['Bianca'], publicada: ['Serjão', 'Alf'] };
 
 function run(args, timeoutMs, script = SCRIPT) {
   return new Promise((resolve, reject) => {
@@ -107,13 +104,13 @@ pautaTool('aurora_pauta_registrar', 'Registrar pauta sugerida',
   (quem, a) => run(['registrar', JSON.stringify({ ...a, pedido_por: quem })], 120000, PAUTAS));
 
 pautaTool('aurora_pauta_atualizar', 'Atualizar status, texto ou ajustes de uma pauta',
-  'Muda status, texto, ajustes, formato, data planejada ou responsável. Só a Bianca aprova/reprova; só Serjão ou Alf marcam publicada. Newsletter aprovada exige o texto final (mande junto) e vai sozinha ao Alfredo.',
+  'Muda status, texto, ajustes, formato, data planejada ou responsável. Só a Bianca aprova, reprova ou libera; só Serjão ou Alf marcam publicada. Newsletter aprovada exige o texto final (mande junto) e vai sozinha ao Alfredo. Ponte Sonora em previa_enviada: ajuste da Bianca na página = com_alfredo com o pedido em ajustes; ok dela = liberada.',
   { id: z.string().regex(/^P-\d{6}-\d{6}$/), status: z.enum(STATUS).optional(), texto: z.string().max(20000).optional(),
     ajustes: z.string().max(3000).optional(), formato: z.enum(['carrossel', 'reel', 'newsletter']).optional(),
     semana: z.string().max(12).optional(), data_publicacao: z.string().max(10).optional(),
     responsavel_producao: z.string().max(120).optional() },
   async (quem, a) => {
-    if (a.status && QUEM_PODE[a.status] && !QUEM_PODE[a.status].includes(quem)) {
+    if (a.status && !podeMarcar(quem, a.status)) {
       return { ok: false, erro: 'sem_permissao_para_status', explicacao: `Só ${QUEM_PODE[a.status].join(' ou ')} pode marcar "${a.status}".` };
     }
     const r = await run(['atualizar', JSON.stringify(a)], 120000, PAUTAS);

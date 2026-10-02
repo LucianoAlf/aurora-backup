@@ -85,6 +85,12 @@ def atualizar(a):
     # O Alfredo monta a página a partir da coluna Texto: newsletter não é aprovada sem o texto final.
     if novo["status"] == "aprovada" and alvo["canal"] == "newsletter" and not str(novo["texto"]).strip():
         raise Falha("falta_texto_final")
+    # liberada é o ok da Bianca na página que o Alfredo enviou: só newsletter, só depois de previa_enviada.
+    if novo["status"] == "liberada" and alvo["status"] != "liberada":
+        if alvo["canal"] != "newsletter":
+            raise Falha("liberada_so_newsletter")
+        if alvo["status"] != "previa_enviada":
+            raise Falha("liberada_sem_previa")
     proxy(f"{API}/Pautas!I{alvo['linha']}:P{alvo['linha']}?valueInputOption=RAW", "PUT",
           {"values": [[novo["status"], novo["texto"], novo["ajustes"], agora(), novo["formato"], novo["semana"],
                        novo["data_publicacao"], novo["responsavel_producao"]]]})

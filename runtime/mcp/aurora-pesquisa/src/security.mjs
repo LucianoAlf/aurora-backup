@@ -10,6 +10,19 @@ export const AUTORIZADOS = new Map([
   ['552164751340', 'Serjão'],
 ]);
 
+// Status da planilha de pautas. previa_enviada e liberada (2026-10-02) fecham o ciclo da Ponte Sonora:
+// o Alfredo envia o link da página (previa_enviada); a Bianca dá o ok (liberada) ou pede ajuste (com_alfredo).
+export const STATUS = ['sugerida', 'escolhida', 'com_bianca', 'ajustes', 'aprovada', 'reprovada', 'com_serjao', 'com_alfredo',
+  'previa_enviada', 'liberada', 'publicada'];
+// Quem pode levar a cada status (decisão do Alf, 2026-09-30 e 2026-10-02): só a Bianca aprova, reprova ou libera;
+// previa_enviada é registro do Alfredo (na Aurora, só o Alf pode marcar).
+export const QUEM_PODE = { aprovada: ['Bianca'], reprovada: ['Bianca'], liberada: ['Bianca'], previa_enviada: ['Alf'],
+  publicada: ['Serjão', 'Alf'] };
+
+export function podeMarcar(quem, status) {
+  return !QUEM_PODE[status] || QUEM_PODE[status].includes(quem);
+}
+
 // Devolve o nome de quem pediu, ou null. Aceita privado e grupo; o carimbo vem do plugin aurora-carimbo.
 export function quemPediu(token, { keyFile = process.env.AURORA_CARIMBO_KEY_FILE || '/home/aurora/.hermes/aurora-carimbo.key', now = Math.floor(Date.now() / 1000) } = {}) {
   const m = String(token || '').match(/^(AUR1\.whatsapp\.(?:dm|group)\.([0-9]{6,20})\.[0-9a-f]{16}\.(\d{10}))\.([0-9a-f]{32})$/);
