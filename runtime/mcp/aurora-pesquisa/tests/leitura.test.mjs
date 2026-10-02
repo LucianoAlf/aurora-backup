@@ -191,7 +191,7 @@ test('buscar e listar: só dentro da SonoraMente', async () => {
 });
 
 test('Gemini: PDF nativo, chave fora do retorno, teto diário menor que o do Mike, modelo conferido', async () => {
-  assert.ok(TETO_DIA.usd <= 1 && TETO_DIA.leituras <= 60);
+  assert.ok(TETO_DIA.usd <= 0.67 && TETO_DIA.leituras <= 60); // ~US$ 20/mês da chave
   const env = path.join(tmp, 'leitor.env'); fs.writeFileSync(env, 'OPENROUTER_API_KEY="sk-or-segredo"\n', { mode: 0o600 });
   assert.equal(lerChave(env), 'sk-or-segredo');
   const ledger = path.join(tmp, 'gasto.jsonl');
@@ -263,4 +263,9 @@ test('ferramentas: carimbo do time obrigatório, conversa vem do carimbo, só le
   assert.equal((await tools.aurora_drive_listar.handler({ solicitante: carimbo('5521964751340') })).structuredContent.pasta_id, RAIZ_SONORAMENTE);
   ligado = false;
   assert.equal((await tools.aurora_drive_buscar.handler({ solicitante: carimbo('5521964751340'), termo: 'logo' })).structuredContent.erro, 'pausada');
+});
+
+test('bloqueios do Drive: Pacientes, Financeiro e Planilhas fora; Equipe e Reuniões liberadas (Alf, 2026-10-02)', () => {
+  assert.deepEqual([...EXCLUIDAS.values()].sort(), ['04 Pacientes', '05 Financeiro', '09 Planilhas Sonora']);
+  assert.ok(!EXCLUIDAS.has('1eFWPqGkbdSDSxCJ_eLFUJjkdRWTR_LY3') && !EXCLUIDAS.has('14h7z8lSwVZPtj--2SIjbZd55lH8B4D49'));
 });

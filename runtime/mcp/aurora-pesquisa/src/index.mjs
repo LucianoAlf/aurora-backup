@@ -7,7 +7,7 @@ import * as z from 'zod/v4';
 import { abrirCarimbo, linkInstagram, linkYoutube, podeMarcar, QUEM_PODE, quemPediu, STATUS, urlPublica } from './security.mjs';
 import { composioLeitura } from './composio.mjs';
 import { createGemini } from './gemini.mjs';
-import { createArvore, createLeitura } from './leitura.mjs';
+import { createArvore, createLeitura, RAIZ_SONORAMENTE } from './leitura.mjs';
 import { registrarLeitura } from './ferramentas-leitura.mjs';
 
 const ENABLED = process.env.PESQUISA_ENABLED_FILE || '/home/aurora/.hermes/pesquisa.enabled';
@@ -149,14 +149,18 @@ try {
   fs.mkdirSync(pastaLeituras, { recursive: true, mode: 0o700 });
   const pastaAnexos = process.env.ANEXOS_DIR || `${HOME}/.hermes/cache/anexos`;
   fs.mkdirSync(pastaAnexos, { recursive: true, mode: 0o700 });
-  const composioDrive = composioLeitura({ bin: process.env.COMPOSIO_BIN || 'composio', conta: process.env.AURORA_DRIVE_COMPOSIO_ACCOUNT || '' });
-  const arvore = createArvore({ composio: composioDrive, cacheFile: `${pastaLeituras}/arvore-sonoramente.json` });
+  const contaDrive = process.env.AURORA_DRIVE_COMPOSIO_ACCOUNT || '';
+  const raizDrive = process.env.AURORA_DRIVE_RAIZ || RAIZ_SONORAMENTE;
+  const composioDrive = composioLeitura({ bin: process.env.COMPOSIO_BIN || 'composio', conta: contaDrive });
+  const arvore = createArvore({ composio: composioDrive, raiz: raizDrive,
+    cacheFile: `${pastaLeituras}/arvore-sonoramente${contaDrive ? `-${contaDrive.replace(/[^A-Za-z0-9_-]/g, '')}` : ''}.json` });
   arvore.carregar().catch(() => {}); // aquece a árvore de pastas da SonoraMente
   registrarLeitura(server, {
     leitura: createLeitura({ composio: composioDrive, arvore, raizAnexos: fs.realpathSync(pastaAnexos), pastaSaida: fs.realpathSync(pastaLeituras),
       gemini: createGemini({ envFile: process.env.CONTENT_READERS_ENV || `${HOME}/.hermes/pesquisa.env`, ledger: `${pastaLeituras}/gasto.jsonl` }) }),
     abrir: (s) => abrirCarimbo(s),
     ligado: () => fs.existsSync(ENABLED),
+    raiz: raizDrive,
   });
 } catch (e) {
   console.error(JSON.stringify({ evento: 'leitura_indisponivel', erro: e?.code || e?.name }));

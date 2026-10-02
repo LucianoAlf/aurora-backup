@@ -8,7 +8,9 @@ import { pipeline } from 'node:stream/promises';
 // Leitura de arquivos da Aurora (só leitura), adaptada do mike_ler_arquivo (Mike 0.6.0, 2026-10-02):
 // 1) Drive da SonoraMente: a conexão Google da Aurora no Composio é a conta pessoal do Alf, que enxerga o Drive
 //    inteiro dele. Por isso a leitura fica presa à árvore da pasta "SonoraMente" e as subpastas com dado de
-//    paciente, financeiro, equipe e reuniões ficam FORA (não entram na árvore, então nada abaixo delas é lido).
+//    paciente, financeiro e planilhas ficam FORA (não entram na árvore, então nada abaixo delas é lido).
+//    Equipe e Reuniões foram liberadas pelo Alf em 2026-10-02. Conta e raiz vêm do env (AURORA_DRIVE_COMPOSIO_ACCOUNT,
+//    AURORA_DRIVE_RAIZ) para trocar para a conexão própria da SonoraMente sem release nova.
 // 2) Anexo de WhatsApp: a ponte guarda o original (PDF, áudio, imagem, vídeo) que alguém do time mandou em
 //    ~/.hermes/cache/anexos/aurora-<hash16 da conversa>-<id>.<ext>. Só lê o anexo da MESMA conversa do carimbo.
 // Texto exato sai local (pdftotext / export do Google); o arquivo nativo vai ao Gemini só se não tiver dado de paciente.
@@ -17,8 +19,6 @@ export const EXCLUIDAS = new Map([
   ['1htogDSjdY5zk4qF6VUA9T-CI5WAxDpf-', '04 Pacientes'],
   ['1KWLLuACb6sZFOrcb7AArFLi4KuUdblJc', '05 Financeiro'],
   ['1d5cv1CApNJ75dy-MnQOgzp_rB-hNeKBN', '09 Planilhas Sonora'],
-  ['1eFWPqGkbdSDSxCJ_eLFUJjkdRWTR_LY3', '03 Equipe'],
-  ['14h7z8lSwVZPtj--2SIjbZd55lH8B4D49', 'Reuniões'],
 ]);
 const PASTA = 'application/vnd.google-apps.folder';
 const ATALHO = 'application/vnd.google-apps.shortcut';
@@ -356,7 +356,7 @@ export function createLeitura({ composio, arvore, gemini, raizAnexos, pastaSaida
         itens.push(item(f, await arvore.caminho(pai)));
         if (itens.length >= 50) break;
       }
-      return { ok: true, termo: t, itens, como_usar: 'Leia qualquer item com aurora_ler_arquivo (origem = id). Busca cobre nome e conteúdo, só dentro do Drive da SonoraMente (sem Pacientes, Financeiro, Planilhas, Equipe e Reuniões).' };
+      return { ok: true, termo: t, itens, como_usar: 'Leia qualquer item com aurora_ler_arquivo (origem = id). Busca cobre nome e conteúdo, só dentro do Drive da SonoraMente (sem Pacientes, Financeiro e Planilhas).' };
     },
 
     async listar(pastaId = RAIZ_SONORAMENTE) {
@@ -391,7 +391,7 @@ export function createLeitura({ composio, arvore, gemini, raizAnexos, pastaSaida
       if (m.mimeType === PASTA) return { ok: false, erro: 'origem_e_pasta', dica: 'É uma pasta: use aurora_drive_listar com esse pasta_id.' };
       const pai = await arvore.dentro(m.parents);
       const paiAlvo = m.parentsAlvo ? await arvore.dentro(m.parentsAlvo) : pai;
-      if (!pai || !paiAlvo) return { ok: false, erro: 'arquivo_fora_da_sonoramente', dica: 'Só leio arquivos da pasta SonoraMente no Drive; Pacientes, Financeiro, Planilhas, Equipe e Reuniões ficam de fora.' };
+      if (!pai || !paiAlvo) return { ok: false, erro: 'arquivo_fora_da_sonoramente', dica: 'Só leio arquivos da pasta SonoraMente no Drive; Pacientes, Financeiro e Planilhas ficam de fora.' };
       const origemInfo = { drive_id: m.id, nome: m.name, mime: m.mimeType, pasta: await arvore.caminho(pai), modificado_em: m.modifiedTime, link: m.webViewLink };
       const exp = EXPORTS[m.mimeType];
       let r;

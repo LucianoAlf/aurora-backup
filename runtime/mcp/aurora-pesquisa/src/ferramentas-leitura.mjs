@@ -12,7 +12,7 @@ function responder(obj) {
   return { content: [{ type: 'text', text: JSON.stringify(safe) }], structuredContent: safe, isError: !safe.ok };
 }
 
-export function criarFerramentasLeitura({ leitura, abrir, ligado }) {
+export function criarFerramentasLeitura({ leitura, abrir, ligado, raiz = RAIZ_SONORAMENTE }) {
   const tools = {};
   const ferramenta = (nome, titulo, descricao, campos, fn) => {
     tools[nome] = {
@@ -43,15 +43,15 @@ export function criarFerramentasLeitura({ leitura, abrir, ligado }) {
       { pergunta, visual: leitura_visual ?? true, inicio: inicio ?? 0, conversa: c.conversa, paciente: tem_dado_de_paciente !== false }));
 
   ferramenta('aurora_drive_buscar', 'Buscar no Drive da SonoraMente',
-    'Só leitura. Procura arquivos e pastas por nome e conteúdo na pasta SonoraMente do Drive (subpastas incluídas; Pacientes, Financeiro, Planilhas, Equipe e Reuniões ficam fora). Devolve id, tipo, pasta e data; leia com aurora_ler_arquivo.',
+    'Só leitura. Procura arquivos e pastas por nome e conteúdo na pasta SonoraMente do Drive (subpastas incluídas; Pacientes, Financeiro e Planilhas ficam fora). Devolve id, tipo, pasta e data; leia com aurora_ler_arquivo.',
     { termo: z.string().min(2).max(80), tipo: z.enum(['pdf', 'imagem', 'video', 'audio', 'documento', 'planilha', 'apresentacao', 'pasta']).optional(),
       pasta_id: driveId.optional().describe('Restringe a uma pasta (e subpastas) da SonoraMente') },
     ({ termo, tipo, pasta_id }) => leitura.buscar(termo, { tipo, pastaId: pasta_id }));
 
   ferramenta('aurora_drive_listar', 'Listar pasta do Drive da SonoraMente',
-    `Só leitura. Lista o conteúdo de uma pasta da SonoraMente no Drive (vazio = raiz ${RAIZ_SONORAMENTE}).`,
+    `Só leitura. Lista o conteúdo de uma pasta da SonoraMente no Drive (vazio = raiz ${raiz}).`,
     { pasta_id: driveId.optional() },
-    ({ pasta_id }) => leitura.listar(pasta_id || RAIZ_SONORAMENTE));
+    ({ pasta_id }) => leitura.listar(pasta_id || raiz));
   return tools;
 }
 

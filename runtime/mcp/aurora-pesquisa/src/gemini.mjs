@@ -4,11 +4,11 @@ import path from 'node:path';
 // Leitor multimodal da Aurora: manda o arquivo NATIVO (PDF, imagem, áudio, vídeo) ao Gemini via OpenRouter.
 // Mesmo padrão do Mike e dos leitores Instagram/YouTube: modelo fixo, sem fallback de provedor, sem retenção
 // de dados, chave lida do env privado (600) só na hora da chamada; nunca vai para log, retorno ou erro.
-// A chave de pesquisa tem teto mensal próprio (US$ 5, compartilhado com o leitor de Instagram): por isso o
-// teto diário daqui é bem menor que o do Mike.
+// A chave de pesquisa tem teto mensal próprio (US$ 20 aprovado pelo Alf em 2026-10-02, compartilhado com o leitor
+// de Instagram): teto diário de US$ 0,65 (~US$ 19,50 em 30 dias), bem menor que o do Mike.
 export const MODELO = 'google/gemini-3.7-flash';
 const OPENROUTER = 'https://openrouter.ai/api/v1/chat/completions';
-export const TETO_DIA = { leituras: 60, usd: 1 };
+export const TETO_DIA = { leituras: 60, usd: 0.65 };
 
 export function lerChave(envFile, nome = 'OPENROUTER_API_KEY') {
   let txt = '';
