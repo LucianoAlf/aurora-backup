@@ -211,6 +211,10 @@ test('Gemini: PDF nativo, chave fora do retorno, teto diário menor que o do Mik
   assert.equal((await g.ler({ tipo: 'imagem', mime: 'image/png', base64: 'AA==' })).erro, 'teto_diario_leitura');
   const semSaldo = createGemini({ envFile: env, ledger: path.join(tmp, 'g3.jsonl'), fetchImpl: async () => ({ ok: false, status: 402, json: async () => ({}) }) });
   assert.equal((await semSaldo.ler({ tipo: 'texto', texto: 'oi', pergunta: 'q' })).erro, 'leitor_sem_saldo_na_chave');
+  const filtro = createGemini({ envFile: env, ledger: path.join(tmp, 'g4.jsonl'), fetchImpl: async () => ({ ok: true, status: 200, json: async () => ({ error: { message: 'Gemini blocked the request: SAFETY' } }) }) });
+  assert.equal((await filtro.ler({ tipo: 'audio', base64: 'AA==' })).erro, 'leitor_bloqueado_pelo_filtro');
+  const filtro2 = createGemini({ envFile: env, ledger: path.join(tmp, 'g5.jsonl'), fetchImpl: async () => ({ ok: true, status: 200, json: async () => ({ model: MODELO, choices: [{ finish_reason: 'content_filter', message: { content: '' } }] }) }) });
+  assert.equal((await filtro2.ler({ tipo: 'audio', base64: 'AA==' })).erro, 'leitor_bloqueado_pelo_filtro');
   const outro = createGemini({ envFile: env, ledger: path.join(tmp, 'g2.jsonl'), fetchImpl: async () => ({ ok: true, status: 200, json: async () => ({ model: 'openai/x', choices: [{ message: { content: 'x' } }] }) }) });
   assert.equal((await outro.ler({ tipo: 'texto', texto: 'oi', pergunta: 'q' })).erro, 'leitor_modelo_diferente');
   assert.equal(parteDoArquivo({ tipo: 'audio', base64: 'AA==' }).input_audio.format, 'mp3');

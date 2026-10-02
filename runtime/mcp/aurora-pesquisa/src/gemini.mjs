@@ -86,6 +86,11 @@ export function createGemini({ envFile, ledger, teto = TETO_DIA, fetchImpl = fet
       if (r.status === 402 || r.status === 403) return { ok: false, erro: 'leitor_sem_saldo_na_chave', dica: 'A chave de leitura bateu o teto mensal: avise o Alf.' };
       if (!r.ok) return { ok: false, erro: `leitor_http_${r.status}` };
       const escolha = d?.choices?.[0];
+      // Filtro de segurança do Gemini (às vezes falso positivo): vem como erro no corpo 200 ou finish content_filter.
+      if (/SAFETY|blocked/i.test(String(d?.error?.message || '')) || escolha?.finish_reason === 'content_filter') {
+        return { ok: false, erro: 'leitor_bloqueado_pelo_filtro', dica: 'O filtro do Gemini recusou este arquivo. Use o texto exato, se houver, ou peça um resumo por escrito.' };
+      }
+      if (d?.error) return { ok: false, erro: 'leitor_erro_do_provedor' };
       const resposta = String(escolha?.message?.content || '').trim();
       if (!String(d?.model || '').startsWith(MODELO)) return { ok: false, erro: 'leitor_modelo_diferente' };
       if (!resposta) return { ok: false, erro: 'leitor_sem_resposta' };
