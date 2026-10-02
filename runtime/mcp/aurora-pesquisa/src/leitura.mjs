@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { Readable, Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
+import zlib from 'node:zlib';
 
 // Leitura de arquivos da Aurora (só leitura), adaptada do mike_ler_arquivo (Mike 0.6.0, 2026-10-02):
 // 1) Drive da SonoraMente: a conexão Google da Aurora no Composio é a conta pessoal do Alf, que enxerga o Drive
@@ -27,7 +28,7 @@ const ANEXO = /^aurora-([0-9a-f]{16})-[A-Za-z0-9-]{4,80}\.[a-z0-9]{2,5}$/;
 const MB = 1024 * 1024;
 
 export const LIMITES = {
-  pdf_mb: 40, pdf_visual_mb: 24, imagem_mb: 20, texto_mb: 5, audio_mb: 300, audio_min: 60, video_mb: 600, video_min: 20,
+  pdf_mb: 40, pdf_visual_mb: 24, imagem_mb: 20, texto_mb: 5, docx_mb: 20, audio_mb: 300, audio_min: 60, video_mb: 600, video_min: 20,
   envio_gemini_mb: 24, texto_por_resposta: 30000, pergunta: 2000,
 };
 
@@ -51,6 +52,45 @@ export function tipoDe(nome, mime = '') {
   if (m.startsWith('video/') || EXT.video.test(nome)) return 'video';
   if (m.startsWith('text/') || m === 'application/json' || EXT.texto.test(nome)) return 'texto';
   return null;
+}
+
+// Word (.docx) do Drive: texto extraído local, sem programa externo (zip + XML do word/document.xml).
+// Trava de descompressão no limite de texto: docx inflado de propósito não estoura a memória.
+const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+export const ehDocx = (nome, mime = '') => mime === DOCX || /\.docx$/i.test(String(nome || ''));
+
+function entradaZip(buf, alvo) {
+  let fimCd = -1;
+  for (let i = buf.length - 22; i >= Math.max(0, buf.length - 22 - 65535); i -= 1) if (buf.readUInt32LE(i) === 0x06054b50) { fimCd = i; break; }
+  if (fimCd < 0) throw new Error('docx_invalido');
+  const total = buf.readUInt16LE(fimCd + 10);
+  let p = buf.readUInt32LE(fimCd + 16);
+  for (let n = 0; n < total && p + 46 <= buf.length; n += 1) {
+    if (buf.readUInt32LE(p) !== 0x02014b50) break;
+    const metodo = buf.readUInt16LE(p + 10); const comp = buf.readUInt32LE(p + 20);
+    const lenNome = buf.readUInt16LE(p + 28); const lenExtra = buf.readUInt16LE(p + 30); const lenCom = buf.readUInt16LE(p + 32);
+    const local = buf.readUInt32LE(p + 42); const nome = buf.toString('utf8', p + 46, p + 46 + lenNome);
+    if (nome === alvo) {
+      if (buf.readUInt32LE(local) !== 0x04034b50) throw new Error('docx_invalido');
+      const ini = local + 30 + buf.readUInt16LE(local + 26) + buf.readUInt16LE(local + 28);
+      const dado = buf.subarray(ini, ini + comp);
+      if (metodo === 0) return dado;
+      if (metodo === 8) return zlib.inflateRawSync(dado, { maxOutputLength: LIMITES.texto_mb * 4 * MB });
+      throw new Error('docx_invalido');
+    }
+    p += 46 + lenNome + lenExtra + lenCom;
+  }
+  throw new Error('docx_invalido');
+}
+
+export function docxParaTexto(buf) {
+  let xml;
+  try { xml = entradaZip(buf, 'word/document.xml').toString('utf8'); } catch (e) { throw new Error(e?.code === 'ERR_BUFFER_TOO_LARGE' || /maxOutputLength|larger than/i.test(e?.message) ? 'texto_grande_demais' : 'docx_invalido'); }
+  const ent = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
+  return xml.replace(/<w:tab\/>/g, '\t').replace(/<w:(br|cr)\b[^>]*\/>/g, '\n').replace(/<\/w:p>/g, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos);/gi, (_, c) => (c[0] === '#' ? String.fromCodePoint(c[1].toLowerCase() === 'x' ? parseInt(c.slice(2), 16) : Number(c.slice(1))) : ent[c.toLowerCase()]))
+    .replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 export function contarPalavras(t) {
@@ -415,9 +455,24 @@ export function createLeitura({ composio, arvore, gemini, raizAnexos, pastaSaida
           r = await analisar({ arquivo: textoArq, nome: m.name, tipo: 'texto', pergunta, visual: visual && !paciente, inicio, avisos, paciente });
         }
         r.tipo = exp.rotulo;
+      } else if (ehDocx(m.name, m.mimeType)) {
+        const bytes = Number(m.size || 0);
+        if (bytes > LIMITES.docx_mb * MB) return { ok: false, erro: 'arquivo_grande_demais', limite_mb: LIMITES.docx_mb, bytes, origem: origemInfo };
+        const arquivo = await baixarDrive(m.id, m.name, null, LIMITES.docx_mb * MB);
+        const buf = fs.readFileSync(arquivo);
+        const md5 = crypto.createHash('md5').update(buf).digest('hex');
+        if (m.md5Checksum && String(m.md5Checksum).toLowerCase() !== md5) { fs.rmSync(arquivo, { force: true }); throw new Error('md5_diferente_do_drive'); }
+        let texto;
+        try { texto = docxParaTexto(buf); } catch (e) { return { ok: false, erro: e.message, origem: origemInfo, dica: 'Não consegui abrir este Word: peça a versão em PDF ou Google Docs.' }; }
+        const txt = `${arquivo}.txt`;
+        fs.writeFileSync(txt, texto, { mode: 0o600 });
+        avisos.push('Word: só o texto (sem imagens, tabelas como texto corrido, sem cabeçalho/rodapé).');
+        r = await analisar({ arquivo: txt, nome: m.name, tipo: 'texto', pergunta, visual: visual && !paciente, inicio, avisos, paciente });
+        if (r.ok === false) return r;
+        Object.assign(r, { tipo: 'word', md5, md5_igual_drive: m.md5Checksum ? true : undefined });
       } else {
         const tipo = tipoDe(m.name, m.mimeType);
-        if (!tipo) return { ok: false, erro: 'tipo_nao_suportado', origem: origemInfo, dica: 'Leio PDF, imagem, áudio, vídeo, texto e Google Docs/Planilhas/Apresentações. Word/Excel/PowerPoint: peça a versão em PDF ou Google.' };
+        if (!tipo) return { ok: false, erro: 'tipo_nao_suportado', origem: origemInfo, dica: 'Leio PDF, imagem, áudio, vídeo, texto, Word (.docx) e Google Docs/Planilhas/Apresentações. Excel/PowerPoint: peça a versão em PDF ou Google.' };
         if (paciente && tipo !== 'pdf' && tipo !== 'texto') return { ok: false, erro: 'leitura_externa_bloqueada_dado_de_paciente', dica: SEM_GEMINI, origem: origemInfo };
         const bytes = Number(m.size || 0);
         if (bytes > LIM[tipo] * MB) return { ok: false, erro: 'arquivo_grande_demais', limite_mb: LIM[tipo], bytes, origem: origemInfo };

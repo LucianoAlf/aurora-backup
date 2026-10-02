@@ -25,7 +25,7 @@ export function criarFerramentasLeitura({ leitura, abrir, ligado, raiz = RAIZ_SO
           if (!c) return responder({ ok: false, erro: 'sem_permissao', explicacao: 'Leitura de arquivos só para Alf, Anne, Bianca e Serjão.' });
           return responder({ pedido_por: c.quem, ...(await fn(args, c)) });
         } catch (e) {
-          const conhecido = /^(tempo_esgotado|composio_falhou|composio_resposta_invalida|download_falhou|download_vazio|download_incompleto|md5_diferente_do_drive|drive_sem_url|arquivo_grande_demais|ffmpeg_falhou|pdfinfo_falhou)$/.test(e?.message);
+          const conhecido = /^(tempo_esgotado|docx_invalido|composio_falhou|composio_resposta_invalida|download_falhou|download_vazio|download_incompleto|md5_diferente_do_drive|drive_sem_url|arquivo_grande_demais|ffmpeg_falhou|pdfinfo_falhou)$/.test(e?.message);
           return responder({ ok: false, erro: conhecido ? e.message : 'falha_na_ferramenta' });
         }
       },
@@ -33,7 +33,7 @@ export function criarFerramentasLeitura({ leitura, abrir, ligado, raiz = RAIZ_SO
   };
 
   ferramenta('aurora_ler_arquivo', 'Ler arquivo (PDF, Doc, planilha, imagem, áudio, vídeo)',
-    `Só leitura. Lê um arquivo como ele é: do Drive da SonoraMente (ID ou link; Docs, Planilhas e Apresentações são exportados) ou um anexo do WhatsApp que o time mandou nesta conversa (caminho em "[anexo guardado: …]"). Devolve o texto exato (PDF/Doc/planilha/texto) e a leitura do Gemini sobre o arquivo nativo (PDF, imagem, áudio, vídeo), respondendo à pergunta. Limites: PDF ${LIMITES.pdf_mb} MB, imagem ${LIMITES.imagem_mb} MB, áudio ${LIMITES.audio_min} min, vídeo ${LIMITES.video_min} min, texto ${LIMITES.texto_por_resposta} caracteres por chamada. Word/Excel/PowerPoint fora do Google: peça PDF.`,
+    `Só leitura. Lê um arquivo como ele é: do Drive da SonoraMente (ID ou link; Docs, Planilhas e Apresentações são exportados) ou um anexo do WhatsApp que o time mandou nesta conversa (caminho em "[anexo guardado: …]"). Devolve o texto exato (PDF/Doc/planilha/texto) e a leitura do Gemini sobre o arquivo nativo (PDF, imagem, áudio, vídeo), respondendo à pergunta. Limites: PDF ${LIMITES.pdf_mb} MB, imagem ${LIMITES.imagem_mb} MB, áudio ${LIMITES.audio_min} min, vídeo ${LIMITES.video_min} min, texto ${LIMITES.texto_por_resposta} caracteres por chamada. Word (.docx) do Drive: só o texto. Excel/PowerPoint fora do Google: peça PDF.`,
     { origem: z.string().min(10).max(500).describe('ID do Drive, link do Drive/Docs ou caminho do anexo do WhatsApp'),
       tem_dado_de_paciente: z.boolean().describe('true se o arquivo pode ter nome, caso, diagnóstico, laudo, relatório ou qualquer dado de paciente ou família. Com true, a leitura fica só local (texto exato), sem Gemini.'),
       pergunta: z.string().max(LIMITES.pergunta).optional().describe('O que você quer saber do arquivo. Vazio = leitura fiel completa.'),

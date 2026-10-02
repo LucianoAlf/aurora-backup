@@ -1,3 +1,4 @@
+import zlib from 'node:zlib';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
@@ -5,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { createGemini, gastoDoDia, instrucao, lerChave, MODELO, parteDoArquivo, TETO_DIA } from '../src/gemini.mjs';
-import { anexoPermitido, createArvore, createLeitura, EXCLUIDAS, origemDe, RAIZ_SONORAMENTE, tipoDe } from '../src/leitura.mjs';
+import { anexoPermitido, createArvore, createLeitura, docxParaTexto, EXCLUIDAS, origemDe, RAIZ_SONORAMENTE, tipoDe } from '../src/leitura.mjs';
 import { composioLeitura } from '../src/composio.mjs';
 import { criarFerramentasLeitura } from '../src/ferramentas-leitura.mjs';
 import { abrirCarimbo } from '../src/security.mjs';
@@ -268,4 +269,23 @@ test('ferramentas: carimbo do time obrigatório, conversa vem do carimbo, só le
 test('bloqueios do Drive: Pacientes, Financeiro e Planilhas fora; Equipe e Reuniões liberadas (Alf, 2026-10-02)', () => {
   assert.deepEqual([...EXCLUIDAS.values()].sort(), ['04 Pacientes', '05 Financeiro', '09 Planilhas Sonora']);
   assert.ok(!EXCLUIDAS.has('1eFWPqGkbdSDSxCJ_eLFUJjkdRWTR_LY3') && !EXCLUIDAS.has('14h7z8lSwVZPtj--2SIjbZd55lH8B4D49'));
+});
+
+// Zip mínimo com uma entrada (deflate), do jeito que o Word grava.
+function zipCom(nome, conteudo) {
+  const dado = zlib.deflateRawSync(Buffer.from(conteudo));
+  const n = Buffer.from(nome);
+  const local = Buffer.alloc(30); local.writeUInt32LE(0x04034b50, 0); local.writeUInt16LE(8, 8); local.writeUInt32LE(dado.length, 18); local.writeUInt16LE(n.length, 26);
+  const cd = Buffer.alloc(46); cd.writeUInt32LE(0x02014b50, 0); cd.writeUInt16LE(8, 10); cd.writeUInt32LE(dado.length, 20); cd.writeUInt16LE(n.length, 28); cd.writeUInt32LE(0, 42);
+  const ini = 30 + n.length + dado.length;
+  const fim = Buffer.alloc(22); fim.writeUInt32LE(0x06054b50, 0); fim.writeUInt16LE(1, 8); fim.writeUInt16LE(1, 10); fim.writeUInt32LE(46 + n.length, 12); fim.writeUInt32LE(ini, 16);
+  return Buffer.concat([local, n, dado, cd, n, fim]);
+}
+
+test('docx: texto local com parágrafos, tab e entidades; zip quebrado e inflado recusados', () => {
+  const xml = '<w:document><w:body><w:p><w:r><w:t>Reunião &amp; pauta</w:t></w:r></w:p><w:p><w:r><w:t>Item</w:t><w:tab/><w:t>1</w:t><w:br/><w:t>fim</w:t></w:r></w:p></w:body></w:document>';
+  assert.equal(docxParaTexto(zipCom('word/document.xml', xml)), 'Reunião & pauta\nItem\t1\nfim');
+  assert.throws(() => docxParaTexto(Buffer.from('nao e zip')), /docx_invalido/);
+  assert.throws(() => docxParaTexto(zipCom('outro.xml', xml)), /docx_invalido/);
+  assert.throws(() => docxParaTexto(zipCom('word/document.xml', 'a'.repeat(25 * 1024 * 1024))), /texto_grande_demais/);
 });
