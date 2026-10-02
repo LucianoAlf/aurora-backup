@@ -379,7 +379,7 @@ export function createLeitura({ composio, arvore, gemini, raizAnexos, pastaSaida
         const tipo = tipoDe(a.real);
         if (!tipo) return { ok: false, erro: 'tipo_nao_suportado', dica: 'Leio PDF, imagem, áudio, vídeo e texto. Word/Excel/PowerPoint: peça a versão em PDF ou Google Docs.' };
         if (fs.statSync(a.real).size > LIM[tipo] * MB) return { ok: false, erro: 'arquivo_grande_demais', limite_mb: LIM[tipo] };
-        const r = await analisar({ arquivo: a.real, nome: path.basename(a.real), tipo, pergunta, visual, inicio, avisos, paciente });
+        const r = await analisar({ arquivo: a.real, nome: `anexo do WhatsApp${path.extname(a.real)}`, tipo, pergunta, visual, inicio, avisos, paciente });
         if (r.ok === false) return r;
         return { ok: true, origem: { anexo_whatsapp: path.basename(a.real) }, md5: crypto.createHash('md5').update(fs.readFileSync(a.real)).digest('hex'), ...r,
           avisos: avisos.length ? avisos : undefined, limites: LIMITES };

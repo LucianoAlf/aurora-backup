@@ -74,22 +74,25 @@ export function createGemini({ envFile, ledger, teto = TETO_DIA, fetchImpl = fet
         ...(tipo === 'pdf' ? { plugins: [{ id: 'file-parser', pdf: { engine: 'native' } }] } : {}),
       };
       const t0 = Date.now();
-      let r; let d;
-      try {
-        r = await fetchImpl(OPENROUTER, { method: 'POST', redirect: 'error', signal: AbortSignal.timeout(timeoutMs),
-          headers: { Authorization: `Bearer ${chave}`, 'Content-Type': 'application/json', 'X-Title': 'aurora-ler-arquivo' }, body: JSON.stringify(corpo) });
-        d = await r.json();
-      } catch { return { ok: false, erro: 'leitor_rede_falhou', dica: 'Custo incerto: não repita em seguida.' }; }
-      const custo = Number(d?.usage?.cost || 0);
-      fs.mkdirSync(path.dirname(ledger), { recursive: true, mode: 0o700 });
-      fs.appendFileSync(ledger, `${JSON.stringify({ dia: hojeUtc(agora()), em: agora().toISOString(), tipo, http: r.status, custo_usd: custo, modelo: d?.model ?? null })}\n`, { mode: 0o600 });
+      let r; let d; let escolha; let custo = 0;
+      // O filtro de segurança do Gemini dá falso positivo às vezes (smoke 02/10: o mesmo áudio passou e foi barrado
+      // em chamadas seguidas; bloqueio custa 0). Uma nova tentativa antes de desistir.
+      for (let tentativa = 0; tentativa < 2; tentativa += 1) {
+        try {
+          r = await fetchImpl(OPENROUTER, { method: 'POST', redirect: 'error', signal: AbortSignal.timeout(timeoutMs),
+            headers: { Authorization: `Bearer ${chave}`, 'Content-Type': 'application/json', 'X-Title': 'aurora-ler-arquivo' }, body: JSON.stringify(corpo) });
+          d = await r.json();
+        } catch { return { ok: false, erro: 'leitor_rede_falhou', dica: 'Custo incerto: não repita em seguida.' }; }
+        custo += Number(d?.usage?.cost || 0);
+        fs.mkdirSync(path.dirname(ledger), { recursive: true, mode: 0o700 });
+        fs.appendFileSync(ledger, `${JSON.stringify({ dia: hojeUtc(agora()), em: agora().toISOString(), tipo, http: r.status, custo_usd: Number(d?.usage?.cost || 0), modelo: d?.model ?? null })}\n`, { mode: 0o600 });
+        escolha = d?.choices?.[0];
+        const filtro = r.ok && (/SAFETY|blocked/i.test(String(d?.error?.message || '')) || escolha?.finish_reason === 'content_filter');
+        if (!filtro) break;
+        if (tentativa === 1) return { ok: false, erro: 'leitor_bloqueado_pelo_filtro', dica: 'O filtro do Gemini recusou este arquivo. Use o texto exato, se houver, ou peça um resumo por escrito.' };
+      }
       if (r.status === 402 || r.status === 403) return { ok: false, erro: 'leitor_sem_saldo_na_chave', dica: 'A chave de leitura bateu o teto mensal: avise o Alf.' };
       if (!r.ok) return { ok: false, erro: `leitor_http_${r.status}` };
-      const escolha = d?.choices?.[0];
-      // Filtro de segurança do Gemini (às vezes falso positivo): vem como erro no corpo 200 ou finish content_filter.
-      if (/SAFETY|blocked/i.test(String(d?.error?.message || '')) || escolha?.finish_reason === 'content_filter') {
-        return { ok: false, erro: 'leitor_bloqueado_pelo_filtro', dica: 'O filtro do Gemini recusou este arquivo. Use o texto exato, se houver, ou peça um resumo por escrito.' };
-      }
       if (d?.error) return { ok: false, erro: 'leitor_erro_do_provedor' };
       const resposta = String(escolha?.message?.content || '').trim();
       if (!String(d?.model || '').startsWith(MODELO)) return { ok: false, erro: 'leitor_modelo_diferente' };
