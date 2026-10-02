@@ -184,6 +184,7 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 - `acolhimento-leads`: quem é → acolher → registrar lead → triagem → Serjão → perdido/follow-up.
 - `consultas-da-equipe`: agenda, pacotes, recesso, financeiro de família e leads, com o escopo aplicado pelas próprias ferramentas.
 - `pesquisa-conteudo`: Tavily/Firecrawl + leitores Gemini para conteúdo público, sem dado de paciente.
+- `ler-arquivos`: lê PDF, Doc, planilha, apresentação, áudio, vídeo e foto do Drive da SonoraMente ou anexo do time antes de responder.
 - `pipeline-instagram`: meta semanal 3 carrosséis + 1 Reel; Serjão escolhe, Aurora escreve, Bianca aprova, Serjão + Marketing produzem e publicam.
 - `pipeline-ponte-sonora`: radar, pauta, roteiro e texto com a Bianca; aprovado segue ao Alfredo para imagens e página; link, ajuste (`com_alfredo`) e ok da página (`liberada`, só a Bianca). Status `previa_enviada` e `liberada` desde 2026-10-02.
 
@@ -194,6 +195,16 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 - **Encaminhamento fechado:** `aurora_conteudo_encaminhar` envia somente para Bianca ou Serjão. Só Bianca aprova/reprova; Serjão ou Alf marcam publicada.
 - **Cadência Instagram:** 3 carrosséis + 1 Reel por semana. Dias-base: terça, quinta e sábado (carrosséis), sexta (Reel), ajustáveis pelo Serjão conforme Insights.
 - **Produção:** a Aurora não cria arte/vídeo nem publica. Serjão fecha com o Marketing; a Bianca valida tema e redação.
+
+## Leitura de arquivos (`aurora-pesquisa` 0.2.0, desde 2026-10-02)
+
+- **O que é:** `aurora_ler_arquivo`, `aurora_drive_buscar` e `aurora_drive_listar`. Adaptação do `mike_ler_arquivo` (Mike, `mike-producao` 0.6.0). Só Alf, Anne, Bianca e Serjão, pelo carimbo (`aurora-carimbo` 0.5.0, campo `solicitante`). São leitura: rodam mesmo em sombra; escrita continua igual.
+- **Drive:** a conexão Google do Composio da Aurora é a conta **pessoal do Alf** (`googledrive_beacon-bes`, `lucianoalf.la@gmail.com`), que enxerga o Drive inteiro dele. Por isso a leitura fica presa à árvore da pasta **SonoraMente** (`1Ic0AcPz-WVssGQXMtRqJ-m9VSWXP7tc3`), sem descer em `04 Pacientes`, `05 Financeiro`, `09 Planilhas Sonora` (incidente LGPD de 24/09), `03 Equipe` e `Reuniões`. Atalho só vale se o alvo também estiver dentro. A árvore fica em `~/.hermes/leituras/arvore-sonoramente.json` (6 h; pasta nova força atualização). Composio só com `GOOGLEDRIVE_FIND_FILE`, `GET_FILE_METADATA` e `DOWNLOAD_FILE`.
+- **Como lê:** baixa pela API autenticada (Docs → texto + PDF; Planilhas → CSV da 1ª aba + PDF; Apresentações → PDF), confere md5 com o Drive, extrai o texto exato por página (`pdftotext -layout`) e manda o arquivo **nativo** ao Gemini 3.7 Flash via OpenRouter (sem fallback, `data_collection: deny`; áudio mp3 mono, vídeo 480p/2 fps). Limites: PDF 40 MB (visual 24 MB), imagem 20 MB, áudio 60 min, vídeo 20 min, envio 24 MB, texto 30 mil caracteres por chamada.
+- **Dado de paciente:** campo obrigatório `tem_dado_de_paciente`. Com `true`, nada vai ao Gemini: PDF/Doc/planilha só com texto exato local; áudio, imagem e vídeo são recusados.
+- **Anexos do WhatsApp:** a ponte 0.6.0 guarda o original do que o **time** manda (PDF, áudio, imagem, vídeo) em `~/.hermes/cache/anexos/aurora-<hash16 da conversa>-<id>.<ext>` (600, 72 h, download em segundo plano) e põe `[anexo guardado: …]` no corpo. A ferramenta só lê anexo cujo hash bate com a conversa do carimbo. Família e desconhecido: nada novo é guardado (PDF segue virando texto local de 10 páginas, áudio segue com a transcrição da Central).
+- **Custo:** chave de `~/.hermes/pesquisa.env` (teto mensal US$ 5 da chave, dividido com o leitor de Instagram). Teto diário daqui: 60 leituras ou US$ 1 (`~/.hermes/leituras/gasto.jsonl`). Kill switch: `~/.hermes/pesquisa.enabled` (o mesmo da pesquisa).
+- **Skill:** `ler-arquivos`.
 
 ## Próximas (plano em `CHECKPOINT.md`)
 - Caixa novo no modelo da Sol.

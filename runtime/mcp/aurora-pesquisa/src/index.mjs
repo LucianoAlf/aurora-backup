@@ -4,7 +4,11 @@ import fs from 'node:fs';
 import { McpServer } from '@modelcontextprotocol/server';
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import * as z from 'zod/v4';
-import { linkInstagram, linkYoutube, podeMarcar, QUEM_PODE, quemPediu, STATUS, urlPublica } from './security.mjs';
+import { abrirCarimbo, linkInstagram, linkYoutube, podeMarcar, QUEM_PODE, quemPediu, STATUS, urlPublica } from './security.mjs';
+import { composioLeitura } from './composio.mjs';
+import { createGemini } from './gemini.mjs';
+import { createArvore, createLeitura } from './leitura.mjs';
+import { registrarLeitura } from './ferramentas-leitura.mjs';
 
 const ENABLED = process.env.PESQUISA_ENABLED_FILE || '/home/aurora/.hermes/pesquisa.enabled';
 const SCRIPT = process.env.PESQUISA_SCRIPT || new URL('../scripts/pesquisa.py', import.meta.url).pathname;
@@ -55,7 +59,7 @@ function ferramenta(server, nome, titulo, descricao, campos, montar, timeoutMs) 
   });
 }
 
-const server = new McpServer({ name: 'aurora-pesquisa', version: '0.1.0' });
+const server = new McpServer({ name: 'aurora-pesquisa', version: '0.2.0' });
 
 ferramenta(server, 'aurora_pesquisa_web', 'Pesquisar estudos e artigos na web',
   'Busca pública com fontes (Tavily). Use para estudos, artigos, notícias e leis. Devolve títulos, URLs e trechos; cite a URL de cada afirmação.',
@@ -136,5 +140,26 @@ pautaTool('aurora_conteudo_encaminhar', 'Encaminhar pauta ou texto para Bianca o
     const enviado = String(j.messageId || '').startsWith('aurora-');
     return { ok: Boolean(j.success) && enviado, para, enviado, erro: enviado ? undefined : 'nao_saiu_ao_vivo' };
   });
+
+// Leitura de arquivos (2026-10-02): Drive da SonoraMente e anexos de WhatsApp do time. Só leitura.
+// Falha aqui não derruba a pesquisa: as ferramentas de leitura só não aparecem.
+try {
+  const HOME = process.env.HOME || '/home/aurora';
+  const pastaLeituras = process.env.LEITURA_DIR || `${HOME}/.hermes/leituras`;
+  fs.mkdirSync(pastaLeituras, { recursive: true, mode: 0o700 });
+  const pastaAnexos = process.env.ANEXOS_DIR || `${HOME}/.hermes/cache/anexos`;
+  fs.mkdirSync(pastaAnexos, { recursive: true, mode: 0o700 });
+  const composioDrive = composioLeitura({ bin: process.env.COMPOSIO_BIN || 'composio', conta: process.env.AURORA_DRIVE_COMPOSIO_ACCOUNT || '' });
+  const arvore = createArvore({ composio: composioDrive, cacheFile: `${pastaLeituras}/arvore-sonoramente.json` });
+  arvore.carregar().catch(() => {}); // aquece a árvore de pastas da SonoraMente
+  registrarLeitura(server, {
+    leitura: createLeitura({ composio: composioDrive, arvore, raizAnexos: fs.realpathSync(pastaAnexos), pastaSaida: fs.realpathSync(pastaLeituras),
+      gemini: createGemini({ envFile: process.env.CONTENT_READERS_ENV || `${HOME}/.hermes/pesquisa.env`, ledger: `${pastaLeituras}/gasto.jsonl` }) }),
+    abrir: (s) => abrirCarimbo(s),
+    ligado: () => fs.existsSync(ENABLED),
+  });
+} catch (e) {
+  console.error(JSON.stringify({ evento: 'leitura_indisponivel', erro: e?.code || e?.name }));
+}
 
 serveStdio(() => server, { legacy: 'serve' });

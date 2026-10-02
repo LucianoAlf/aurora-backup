@@ -1,5 +1,6 @@
 // Tradução entre a mensagem gravada pela Central (aurora_ponte_puxar) e o contrato da ponte WhatsApp do Hermes.
 import { midiaPermitida } from './midia.mjs';
+import { rotuloAnexo } from './anexos.mjs';
 
 const ROTULO = { imagem: '[imagem recebida]', audio: '[áudio recebido, sem transcrição]', video: '[vídeo recebido]',
   sticker: '[figurinha]', documento: '[documento recebido]' };
@@ -55,6 +56,8 @@ export function paraHermes(m) {
   } else if (m.tipo === 'documento' && m.doc_motivo) {
     body = `${body} (não consegui abrir: ${m.doc_motivo})`;
   }
+  // Anexo do time guardado pela ponte: o caminho vai no corpo para a aurora_ler_arquivo.
+  if (m.anexo) body = `${body}\n${rotuloAnexo(m.anexo)}`;
   // O que a equipe respondeu desde a última mensagem do cliente: sem isso, a Aurora acha que a sugestão
   // dela foi enviada e perde o fio da conversa real.
   const equipe = Array.isArray(m.respostas_equipe) ? m.respostas_equipe.filter((t) => String(t || '').trim()) : [];

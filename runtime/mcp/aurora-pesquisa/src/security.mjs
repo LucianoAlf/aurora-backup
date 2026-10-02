@@ -23,14 +23,21 @@ export function podeMarcar(quem, status) {
   return !QUEM_PODE[status] || QUEM_PODE[status].includes(quem);
 }
 
-// Devolve o nome de quem pediu, ou null. Aceita privado e grupo; o carimbo vem do plugin aurora-carimbo.
-export function quemPediu(token, { keyFile = process.env.AURORA_CARIMBO_KEY_FILE || '/home/aurora/.hermes/aurora-carimbo.key', now = Math.floor(Date.now() / 1000) } = {}) {
-  const m = String(token || '').match(/^(AUR1\.whatsapp\.(?:dm|group)\.([0-9]{6,20})\.[0-9a-f]{16}\.(\d{10}))\.([0-9a-f]{32})$/);
-  if (!m || Math.abs(now - Number(m[3])) > 600) return null;
+// Confere o carimbo do plugin aurora-carimbo e devolve { quem, conversa } (conversa = hash16 do chat), ou null.
+// Só pessoas autorizadas; privado e grupo.
+export function abrirCarimbo(token, { keyFile = process.env.AURORA_CARIMBO_KEY_FILE || '/home/aurora/.hermes/aurora-carimbo.key', now = Math.floor(Date.now() / 1000) } = {}) {
+  const m = String(token || '').match(/^(AUR1\.whatsapp\.(?:dm|group)\.([0-9]{6,20})\.([0-9a-f]{16})\.(\d{10}))\.([0-9a-f]{32})$/);
+  if (!m || Math.abs(now - Number(m[4])) > 600) return null;
   const key = fs.readFileSync(keyFile, 'utf8').trim();
   const esperado = crypto.createHmac('sha256', key).update(m[1]).digest('hex').slice(0, 32);
-  if (!crypto.timingSafeEqual(Buffer.from(esperado), Buffer.from(m[4]))) return null;
-  return AUTORIZADOS.get(m[2]) || null;
+  if (!crypto.timingSafeEqual(Buffer.from(esperado), Buffer.from(m[5]))) return null;
+  const quem = AUTORIZADOS.get(m[2]);
+  return quem ? { quem, conversa: m[3] } : null;
+}
+
+// Devolve o nome de quem pediu, ou null. Aceita privado e grupo; o carimbo vem do plugin aurora-carimbo.
+export function quemPediu(token, opts = {}) {
+  return abrirCarimbo(token, opts)?.quem || null;
 }
 
 export function urlPublica(raw) {

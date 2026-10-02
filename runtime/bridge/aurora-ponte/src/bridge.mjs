@@ -8,6 +8,7 @@ import pg from 'pg';
 import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao, temTranscricao,
   ehReferenciaInstagram, GRUPO_REFERENCIAS_INSTAGRAM, retirarParaEntrega } from './mapear.mjs';
 import { ehPdf, prepararPdf } from './midia.mjs';
+import { caminhoAnexo, deveGuardar, guardarAnexo } from './anexos.mjs';
 
 const arg = (nome, padrao) => { const i = process.argv.indexOf(`--${nome}`); return i > 0 ? process.argv[i + 1] : padrao; };
 const PORTA = Number(arg('port', '3107'));
@@ -63,7 +64,7 @@ async function puxar() {
         modoSugestao.delete(String(m.chat));
       }
       // A Central grava a mensagem antes de baixar a mídia: espera a URL por até 20 s (incidente 26/09, foto do Alf).
-      if ((m.tipo === 'imagem' || m.tipo === 'documento') && !m.midia_url) {
+      if ((m.tipo === 'imagem' || m.tipo === 'documento' || (m.tipo === 'video' && deveGuardar(m))) && !m.midia_url) {
         for (let i = 0; i < 10 && !m.midia_url; i += 1) {
           await new Promise((ok) => setTimeout(ok, 2000));
           const q = await pool.query('SELECT public.aurora_ponte_midia($1::uuid) AS r', [m.mensagem_id]).catch(() => null);
@@ -89,6 +90,14 @@ async function puxar() {
         } catch (e) {
           m.doc_motivo = 'falha ao baixar';
           log('erro_pdf', { codigo: e.code || e.name });
+        }
+      }
+      // Anexo do time: guarda o original para a aurora_ler_arquivo, em segundo plano (não segura a fila).
+      if (deveGuardar(m) && m.midia_url) {
+        const caminho = caminhoAnexo(m);
+        if (caminho) {
+          m.anexo = caminho;
+          guardarAnexo(m, caminho).then((r) => log('anexo', { tipo: m.tipo, ok: r.ok, motivo: r.motivo })).catch(() => log('anexo', { tipo: m.tipo, ok: false }));
         }
       }
       fila.push(paraHermes(m));

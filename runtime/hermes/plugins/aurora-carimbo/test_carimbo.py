@@ -16,6 +16,10 @@ def test_mapa_de_ferramentas():
     assert c.CAMPO["aurora_pesquisa_youtube"] == "solicitante"
     assert "aurora_pesquisa_instagram" not in c.ESCRITA  # leitura: roda mesmo em sombra
     assert c._ferramenta("mcp__aurora_pesquisa__aurora_pauta_atualizar") == "aurora_pauta_atualizar"
+    for n in ("aurora_ler_arquivo", "aurora_drive_buscar", "aurora_drive_listar"):
+        assert c._ferramenta("mcp_aurora_pesquisa_" + n) == n
+        assert c.CAMPO[n] == "solicitante"
+        assert n not in c.ESCRITA  # leitura: sempre liberada, inclusive em sombra
     assert "aurora_conteudo_encaminhar" in c.ESCRITA and "aurora_pauta_listar" not in c.ESCRITA
 
 

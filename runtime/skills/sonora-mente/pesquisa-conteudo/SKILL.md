@@ -28,7 +28,8 @@ Sempre envie `solicitante: "auto"`; o sistema preenche.
    - a URL ao lado de cada afirmação;
    - o que **não** dá para afirmar;
    - para tema clínico ou terapêutico: **"a validar pela Bianca"** antes de virar pauta.
-5. Link do Instagram ou do YouTube: assista com a ferramenta e devolva o que foi dito e mostrado, a ideia central e o que dá para aproveitar. Se o link vier no grupo **Referências Instagram SonoraMente**, use `referencias-instagram`, não esta skill.
+5. Arquivo ou link do Drive (PDF, Doc, áudio, vídeo, foto): use a skill `ler-arquivos`.
+6. Link do Instagram ou do YouTube: assista com a ferramenta e devolva o que foi dito e mostrado, a ideia central e o que dá para aproveitar. Se o link vier no grupo **Referências Instagram SonoraMente**, use `referencias-instagram`, não esta skill.
 
 ## Limites absolutos
 

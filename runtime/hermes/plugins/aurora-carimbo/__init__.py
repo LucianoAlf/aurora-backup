@@ -50,6 +50,9 @@ CAMPO: Dict[str, Optional[str]] = {
     "aurora_pauta_atualizar": "solicitante",
     "aurora_pauta_listar": "solicitante",
     "aurora_conteudo_encaminhar": "solicitante",
+    "aurora_ler_arquivo": "solicitante",  # leitura: Drive da SonoraMente ou anexo do time nesta conversa
+    "aurora_drive_buscar": "solicitante",  # leitura: busca na pasta SonoraMente (sem Pacientes/Financeiro)
+    "aurora_drive_listar": "solicitante",  # leitura: lista pasta da SonoraMente
 }
 
 # Modo sombra: no WhatsApp, as ferramentas de escrita não executam. A intenção vai para a lista de
