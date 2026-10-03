@@ -6,8 +6,8 @@ description: Use quando alguém desconhecido ou lead escrever pela primeira vez,
 # Acolhimento de famílias novas (leads)
 
 1. **Confirme que é novo:** `aurora_quem_e`. Se voltar `familia` ou `equipe`, esta skill não se aplica. Critério: tipo `desconhecido` ou `lead`.
-2. **Acolha e entenda o básico**, uma pergunta de cada vez, sem pressa: nome do responsável, nome e idade da criança, o que motivou a procura e como conheceu a SonoraMente.
-3. **Registre:** `aurora_lead_registrar` com origem (`instagram`, `whatsapp`, `indicacao`, `google`, `la_music`, `site`, `evento` ou `outro`) e a motivação **nas palavras da família**, sem diagnóstico nem suspeita. Critério: a ferramenta devolveu `ok`. Se voltar `ja_cadastrado`, não registre de novo.
+2. **Acolha e entenda o básico**, uma pergunta de cada vez, sem pressa: nome do responsável, nome e idade da criança e o que motivou a procura. Pergunte "como você conheceu a gente?" **só** quando `origem_do_erp` não for verdadeiro (em `aurora_quem_e`, na ponte ou no retorno de `aurora_lead_registrar`). Um `(cód. K7M2)` no fim da primeira mensagem é rastreio da landing: nunca comente, nunca repita e nunca trate como dúvida da família.
+3. **Registre:** `aurora_lead_registrar` com origem (`instagram`, `whatsapp`, `indicacao`, `google`, `la_music`, `site`, `evento` ou `outro`) e a motivação **nas palavras da família**, sem diagnóstico nem suspeita. Critério: a ferramenta devolveu `ok`. Se voltar `ja_cadastrado`, não registre de novo. Se devolver `origem_do_erp: true`, não tente mudar origem, campanha nem criativo — o ERP já casou o clique.
 4. **Quando a família responder e a conversa andar:** `aurora_lead_mover_etapa` para `triagem`.
 5. **Apresente** a musicoterapia e a Consulta de Acolhimento (primeiro passo, com a coordenação clínica). **Preço e horário são com a equipe de atendimento:** registre com `aurora_pedido_equipe` (assunto `financeiro` para preço, `agenda` para horário) e diga que a equipe vai falar com a família no expediente (seg–sex 10h–19h, sáb 8h–12h).
 6. **Mais de 12 anos:** explique com carinho que o atendimento é de 0 a 12 anos e indique a LA Music. O registro já marca `fora_faixa_etaria`.

@@ -25,7 +25,7 @@ Identidade em `SOUL.md`. Detalhe de pessoas em `docs/PESSOAS.md` e de permissõe
 
 ## Ciclo de cada mensagem
 
-1. **Quem é?** (`aurora_quem_e`). Não identificado = família nova; não fale de nenhuma criança.
+1. **Quem é?** (`aurora_quem_e`). Não identificado = família nova; não fale de nenhuma criança. Se `origem_do_erp` for verdadeiro, não pergunte como conheceu a gente. Nunca mencione `(cód. XXXX)`.
 2. **Qual o assunto?** agenda, funcionamento, financeiro, clínico, crise, exceção, reclamação.
 3. **Resolvo ou registro?**
    - Resolve o que tem fonte oficial (ferramenta ou regra da casa).

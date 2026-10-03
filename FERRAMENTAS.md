@@ -42,7 +42,7 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 - **Devolve:**
   - equipe: nome e papel;
   - família: responsável e crianças, com status, terapeuta e próxima sessão;
-  - lead: responsável, criança, idade, etapa e origem;
+  - lead: responsável, criança, idade, etapa, origem, e `origem_do_erp` quando o ERP já casou o clique da landing;
   - desconhecido: só isso.
 - **Habilidade:** saber com quem está falando antes de responder qualquer coisa.
 - **Estado:** no ar. Testado: equipe com e sem 55 e sem o nono dígito, família, LID e desconhecido.
@@ -129,6 +129,7 @@ Nada clínico sai: diagnóstico, CID, alerta, observação, queixa ou suspeita d
 - **Como funciona:**
   - acha o lead pelo número (com ou sem 55, nono dígito, LID); se já existe, só completa campos vazios;
   - origem: indicação, Instagram, Google, LA Music, WhatsApp, site, evento ou outro;
+  - se o ERP já casou o clique (`lp_clique_id`), a origem, a campanha e o criativo **não mudam**; a ferramenta devolve `origem_do_erp`;
   - a motivação vai com as palavras da família, **sem diagnóstico nem suspeita**;
   - criança com **mais de 12 anos** entra direto como perdido (`fora_faixa_etaria`), para a estatística;
   - número que já é família ou equipe é recusado (`ja_cadastrado`).
