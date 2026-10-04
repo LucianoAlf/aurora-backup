@@ -171,3 +171,5 @@ onboarding:
     openclaw_residue_cleanup: true
     profile_build_offered: true
   profile_build: 'off'
+cron:
+  wrap_response: false
