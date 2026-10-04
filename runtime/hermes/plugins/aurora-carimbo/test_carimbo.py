@@ -85,6 +85,31 @@ def test_pedido_equipe_carimba_e_respeita_sombra():
     assert r["action"] == "modify" and r["args"]["remetente"].startswith("AUR1.whatsapp.dm.5521900000001.")
 
 
+def test_sombra_com_middleware_devolve_sucesso_sem_chamar_a_ferramenta():
+    c._sessao = lambda: {"PLATFORM": "whatsapp", "USER_ID": "5521900000001@s.whatsapp.net", "CHAT_ID": "5521900000001@s.whatsapp.net", "CHAT_TYPE": "dm"}
+    c._liberado = lambda chat: False
+    for registrado in (True, False):
+        reg = []
+        c._registrar_acao_sombra = lambda nome, args, chat, r=registrado: reg.append(nome) or r
+        chamou = []
+        out = c._middleware_sombra("mcp__aurora_write__aurora_pedido_equipe", {"remetente": "auto", "assunto": "financeiro"}, lambda a: chamou.append(a))
+        assert chamou == [] and reg == ["aurora_pedido_equipe"]
+        assert ('"ok": true' in out) == registrado and ("erro" in out) != registrado
+    # conversa liberada ou leitura: segue para a ferramenta (o carimbo entra depois)
+    passou = []
+    c._liberado = lambda chat: True
+    c._middleware_sombra("mcp__aurora_write__aurora_pedido_equipe", {"remetente": "auto"}, lambda a: passou.append(a))
+    c._liberado = lambda chat: False
+    c._middleware_sombra("mcp__aurora_read__aurora_quem_e", {"identificador": "auto"}, lambda a: passou.append(a))
+    assert len(passou) == 2
+    # se algo escapar do middleware, o carimbo troca o remetente por um marcador que o banco recusa
+    c._MIDDLEWARE_ATIVO = True
+    c._registrar_acao_sombra = lambda nome, args, chat: True
+    r = c._on_pre_tool_call("mcp__aurora_write__aurora_pedido_equipe", {"remetente": "auto", "assunto": "financeiro", "resumo": "x"})
+    assert r == {"action": "modify", "args": {"remetente": c.SOMBRA_OK}} and not c.SOMBRA_OK.startswith("AUR1.")
+    c._MIDDLEWARE_ATIVO = False
+
+
 if __name__ == "__main__":
     for n, f in list(globals().items()):
         if n.startswith("test_"):

@@ -1,6 +1,6 @@
 ---
 name: pipeline-instagram
-description: Use quando Serjão, Bianca, Alf ou Anne falarem de pauta, carrossel, post, copy ou aprovação de conteúdo do Instagram da SonoraMente.
+description: Use quando Serjão, Bianca, Alf ou Anne falarem de pauta, carrossel, post, copy ou aprovação de conteúdo do Instagram do SonoraMente.
 ---
 
 # Pipeline de conteúdo do Instagram — SonoraMente
@@ -21,7 +21,7 @@ A Aurora **não** faz arte e **não** publica. Controle: planilha "Pautas de Con
    - legenda com convite coerente (salvar, comentar ou chamar no WhatsApp; um só);
    - fontes no fim.
 
-   Use a voz da SonoraMente: acolhedora, clara, sem jargão, sem promessa terapêutica, sem "comprova" quando o estudo não comprova. Sem cara de IA: nada de "não é X, é Y", travessão em excesso, frase de efeito vazia ou três adjetivos seguidos. Guarde a versão com `aurora_pauta_atualizar` (`texto`).
+   Use a voz do SonoraMente: acolhedora, clara, sem jargão, sem promessa terapêutica, sem "comprova" quando o estudo não comprova. Sem cara de IA: nada de "não é X, é Y", travessão em excesso, frase de efeito vazia ou três adjetivos seguidos. Guarde a versão com `aurora_pauta_atualizar` (`texto`).
    Para **Reel**, entregue: gancho dos 2 primeiros segundos, cenas/plano de gravação, fala ou narração, texto na tela, legenda, CTA e fontes. Não prometa resultado e não use paciente real.
 4. **Bianca.** Envie com `aurora_conteudo_encaminhar` (`para: bianca`) uma mensagem que se sustenta sozinha: o ID da pauta, o tema, o texto por slide e a pergunta "Aprova, ajusta ou reprova?". Marque `com_bianca`.
 5. **Resposta da Bianca**, no privado dela:

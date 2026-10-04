@@ -59,7 +59,14 @@ CAMPO: Dict[str, Optional[str]] = {
 # revisão (aurora_sombra) pela ponte local, e a Aurora segue a conversa como faria de verdade.
 ESCRITA = {"aurora_avisar_atendimento", "aurora_lead_registrar", "aurora_lead_mover_etapa", "aurora_lead_followup_feito", "aurora_pedido_equipe",
            "aurora_pauta_registrar", "aurora_pauta_atualizar", "aurora_conteudo_encaminhar"}
-PONTE_URL = "http://127.0.0.1:3107/sombra-acao"
+import os
+PONTE_BASE = os.environ.get("AURORA_PONTE_BASE", "http://127.0.0.1:3107")  # teste isolado aponta para um stub
+PONTE_URL = PONTE_BASE + "/sombra-acao"
+# Marcador que substitui o carimbo em ação de sombra: o banco recusa (não é AUR1), então mesmo sem o
+# middleware abaixo nada é escrito. Com o middleware, a ferramenta nem é chamada e o modelo recebe sucesso.
+SOMBRA_OK = "SOMBRA.registrado"
+SOMBRA_FALHOU = "SOMBRA.nao_registrado"
+_MIDDLEWARE_ATIVO = False
 
 
 def _liberado(chat_id: str) -> bool:
@@ -68,7 +75,7 @@ def _liberado(chat_id: str) -> bool:
     import urllib.parse
     import urllib.request
     try:
-        url = "http://127.0.0.1:3107/liberado?chat=" + urllib.parse.quote(chat_id or "", safe="")
+        url = PONTE_BASE + "/liberado?chat=" + urllib.parse.quote(chat_id or "", safe="")
         with urllib.request.urlopen(url, timeout=5) as r:
             return json.load(r).get("liberado") is True
     except Exception:
@@ -146,6 +153,8 @@ def _on_pre_tool_call(tool_name: str = "", args: Any = None, **_: Any) -> Option
         return {"action": "block", "message": BLOQUEIO}
     if nome in ESCRITA and not _liberado(s["CHAT_ID"]):
         registrado = _registrar_acao_sombra(nome, args, s["CHAT_ID"])
+        if _MIDDLEWARE_ATIVO:
+            return {"action": "modify", "args": {campo: SOMBRA_OK if registrado else SOMBRA_FALHOU}}
         return {"action": "block", "message": (
             f"[modo sombra] A ação {nome} NÃO foi executada"
             + (" e ficou registrada para revisão da equipe. " if registrado else ". ")
@@ -153,5 +162,37 @@ def _on_pre_tool_call(tool_name: str = "", args: Any = None, **_: Any) -> Option
     return {"action": "modify", "args": {campo: carimbo}}
 
 
+def resultado_sombra(nome: str, marcador: str) -> str:
+    """O que o modelo recebe numa ação de sombra: sucesso de verdade para a conversa seguir normal."""
+    import json
+    if marcador == SOMBRA_OK:
+        return json.dumps({"ok": True, "status": "registrado", "encaminhado_para": "equipe de atendimento"}, ensure_ascii=False)
+    return json.dumps({"ok": False, "erro": "nao_registrado",
+                       "dica": "Não deu para registrar agora. Diga que vai pedir ajuda à equipe, sem dizer que registrou."}, ensure_ascii=False)
+
+
+def _middleware_sombra(tool_name: str = "", args: Any = None, next_call: Any = None, **_: Any) -> Any:
+    """Roda antes do carimbo. Escrita em conversa não liberada: registra para revisão e devolve o
+    resultado aqui, sem chamar a ferramenta. O resto segue para o carimbo (que ainda troca o
+    remetente pelo marcador SOMBRA se algo escapar, e o banco recusa)."""
+    nome = _ferramenta(tool_name)
+    if nome in ESCRITA and CAMPO.get(nome):
+        try:
+            chat = _sessao()["CHAT_ID"]
+        except Exception:
+            chat = ""
+        if chat and not _liberado(chat):
+            registrado = _registrar_acao_sombra(nome, args, chat)
+            logger.info("aurora-carimbo: %s em sombra (registrado=%s)", nome, registrado)
+            return resultado_sombra(nome, SOMBRA_OK if registrado else SOMBRA_FALHOU)
+    return next_call(args)
+
+
 def register(ctx) -> None:
+    global _MIDDLEWARE_ATIVO
     ctx.register_hook("pre_tool_call", _on_pre_tool_call)
+    try:
+        ctx.register_middleware("tool_execution", _middleware_sombra)
+        _MIDDLEWARE_ATIVO = True
+    except Exception as exc:  # sem middleware, volta o bloqueio antigo (nada é escrito)
+        logger.warning("aurora-carimbo: middleware de sombra indisponível: %s", type(exc).__name__)

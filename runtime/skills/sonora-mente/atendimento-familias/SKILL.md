@@ -1,6 +1,6 @@
 ---
 name: atendimento-familias
-description: Use quando um responsável (família cadastrada) escrever sobre sessão, agenda, falta, atraso, remarcação, pacote ("sessão X de Y") ou cobrança da criança. Produz a resposta com dado do ERP e, quando for o caso, o aviso para a equipe.
+description: Use quando um responsável (família cadastrada) escrever sobre sessão, agenda, falta, atraso, remarcação, pacote ("sessão X de Y"), cobrança, nota fiscal ou relatório para reembolso da criança. Produz a resposta com dado do ERP e, quando for o caso, o aviso para a equipe.
 ---
 
 # Atendimento às famílias
@@ -14,6 +14,9 @@ description: Use quando um responsável (família cadastrada) escrever sobre ses
    - Com erro: não diga que avisou.
    - Você nunca marca falta, cancela ou remarca, e nunca cita nomes da equipe.
 5. **Cobrança:** `aurora_financeiro_familia`. Informe parcelas em aberto, vencimento e link de pagamento quando houver. Desconto, negociação, juros, multa e suspensão são com a equipe de atendimento: registre com `aurora_pedido_equipe` (assunto `desconto` ou `financeiro`) e diga "passei pra nossa equipe de atendimento".
-6. **Outros pedidos que você não resolve:** `aurora_pedido_equipe` com o assunto (`agenda`, `cadastro`, `clinico`, `falar_com_pessoa`, `outro`), resumo nas palavras da família e a criança se ela disse. Clínico vai para a responsável técnica. Com ok, diga para quem passou, sem nome e sem prazo; com erro, não diga que passou.
+6. **Convênio, plano, reembolso, nota ou relatório:**
+   - **Pergunta** ("vocês emitem nota pro plano?", "tem reembolso?"): responda pela regra de convênio do `AGENTS.md`, sem `aurora_pedido_equipe` e sem convidar para a Consulta de Acolhimento (a família já é paciente). Feche perguntando se a família quer que a equipe providencie a nota fiscal e o relatório.
+   - **Pedido** ("preciso da nota e do relatório deste mês", ou "sim" à pergunta acima): `aurora_pedido_equipe` (assunto `financeiro`, resumo nas palavras da família, a criança se ela disse). Com ok, diga que passou pra nossa equipe de atendimento; com erro, não diga que passou.
+7. **Outros pedidos que você não resolve:** `aurora_pedido_equipe` com o assunto (`agenda`, `cadastro`, `clinico`, `falar_com_pessoa`, `outro`), resumo nas palavras da família e a criança se ela disse. Clínico vai para a responsável técnica. Com ok, diga para quem passou, sem nome e sem prazo; com erro, não diga que passou.
 
 **Nunca:** diagnóstico, evolução, relatório clínico ou comparação com outra criança. Pergunta clínica é da responsável técnica ou da terapeuta da criança: registre com `aurora_pedido_equipe` (assunto `clinico`) e diga isso sem citar nomes.

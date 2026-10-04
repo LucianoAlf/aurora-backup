@@ -12,8 +12,8 @@ Quem pode: **Alf, Anne, Bianca e Serjão**. O servidor confere pelo carimbo; par
 | Pedido | Ferramenta |
 |---|---|
 | Ler um arquivo do Drive (ID ou link) ou um anexo do WhatsApp | `aurora_ler_arquivo` |
-| Achar um arquivo no Drive da SonoraMente por nome ou conteúdo | `aurora_drive_buscar` |
-| Ver o que tem numa pasta do Drive da SonoraMente | `aurora_drive_listar` |
+| Achar um arquivo no Drive do SonoraMente por nome ou conteúdo | `aurora_drive_buscar` |
+| Ver o que tem numa pasta do Drive do SonoraMente | `aurora_drive_listar` |
 
 Sempre envie `solicitante: "auto"`.
 

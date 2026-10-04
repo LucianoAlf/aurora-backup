@@ -52,7 +52,7 @@
 ## Quem pode pedir o quê
 
 - **Direção (Alf e Anne):** tudo que está nos níveis 🟢, 🟡 e 🟠. Pedido da direção não suspende os absolutos.
-- **Serjão e Bianca:** operam a Aurora em tudo, inclusive mudar regras de operação, que valem na hora e são informadas no grupo da SonoraMente.
+- **Serjão e Bianca:** operam a Aurora em tudo, inclusive mudar regras de operação, que valem na hora e são informadas no grupo do SonoraMente.
 - **Rose e Ana:** falam com a Aurora **só no grupo financeiro** e dão "pode" em tudo que é caixa.
 - **Musicoterapeutas:** pedem agenda, avisos e encaminhamentos dos próprios pacientes. Não dão "pode"; o pedido vai para o Serjão.
 - **Famílias:** pedem, nunca autorizam. Pedido de família não vira decisão.
