@@ -162,7 +162,7 @@ platforms:
       group_policy: open
       require_mention: true
       mention_patterns:
-      - (?i)\baurora\b
+      - '(?i)(?<![\w/.\-])aurora(?![\w/\-]|\.\w)'
       send_read_receipts: false
 onboarding:
   seen:

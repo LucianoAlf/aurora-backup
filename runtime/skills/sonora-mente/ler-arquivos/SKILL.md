@@ -29,6 +29,8 @@ Sempre envie `solicitante: "auto"`.
    - Na dúvida, `true`.
 4. Mande `pergunta` com o que a pessoa quer saber. Sem pergunta, você recebe a leitura fiel completa.
 5. Responda curto, com o que o arquivo diz. Cite página ou minuto quando ajudar. Texto cortado: chame de novo com `inicio = proximo_inicio`.
+6. **Arquivo bloqueado por dado de paciente:** peça o resumo por escrito uma vez só. Vieram vários arquivos em seguida? Uma pergunta para todos, sem repetir a cada arquivo. Pronto quando a equipe respondeu ou mandou outro assunto.
+7. **Grupo do time:** arquivo, vídeo ou áudio sem pedido para você é conversa da equipe. Fique em silêncio. Pronto quando ninguém te chamou pelo nome.
 
 ## Limites
 
