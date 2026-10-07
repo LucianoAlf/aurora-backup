@@ -71,3 +71,13 @@ rm -rf /home/aurora/.hermes/hermes-agent /home/aurora/.hermes/config.yaml /home/
   - "Mãe do Pedrinho" vinda de número novo não recebeu nenhum dado da criança.
   - Com o banco fora do ar, a Aurora não inventa e trata a pessoa como desconhecida.
 - Rollback: tirar `aurora-read` de `platform_toolsets` e de `mcp_servers`, ou restaurar `/root/backups/aurora/config.yaml.pre-mcp-aurora-read-*`.
+
+## Ajustes da sombra (2026-10-07, aprovados pelo Alf) · ponte 0.7.0
+
+- Release `4863d95` (PR #4). `bridge_script` aponta para `/home/aurora/releases/4863d95…/runtime/bridge/aurora-ponte/bridge.mjs`; AGENTS e `acolhimento-leads` instalados (hash igual repo/GitHub/VPS).
+- **Formato:** em privado, a ponte tira o rótulo "Sugestão para a equipe/família:" e as aspas externas antes de gravar ou enviar (log `rotulo_removido`). Grupo fica como veio. AGENTS § "Quando a equipe assume".
+- **Botão `evo_*`** do lembrete de evolução (`aurora-notificacoes`) não acorda a Aurora (log `botao_evolucao_ignorado`). Atenção: nada registra a presença por esse botão desde que o `aurora-responder` foi aposentado (26/09).
+- **Rajada:** em modo sugestão, texto do mesmo privado fica na ponte até 8 s de silêncio (teto 25 s) e vai como uma mensagem só (log `rajada`; `rajadas` no `/health`). Mídia, PDF e anexo fecham a rajada e seguem sozinhos, na ordem. Como a fila, a rajada vive em memória: restart no meio da janela perde o que estava segurado.
+- **Lead de longe:** `acolhimento-leads` passo 6a convida para visita/Consulta de Acolhimento.
+- Prova: 26/26 testes no servidor; ensaio isolado (cópia da ponte com `pg` stub, porta 3199) e CLI do Hermes sem canal.
+- Rollback: `config.yaml.bak-20261007-antes-ajustes`, `AGENTS.md.bak-20261007-antes-ajustes` e `SKILL.md.bak-20261007-antes-ajustes` (acolhimento-leads); release anterior da ponte `ab253be`; reiniciar `hermes-gateway-aurora`.
