@@ -82,6 +82,30 @@ export function paraHermes(m) {
   };
 }
 
+// Botão do lembrete de evolução (aurora-notificacoes: "evo_presente_<uuid>" / "evo_faltou_<uuid>").
+// Quem tratava era o aurora-responder (aposentado em 26/09); a Aurora não deve responder a ele (sombra 01–06/10).
+const BOTAO_EVOLUCAO = /^\s*evo_[a-z]+_[0-9a-f-]{8,}\s*$/i;
+export function ehBotaoEvolucao(m) {
+  return BOTAO_EVOLUCAO.test(String(m?.texto || ''));
+}
+
+// Rótulo interno que às vezes vem na frente da resposta ("Sugestão para a equipe: “…”", sombra 06/10).
+// Em conversa privada a resposta vai para a família ou vira sugestão na Central: sai só a mensagem.
+const ROTULO_SUGESTAO = /^\s*[*_]*\s*sugest(?:ã|a)o(?:\s+de\s+resposta)?\s+(?:para|pra|à|a)\s+(?:a\s+|o\s+)?(?:equipe|fam[ií]lia|atendente|recep[cç][aã]o|respons[aá]vel)\b[^:\n]{0,40}:\s*[*_]*\s*/i;
+const ASPAS = [['“', '”'], ['"', '"'], ['«', '»'], ["'", "'"]];
+export function limparResposta(texto, grupo = false) {
+  const original = String(texto ?? '');
+  if (grupo) return original;
+  let t = original.replace(ROTULO_SUGESTAO, '').trim();
+  for (const [abre, fecha] of ASPAS) {
+    if (t.length > 2 && t.startsWith(abre) && t.endsWith(fecha)) {
+      const miolo = t.slice(abre.length, t.length - fecha.length);
+      if (!miolo.includes(abre) && !miolo.includes(fecha)) { t = miolo.trim(); break; }
+    }
+  }
+  return t || original;
+}
+
 // Avisos do próprio Hermes (progresso de ferramenta, dicas, canal padrão) nunca são mensagem para a família.
 const CHROME = /^\s*(⚙️|📬|⚡|💡|⏳|🔄|🛠️|✅ Steered|⚠️ Hermes)/u;
 export function ehAvisoDoSistema(texto) {
