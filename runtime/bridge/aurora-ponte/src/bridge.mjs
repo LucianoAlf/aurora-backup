@@ -6,7 +6,8 @@ import http from 'node:http';
 import { existsSync, readFileSync } from 'node:fs';
 import pg from 'pg';
 import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao, temTranscricao,
-  ehReferenciaInstagram, GRUPO_REFERENCIAS_INSTAGRAM, retirarParaEntrega } from './mapear.mjs';
+  ehReferenciaInstagram, GRUPO_REFERENCIAS_INSTAGRAM, retirarParaEntrega, ehBotaoEvolucao, limparResposta } from './mapear.mjs';
+import { Rajadas, entraNaRajada } from './rajada.mjs';
 import { ehPdf, prepararPdf } from './midia.mjs';
 import { caminhoAnexo, deveGuardar, guardarAnexo } from './anexos.mjs';
 
@@ -38,6 +39,7 @@ const ultimoDigitando = new Map();
 const modoSugestao = new Map();
 const SUGESTAO_MS = 5 * 60 * 1000;
 const emSugestao = (chat) => (modoSugestao.get(chat) || 0) > Date.now();
+const rajadas = new Rajadas();
 let ultimoPuxar = null;
 let erroSeguido = 0;
 
@@ -52,6 +54,8 @@ async function puxar() {
       if (String(m.chat || '') === GRUPO_REFERENCIAS_INSTAGRAM) {
         if (!existsSync(IG_REF_ENABLED) || !ehReferenciaInstagram(m)) continue;
       }
+      // Botão do lembrete de evolução: não acorda a Aurora (nem resposta, nem sugestão).
+      if (ehBotaoEvolucao(m)) { log('botao_evolucao_ignorado'); continue; }
       const motivo = motivoSilencio(m);
       if (motivo) {
         calada += 1;
@@ -100,6 +104,9 @@ async function puxar() {
           guardarAnexo(m, caminho).then((r) => log('anexo', { tipo: m.tipo, ok: r.ok, motivo: r.motivo })).catch(() => log('anexo', { tipo: m.tipo, ok: false }));
         }
       }
+      if (entraNaRajada(m, motivo)) { rajadas.guardar(m); continue; }
+      const aberta = rajadas.fechar(m.chat);
+      if (aberta) fila.push(paraHermes(aberta));
       fila.push(paraHermes(m));
     }
     if (lista.length) log('entrada', { mensagens: lista.length, calada });
@@ -108,6 +115,10 @@ async function puxar() {
     erroSeguido += 1;
     log('erro_puxar', { codigo: e.code || 'desconhecido', seguidos: erroSeguido });
   } finally {
+    for (const r of rajadas.vencidas()) {
+      fila.push(paraHermes(r));
+      if (r.rajada) log('rajada', { mensagens: r.rajada });
+    }
     setTimeout(puxar, erroSeguido ? Math.min(30000, INTERVALO_MS * 2 ** erroSeguido) : INTERVALO_MS);
   }
 }
@@ -129,7 +140,7 @@ const servidor = http.createServer(async (req, res) => {
   const rota = new URL(req.url, 'http://x').pathname.replace(/^\//, '');
   try {
     if (req.method === 'GET' && rota === 'health') {
-      return responder(res, 200, { status: 'connected', modo: 'chave_no_banco', fila: fila.length, ultimo_puxar: ultimoPuxar, erros_seguidos: erroSeguido,
+      return responder(res, 200, { status: 'connected', modo: 'chave_no_banco', fila: fila.length, rajadas: rajadas.tamanho, ultimo_puxar: ultimoPuxar, erros_seguidos: erroSeguido,
         banco_ok: Boolean(ultimoPuxar && Date.now() - ultimoPuxar.getTime() < 120000), referencia_em_processamento: referenciaEmProcessamento });
     }
     if (req.method === 'GET' && rota === 'messages') {
@@ -150,6 +161,9 @@ const servidor = http.createServer(async (req, res) => {
         log('aviso_sistema_descartado', { rota });
         return responder(res, 200, { success: true, messageId: `descartado-${Date.now()}` });
       }
+      // Sem rótulo "Sugestão para…" nem aspas em volta: sai só a mensagem (privado; grupo fica como veio).
+      const limpa = limparResposta(b.message, String(b.chatId || '').endsWith('@g.us'));
+      if (limpa !== String(b.message ?? '')) { log('rotulo_removido', { rota }); b.message = limpa; }
       // A chave é do banco (aurora_canal_config): conversa não liberada vai para a sombra, liberada sai pela Central.
       if (rota === 'edit') {
         const r = await sombra(String(b.chatId || ''), emSugestao(String(b.chatId || '')) ? 'sugestao' : 'resposta', String(b.message || ''));
