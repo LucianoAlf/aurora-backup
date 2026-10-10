@@ -10,6 +10,7 @@ import { paraHermes, ehAvisoDoSistema, motivoSilencio, geraSugestao, temTranscri
 import { Rajadas, entraNaRajada } from './rajada.mjs';
 import { ehPdf, prepararPdf } from './midia.mjs';
 import { caminhoAnexo, deveGuardar, guardarAnexo } from './anexos.mjs';
+import { criarPorteiro } from './jev-porteiro.mjs';
 
 const arg = (nome, padrao) => { const i = process.argv.indexOf(`--${nome}`); return i > 0 ? process.argv[i + 1] : padrao; };
 const PORTA = Number(arg('port', '3107'));
@@ -42,6 +43,9 @@ const emSugestao = (chat) => (modoSugestao.get(chat) || 0) > Date.now();
 const rajadas = new Rajadas();
 let ultimoPuxar = null;
 let erroSeguido = 0;
+// Jev só observando o rascunho (10/10). Liga/desliga pelo arquivo jev.json; nunca muda o que sai.
+const porteiro = criarPorteiro({ dir: process.env.AURORA_JEV_DIR || '/home/aurora/.hermes' });
+const observarJev = (chat, rascunho, tipo) => { porteiro.observar({ chat, rascunho, tipo }).catch(() => {}); };
 
 async function puxar() {
   try {
@@ -56,6 +60,7 @@ async function puxar() {
       }
       // Botão do lembrete de evolução: não acorda a Aurora (nem resposta, nem sugestão).
       if (ehBotaoEvolucao(m)) { log('botao_evolucao_ignorado'); continue; }
+      porteiro.entrada(m);
       const motivo = motivoSilencio(m);
       if (motivo) {
         calada += 1;
@@ -166,18 +171,22 @@ const servidor = http.createServer(async (req, res) => {
       if (limpa !== String(b.message ?? '')) { log('rotulo_removido', { rota }); b.message = limpa; }
       // A chave é do banco (aurora_canal_config): conversa não liberada vai para a sombra, liberada sai pela Central.
       if (rota === 'edit') {
-        const r = await sombra(String(b.chatId || ''), emSugestao(String(b.chatId || '')) ? 'sugestao' : 'resposta', String(b.message || ''));
+        const tipo = emSugestao(String(b.chatId || '')) ? 'sugestao' : 'resposta';
+        const r = await sombra(String(b.chatId || ''), tipo, String(b.message || ''));
+        observarJev(String(b.chatId || ''), String(b.message || ''), tipo);
         if (String(b.chatId || '') === GRUPO_REFERENCIAS_INSTAGRAM && r?.ok) referenciaEmProcessamento = false;
         return responder(res, 200, { success: true, messageId: `sombra-${r?.id || Date.now()}` });
       }
       if (emSugestao(String(b.chatId || ''))) {
         const r = await sombra(String(b.chatId || ''), 'sugestao', String(b.message || ''));
         log('sugestao', { ok: Boolean(r?.ok) });
+        observarJev(String(b.chatId || ''), String(b.message || ''), 'sugestao');
         return responder(res, 200, { success: true, messageId: `sugestao-${r?.id || Date.now()}` });
       }
       const q = await pool.query('SELECT public.aurora_ponte_enviar($1, $2) AS r', [String(b.chatId || ''), String(b.message || '')]);
       const r = q.rows[0].r || {};
       log(r.enviado ? 'enviado' : 'sombra_resposta', { ok: Boolean(r.ok), erro: r.erro || null });
+      observarJev(String(b.chatId || ''), String(b.message || ''), r.enviado ? 'enviado' : 'resposta');
       if (r.erro && !r.sombra) return responder(res, 500, { success: false, error: r.erro });
       if (String(b.chatId || '') === GRUPO_REFERENCIAS_INSTAGRAM && (r.enviado || r.sombra)) referenciaEmProcessamento = false;
       return responder(res, 200, { success: true, messageId: `${r.enviado ? 'aurora' : 'sombra'}-${r.id || Date.now()}` });

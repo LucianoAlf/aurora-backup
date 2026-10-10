@@ -81,3 +81,11 @@ rm -rf /home/aurora/.hermes/hermes-agent /home/aurora/.hermes/config.yaml /home/
 - **Lead de longe:** `acolhimento-leads` passo 6a convida para visita/Consulta de Acolhimento.
 - Prova: 26/26 testes no servidor; ensaio isolado (cópia da ponte com `pg` stub, porta 3199) e CLI do Hermes sem canal.
 - Rollback: `config.yaml.bak-20261007-antes-ajustes`, `AGENTS.md.bak-20261007-antes-ajustes` e `SKILL.md.bak-20261007-antes-ajustes` (acolhimento-leads); release anterior da ponte `ab253be`; reiniciar `hermes-gateway-aurora`.
+
+## Porteiro Jev em sombra (10/10/2026, ponte 0.8.0)
+
+- O Jev (`typesafe/jev-1.13`, OpenRouter, `X-Title: Aurora`) lê cada rascunho que a Aurora manda para família em conversa privada e anota em `/home/aurora/.hermes/logs/jev-porteiro.jsonl`: `promete_tarefa_da_equipe`, `consentimento_sem_registro`, `vazia_com_assunto_aberto`, `ignora_ou_inventa` ou `ok`, com confiança; mais a trava `curta` (até 4 palavras). `barraria` = curta ou não-ok com confiança >= 0,7.
+- **Só observa.** Não muda o que vai para `aurora_sombra`, Central ou família.
+- **Fora do Jev (Alf, 10/10):** grupo, grupo de referências e conversa de alguém da equipe (`AUTORIZADOS`: Alf, Anne, Bianca, Serjão).
+- Texto vai mascarado (telefone/e-mail). Chave em `/home/aurora/.hermes/jev.env` (`AURORA_JEV_OPENROUTER_KEY`, 600; a mesma da Sol/Maria, ok do Alf). Liga/desliga em `/home/aurora/.hermes/jev.json` (`{"sombra": true}`); sem arquivo = desligado, sem restart.
+- Base: bateria offline de 10/10 com 87 rascunhos reais (Jev >= 0,7 + trava: 30/35 ruins, 4/4 graves; 6/52 bons segurados). Fraqueza conhecida: desconfia de "vou passar para a equipe…".
